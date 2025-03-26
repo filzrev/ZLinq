@@ -26,6 +26,8 @@ public static partial class PlatformDetection
 #endif
 
 #if NET10_0_OR_GREATER
+    public static bool IsSpeedOptimized => IsLinqSpeedOptimized;
+
     public static bool IsLinqSpeedOptimized => !IsLinqSizeOptimized;
     public static bool IsLinqSizeOptimized => s_linqIsSizeOptimized.Value;
     private static readonly Lazy<bool> s_linqIsSizeOptimized = new Lazy<bool>(ComputeIsLinqSizeOptimized);

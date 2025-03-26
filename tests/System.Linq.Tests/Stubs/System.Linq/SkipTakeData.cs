@@ -3,7 +3,7 @@
 
 // Original code: https://github.com/dotnet/runtime/blob/v9.0.3/src/libraries/Common/tests/System/Linq/SkipTakeData.cs
 
-namespace System.Linq.Tests;
+namespace System.Linq;
 
 public class SkipTakeData
 {
@@ -17,7 +17,7 @@ public class SkipTakeData
         return from sourceCount in sourceCounts
                let source = Enumerable.Range(0, sourceCount)
                from count in counts
-               select new object[] { source.ToArray(), count };
+               select new object[] { source, count };
     }
 
     public static IEnumerable<object[]> EvaluationBehaviorData()
