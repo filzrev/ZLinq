@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SkipTests : EnumerableTests
     {
@@ -116,9 +116,9 @@ namespace System.Linq.Tests
         [Fact]
         public void SameResultsRepeatCallsIntQuery()
         {
-            var q = GuaranteeNotIList(from x in new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }
-                                      where x > int.MinValue
-                                      select x);
+            var q = GuaranteeNotIList((from x in new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }
+                                       where x > int.MinValue
+                                       select x).ToArray());
 
             Assert.Equal(q.Skip(0), q.Skip(0));
         }
@@ -136,9 +136,9 @@ namespace System.Linq.Tests
         [Fact]
         public void SameResultsRepeatCallsStringQuery()
         {
-            var q = GuaranteeNotIList(from x in new[] { "!@#$%^", "C", "AAA", "", "Calling Twice", "SoS", string.Empty }
-                                      where !string.IsNullOrEmpty(x)
-                                      select x);
+            var q = GuaranteeNotIList((from x in new[] { "!@#$%^", "C", "AAA", "", "Calling Twice", "SoS", string.Empty }
+                                       where !string.IsNullOrEmpty(x)
+                                       select x).ToArray());
 
             Assert.Equal(q.Skip(0), q.Skip(0));
         }
@@ -186,7 +186,7 @@ namespace System.Linq.Tests
             int?[] source = { 3, 100, null, 4, 10 };
             int?[] expected = { 10 };
 
-            Assert.Equal(expected, GuaranteeNotIList(source.Skip(source.Length - 1)));
+            Assert.Equal(expected, GuaranteeNotIList(source.Skip(source.Length - 1).ToArray()));
         }
 
         [Fact]
@@ -203,22 +203,22 @@ namespace System.Linq.Tests
             Assert.Empty(GuaranteeNotIList(source).Skip(source.Length + 1));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Skip(2);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Skip(2);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateIList()
         {
-            var iterator = (new[] { 0, 1, 2 }).Skip(2);
+            var valueEnumerable = (new[] { 0, 1, 2 }).Skip(2);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
@@ -283,8 +283,8 @@ namespace System.Linq.Tests
             Assert.Equal(3, remaining.ElementAt(0));
             Assert.Equal(4, remaining.ElementAt(1));
             Assert.Equal(6, remaining.ElementAt(3));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => remaining.ElementAt(-1));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => remaining.ElementAt(4));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>(() => source.Skip(2).ElementAt(-1));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>(() => source.Skip(2).ElementAt(4));
         }
 
         [Fact]
@@ -295,8 +295,8 @@ namespace System.Linq.Tests
             Assert.Equal(3, remaining.ElementAt(0));
             Assert.Equal(4, remaining.ElementAt(1));
             Assert.Equal(6, remaining.ElementAt(3));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => remaining.ElementAt(-1));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => remaining.ElementAt(4));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>(() => source.Skip(2).ElementAt(-1));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>(() => source.Skip(2).ElementAt(4));
         }
 
         [Fact]
@@ -474,7 +474,7 @@ namespace System.Linq.Tests
             Assert.Empty(skipped.ToList());
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void IteratorStateShouldNotChangeIfNumberOfElementsIsUnbounded()
         {
             // With https://github.com/dotnet/corefx/pull/13628, Skip and Take return
@@ -487,7 +487,7 @@ namespace System.Linq.Tests
             // This test makes sure that, in Skip, _state is not incorrectly incremented,
             // so that it does not overflow to a negative number and enumeration does not
             // stop prematurely.
-
+#if FALSE
             var iterator = new FastInfiniteEnumerator<int>().Skip(1).GetEnumerator();
             iterator.MoveNext(); // Make sure the underlying enumerator has been initialized.
 
@@ -505,6 +505,7 @@ namespace System.Linq.Tests
                     Assert.True(iterator.MoveNext());
                 }
             }
+#endif
         }
 
         [Theory]
@@ -523,11 +524,15 @@ namespace System.Linq.Tests
                 current: () => 0,
                 dispose: () => state = -1);
 
-            IEnumerator<int> iterator = source.Skip(count).GetEnumerator();
+            var iterator = source.Skip(count).GetEnumerator();
             int iteratorCount = Math.Max(0, sourceCount - Math.Max(0, count));
-            Assert.All(Enumerable.Range(0, iteratorCount), _ => Assert.True(iterator.MoveNext()));
+            foreach (var i in Enumerable.Range(0, iteratorCount))
+                Assert.True(iterator.MoveNext());
 
             Assert.False(iterator.MoveNext());
+            Assert.Equal(0, iterator.Current);
+
+            iterator.Dispose();
             Assert.Equal(-1, state);
         }
     }

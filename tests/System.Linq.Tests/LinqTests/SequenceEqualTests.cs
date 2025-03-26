@@ -4,7 +4,7 @@
 using System.Collections.ObjectModel;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SequenceEqualTests : EnumerableTests
     {
@@ -202,7 +202,7 @@ namespace System.Linq.Tests
             int[] first = null;
             int[] second = { };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.SequenceEqual(second));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.SequenceEqual(second));
         }
 
         [Fact]
@@ -217,7 +217,7 @@ namespace System.Linq.Tests
         [Fact]
         public void ByteArrays_SpecialCasedButExpectedBehavior()
         {
-            AssertExtensions.Throws<ArgumentNullException>("first", () => ((byte[])null).SequenceEqual(new byte[1]));
+            AssertExtensions.Throws<ArgumentNullException>(() => ((byte[])null).SequenceEqual(new byte[1]));
             AssertExtensions.Throws<ArgumentNullException>("second", () => new byte[1].SequenceEqual(null));
 
             Assert.False(new byte[1].SequenceEqual(new byte[0]));

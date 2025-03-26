@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class LongCountTests : EnumerableTests
     {
@@ -47,11 +47,11 @@ namespace System.Linq.Tests
         {
             if (predicate is null)
             {
-                Assert.Equal(expected, source.LongCount());
+                Assert.Equal(expected, source.AsValueEnumerable().LongCount());
             }
             else
             {
-                Assert.Equal(expected, source.LongCount(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LongCount(predicate));
             }
         }
 
@@ -61,11 +61,11 @@ namespace System.Linq.Tests
         {
             if (predicate is null)
             {
-                Assert.Equal(expected, source.RunOnce().LongCount());
+                Assert.Equal(expected, source.AsValueEnumerable().LongCount());
             }
             else
             {
-                Assert.Equal(expected, source.RunOnce().LongCount(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LongCount(predicate));
             }
         }
 
@@ -73,14 +73,14 @@ namespace System.Linq.Tests
         public void NullableArray_IncludesNullValues()
         {
             int?[] data = { -10, 4, 9, null, 11 };
-            Assert.Equal(5, data.LongCount());
+            Assert.Equal(5, data.AsValueEnumerable().LongCount());
         }
 
         [Fact]
         public void NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).LongCount());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).LongCount(i => i != 0));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().LongCount());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().LongCount(i => i != 0));
         }
 
         [Fact]

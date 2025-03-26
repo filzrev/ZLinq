@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class GroupJoinTests : EnumerableTests
     {
@@ -141,7 +141,7 @@ namespace System.Linq.Tests
                 new AnagramRec{ name = "miT", orderID = 93489, total = 45 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("outer", () => outer.GroupJoin(inner, e => e.name, e => e.name, createJoinRec, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => outer.GroupJoin(inner, e => e.name, e => e.name, createJoinRec, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -222,7 +222,7 @@ namespace System.Linq.Tests
                 new AnagramRec{ name = "miT", orderID = 93489, total = 45 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("outer", () => outer.GroupJoin(inner, e => e.name, e => e.name, createJoinRec));
+            AssertExtensions.Throws<ArgumentNullException>(() => outer.GroupJoin(inner, e => e.name, e => e.name, createJoinRec));
         }
 
         [Fact]
@@ -505,13 +505,13 @@ namespace System.Linq.Tests
             Assert.Equal(expected, outer.RunOnce().GroupJoin(inner.RunOnce(), e => e.name, e => e.name, createJoinRec, null));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).GroupJoin(Enumerable.Empty<int>(), i => i, i => i, (o, i) => i);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).GroupJoin(Enumerable.Empty<int>(), i => i, i => i, (o, i) => i);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<IEnumerable<int>>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
     }
 }

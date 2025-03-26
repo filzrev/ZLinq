@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ExceptTests : EnumerableTests
     {
@@ -99,8 +99,8 @@ namespace System.Linq.Tests
             string[] first = null;
             string[] second = { "bBo", "shriC" };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Except(second));
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Except(second, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Except(second));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Except(second, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -113,13 +113,13 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("second", () => first.Except(second, new AnagramEqualityComparer()));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Except(Enumerable.Range(0, 3));
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Except(Enumerable.Range(0, 3));
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
@@ -145,8 +145,8 @@ namespace System.Linq.Tests
             string[] first = null;
             string[] second = { "bBo", "shriC" };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.ExceptBy(second, x => x));
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.ExceptBy(second, x => x, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.ExceptBy(second, x => x));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.ExceptBy(second, x => x, new AnagramEqualityComparer()));
         }
 
         [Fact]

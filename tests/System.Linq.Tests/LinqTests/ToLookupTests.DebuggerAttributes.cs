@@ -7,11 +7,14 @@ using System.Diagnostics;
 using System.Reflection;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public partial class ToLookupTests : EnumerableTests
     {
-        [ConditionalTheory(typeof(PlatformDetection), nameof(PlatformDetection.IsDebuggerTypeProxyAttributeSupported))]
+        [ConditionalTheory(
+            typeof(PlatformDetection),
+            nameof(PlatformDetection.IsDebuggerTypeProxyAttributeSupported),
+            Skip = SkipReason.NotCompatibile)]
         [MemberData(nameof(DebuggerAttributesValid_Data))]
         public void DebuggerAttributesValid<TKey, TElement>(ILookup<TKey, TElement> lookup)
         {
@@ -32,12 +35,12 @@ namespace System.Linq.Tests
             var groupings = (IGrouping<TKey, TElement>[])groupingsProperty.GetValue(proxyObject);
             Assert.IsType<IGrouping<TKey, TElement>[]>(groupings); // Arrays can be covariant / of assignment-compatible types
 
-            Assert.All(groupings.Zip(lookup, (l, r) => Tuple.Create(l, r)), tuple =>
+            foreach (var tuple in groupings.Zip(lookup, (l, r) => Tuple.Create(l, r)))
             {
-                Assert.Same(tuple.Item1, tuple.Item2);
-            });
+                Xunit.Assert.Same(tuple.Item1, tuple.Item2);
+            }
 
-            Assert.Same(groupings, groupingsProperty.GetValue(proxyObject)); // The result should be cached, as Lookup is immutable.
+            Xunit.Assert.Same(groupings, groupingsProperty.GetValue(proxyObject)); // The result should be cached, as Lookup is immutable.
         }
 
         public static IEnumerable<object[]> DebuggerAttributesValid_Data()

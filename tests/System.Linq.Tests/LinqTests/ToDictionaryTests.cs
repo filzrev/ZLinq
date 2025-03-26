@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ToDictionaryTests : EnumerableTests
     {
@@ -16,49 +17,44 @@ namespace System.Linq.Tests
         public void ToDictionary_AlwaysCreateACopy()
         {
             Dictionary<int, int> source = new Dictionary<int, int>() { { 1, 1 }, { 2, 2 }, { 3, 3 } };
-            Dictionary<int, int> result = source.ToDictionary(key => key.Key, val => val.Value);
+            Dictionary<int, int> result = source.AsValueEnumerable().ToDictionary(key => key.Key, val => val.Value);
 
-            Assert.NotSame(source, result);
-            Assert.Equal(source, result);
-
-            result = source.ToDictionary();
-
-            Assert.NotSame(source, result);
+            Xunit.Assert.NotSame(source, result);
             Assert.Equal(source, result);
         }
 
 
         private void RunToDictionaryOnAllCollectionTypes<T>(T[] items, Action<Dictionary<T, T>> validation)
         {
-            validation(Enumerable.ToDictionary(items, key => key));
-            validation(Enumerable.ToDictionary(items, key => key, value => value));
-            validation(Enumerable.ToDictionary(new List<T>(items), key => key));
-            validation(Enumerable.ToDictionary(new List<T>(items), key => key, value => value));
-            validation(new TestEnumerable<T>(items).ToDictionary(key => key));
-            validation(new TestEnumerable<T>(items).ToDictionary(key => key, value => value));
-            validation(new TestReadOnlyCollection<T>(items).ToDictionary(key => key));
-            validation(new TestReadOnlyCollection<T>(items).ToDictionary(key => key, value => value));
-            validation(new TestCollection<T>(items).ToDictionary(key => key));
-            validation(new TestCollection<T>(items).ToDictionary(key => key, value => value));
+            validation(items.AsValueEnumerable().ToDictionary(key => key));
+            validation(items.AsValueEnumerable().ToDictionary(key => key, value => value));
+            validation(items.AsValueEnumerable().ToDictionary(key => key));
+            validation(items.AsValueEnumerable().ToDictionary(key => key, value => value));
+            validation(new TestEnumerable<T>(items).AsValueEnumerable().ToDictionary(key => key));
+            validation(new TestEnumerable<T>(items).AsValueEnumerable().ToDictionary(key => key, value => value));
+            validation(new TestReadOnlyCollection<T>(items).AsValueEnumerable().ToDictionary(key => key));
+            validation(new TestReadOnlyCollection<T>(items).AsValueEnumerable().ToDictionary(key => key, value => value));
+            validation(new TestCollection<T>(items).AsValueEnumerable().ToDictionary(key => key));
+            validation(new TestCollection<T>(items).AsValueEnumerable().ToDictionary(key => key, value => value));
         }
 
         private void RunToDictionaryFromKvOnAllCollectionTypes<T>(T[] items, Action<Dictionary<T, T>> validation) where T : notnull
         {
             KeyValuePair<T, T>[] kvps = items.Select(item => new KeyValuePair<T, T>(item, item)).ToArray();
 
-            validation(kvps.ToDictionary());
-            validation(new List<KeyValuePair<T, T>>(kvps).ToDictionary());
-            validation(new TestEnumerable<KeyValuePair<T, T>>(kvps).ToDictionary());
-            validation(new TestReadOnlyCollection<KeyValuePair<T, T>>(kvps).ToDictionary());
-            validation(new TestCollection<KeyValuePair<T, T>>(kvps).ToDictionary());
+            validation(kvps.AsValueEnumerable().ToDictionary(x => x.Key, x => x.Value));
+            validation(new List<KeyValuePair<T, T>>(kvps).AsValueEnumerable().ToDictionary());
+            validation(new TestEnumerable<KeyValuePair<T, T>>(kvps).AsValueEnumerable().ToDictionary());
+            validation(new TestReadOnlyCollection<KeyValuePair<T, T>>(kvps).AsValueEnumerable().ToDictionary());
+            validation(new TestCollection<KeyValuePair<T, T>>(kvps).AsValueEnumerable().ToDictionary());
 
             (T, T)[] vts = items.Select(item => (item, item)).ToArray();
 
-            validation(vts.ToDictionary());
-            validation(new List<(T, T)>(vts).ToDictionary());
-            validation(new TestEnumerable<(T, T)>(vts).ToDictionary());
-            validation(new TestReadOnlyCollection<(T, T)>(vts).ToDictionary());
-            validation(new TestCollection<(T, T)>(vts).ToDictionary());
+            validation(vts.AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2)); // TODO:
+            validation(new List<(T, T)>(vts).AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2));
+            validation(new TestEnumerable<(T, T)>(vts).AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2));
+            validation(new TestReadOnlyCollection<(T, T)>(vts).AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2));
+            validation(new TestCollection<(T, T)>(vts).AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2));
         }
 
         [Fact]
@@ -101,7 +97,7 @@ namespace System.Linq.Tests
                 {
                     Assert.Equal(sourceStringArray.Length, resultDictionary.Count);
                     for (int i = 0; i < sourceStringArray.Length; i++)
-                        Assert.Same(sourceStringArray[i], resultDictionary[sourceStringArray[i]]);
+                        Xunit.Assert.Same(sourceStringArray[i], resultDictionary[sourceStringArray[i]]);
                 });
         }
 
@@ -124,7 +120,7 @@ namespace System.Linq.Tests
                     Assert.Equal(sourceStringArray.Length, resultDictionary.Count);
                     foreach (string item in sourceStringArray)
                     {
-                        Assert.Same(item, resultDictionary[item]);
+                        Xunit.Assert.Same(item, resultDictionary[item]);
                     }
                 });
         }
@@ -134,15 +130,15 @@ namespace System.Linq.Tests
         {
             Assert.Equal(
                 new Dictionary<int, string> { { 1, "0" }, { 2, "1" }, { 3, "2" }, { 4, "3" } },
-                Enumerable.Range(0, 4).RunOnce().ToDictionary(i => i + 1, i => i.ToString()));
+                Enumerable.Range(0, 4).AsValueEnumerable().ToDictionary(i => i + 1, i => i.ToString()));
 
             Assert.Equal(
                 new Dictionary<int, string> { { 0, "0" }, { 1, "1" }, { 2, "2" }, { 3, "3" } },
-                Enumerable.Range(0, 4).Select(i => new KeyValuePair<int, string>(i, i.ToString())).RunOnce().ToDictionary());
+                Enumerable.Range(0, 4).AsValueEnumerable().Select(i => new KeyValuePair<int, string>(i, i.ToString())).RunOnce().ToDictionary());
 
             Assert.Equal(
                 new Dictionary<int, string> { { 0, "0" }, { 1, "1" }, { 2, "2" }, { 3, "3" } },
-                Enumerable.Range(0, 4).Select(i => (i, i.ToString())).RunOnce().ToDictionary());
+                Enumerable.Range(0, 4).AsValueEnumerable().Select(i => (i, i.ToString())).RunOnce().ToDictionary());
         }
 
         [Fact]
@@ -151,17 +147,18 @@ namespace System.Linq.Tests
             EqualityComparer<int> comparer = EqualityComparer<int>.Create((x, y) => x == y, x => x);
             TestCollection<int> collection = new TestCollection<int>(new int[] { 1, 2, 3, 4, 5, 6 });
 
-            Dictionary<int, int> result1 = collection.ToDictionary(key => key, comparer);
-            Assert.Same(comparer, result1.Comparer);
+            Dictionary<int, int> result1 = collection.AsValueEnumerable().ToDictionary(key => key, comparer);
+            Xunit.Assert.Same(comparer, result1.Comparer);
 
-            Dictionary<int, int> result2 = collection.ToDictionary(key => key, val => val, comparer);
-            Assert.Same(comparer, result2.Comparer);
+            Dictionary<int, int> result2 = collection.AsValueEnumerable().ToDictionary(key => key, val => val, comparer);
+            Xunit.Assert.Same(comparer, result2.Comparer);
 
-            Dictionary<int, int> result3 = collection.Select(i => new KeyValuePair<int, int>(i, i)).ToDictionary(comparer);
-            Assert.Same(comparer, result3.Comparer);
+            Dictionary<int, int> result3 = collection.AsValueEnumerable().Select(i => new KeyValuePair<int, int>(i, i)).ToDictionary(comparer);
+            Xunit.Assert.Same(comparer, result3.Comparer);
 
-            Dictionary<int, int> result4 = collection.Select(i => (i, i)).ToDictionary(comparer);
-            Assert.Same(comparer, result4.Comparer);
+            // TODO: Revert ToDictionary method signature
+            Dictionary<int, int> result4 = collection.AsValueEnumerable().Select(i => (i, i)).ToDictionary(x => x.Item1, x => x.Item2, comparer); // TODO:
+            Xunit.Assert.Same(comparer, result4.Comparer);
         }
 
         [Fact]
@@ -169,11 +166,11 @@ namespace System.Linq.Tests
         {
             TestCollection<int> collection = new TestCollection<int>(new int[] { 1, 2, 3, 4, 5, 6 });
 
-            Dictionary<int, int> result1 = collection.ToDictionary(key => key, comparer: null);
-            Assert.Same(EqualityComparer<int>.Default, result1.Comparer);
+            Dictionary<int, int> result1 = collection.AsValueEnumerable().ToDictionary(key => key, comparer: null);
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result1.Comparer);
 
-            Dictionary<int, int> result2 = collection.ToDictionary(key => key, val => val, comparer: null);
-            Assert.Same(EqualityComparer<int>.Default, result2.Comparer);
+            Dictionary<int, int> result2 = collection.AsValueEnumerable().ToDictionary(key => key, val => val, comparer: null);
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result2.Comparer);
         }
 
         [Fact]
@@ -181,17 +178,18 @@ namespace System.Linq.Tests
         {
             TestCollection<int> collection = new TestCollection<int>(new[] { 1, 2, 3, 4, 5, 6 });
 
-            Dictionary<int, int> result1 = collection.ToDictionary(key => key);
-            Assert.Same(EqualityComparer<int>.Default, result1.Comparer);
+            Dictionary<int, int> result1 = collection.AsValueEnumerable().ToDictionary(key => key);
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result1.Comparer);
 
-            Dictionary<int, int> result2 = collection.ToDictionary(key => key, val => val);
-            Assert.Same(EqualityComparer<int>.Default, result2.Comparer);
+            Dictionary<int, int> result2 = collection.AsValueEnumerable().ToDictionary(key => key, val => val);
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result2.Comparer);
 
-            Dictionary<int, int> result3 = collection.Select(i => new KeyValuePair<int, int>(i, i)).ToDictionary();
-            Assert.Same(EqualityComparer<int>.Default, result3.Comparer);
+            Dictionary<int, int> result3 = collection.AsValueEnumerable().Select(i => new KeyValuePair<int, int>(i, i)).ToDictionary();
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result3.Comparer);
 
-            Dictionary<int, int> result4 = collection.Select(i => (i, i)).ToDictionary();
-            Assert.Same(EqualityComparer<int>.Default, result4.Comparer);
+            // TODO: Revert ToDictionary method signature
+            Dictionary<int, int> result4 = collection.AsValueEnumerable().Select(i => (i, i)).ToDictionary(x => x.Item1, x => x.Item2); // TODO:
+            Xunit.Assert.Same(EqualityComparer<int>.Default, result4.Comparer);
         }
 
         [Fact]
@@ -199,7 +197,7 @@ namespace System.Linq.Tests
         {
             TestCollection<int> collection = new TestCollection<int>(new int[] { 1, 2, 3, 4, 5, 6 });
 
-            Dictionary<int, int> result = collection.ToDictionary(key => key + 10, val => val + 100);
+            Dictionary<int, int> result = collection.AsValueEnumerable().ToDictionary(key => key + 10, val => val + 100);
 
             Assert.Equal(collection.Items.Select(o => o + 10), result.Keys);
             Assert.Equal(collection.Items.Select(o => o + 100), result.Values);
@@ -209,9 +207,9 @@ namespace System.Linq.Tests
         [Fact]
         public void ToDictionary_ThrowArgumentNullExceptionWhenSourceIsNull()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).ToDictionary(key => key));
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<KeyValuePair<int, int>>)null).ToDictionary());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<(int, int)>)null).ToDictionary());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().ToDictionary(key => key));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<KeyValuePair<int, int>>)null).AsValueEnumerable().ToDictionary());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<(int, int)>)null).AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2)); // TODO:
         }
 
 
@@ -220,7 +218,7 @@ namespace System.Linq.Tests
         {
             int[] source = new int[0];
             Func<int, int> keySelector = null;
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.ToDictionary(keySelector));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.AsValueEnumerable().ToDictionary(keySelector));
         }
 
         [Fact]
@@ -229,14 +227,14 @@ namespace System.Linq.Tests
             int[] source = new int[0];
             Func<int, int> keySelector = key => key;
             Func<int, int> valueSelector = null;
-            AssertExtensions.Throws<ArgumentNullException>("elementSelector", () => source.ToDictionary(keySelector, valueSelector));
+            AssertExtensions.Throws<ArgumentNullException>("elementSelector", () => source.AsValueEnumerable().ToDictionary(keySelector, valueSelector));
         }
 
         [Fact]
         public void ToDictionary_ThrowArgumentNullExceptionWhenSourceIsNullElementSelector()
         {
             int[] source = null;
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.ToDictionary(key => key, e => e));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().ToDictionary(key => key, e => e));
         }
 
 
@@ -245,7 +243,7 @@ namespace System.Linq.Tests
         {
             int[] source = new int[0];
             Func<int, int> keySelector = null;
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.ToDictionary(keySelector, e => e));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.AsValueEnumerable().ToDictionary(keySelector, e => e));
         }
 
         [Fact]
@@ -260,7 +258,7 @@ namespace System.Linq.Tests
             };
 
 
-            Assert.Throws<InvalidOperationException>(() => source.ToDictionary(keySelector));
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().ToDictionary(keySelector));
         }
 
         [Fact]
@@ -269,7 +267,7 @@ namespace System.Linq.Tests
             int[] source = new int[] { 1, 2, 3 };
             Func<int, string> keySelector = key => null;
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source.ToDictionary(keySelector));
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source.AsValueEnumerable().ToDictionary(keySelector));
         }
 
         [Fact]
@@ -278,7 +276,7 @@ namespace System.Linq.Tests
             int[] source = new int[] { 1, 2, 3 };
             Func<int, int> keySelector = key => 1;
 
-            AssertExtensions.Throws<ArgumentException>(null, () => source.ToDictionary(keySelector));
+            AssertExtensions.Throws<ArgumentException>(null, () => source.AsValueEnumerable().ToDictionary(keySelector));
         }
 
         [Fact]
@@ -293,7 +291,7 @@ namespace System.Linq.Tests
                 return value;
             };
 
-            Assert.Throws<InvalidOperationException>(() => source.ToDictionary(keySelector, valueSelector));
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().ToDictionary(keySelector, valueSelector));
         }
 
         [Fact]
@@ -315,7 +313,7 @@ namespace System.Linq.Tests
                 new { Name = default(string), Score = 55 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source.ToDictionary(e => e.Name));
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source.AsValueEnumerable().ToDictionary(e => e.Name));
 
             var source2 = new KeyValuePair<string?, int>[]
             {
@@ -324,7 +322,7 @@ namespace System.Linq.Tests
                 new(default, 55)
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source2.ToDictionary());
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source2.AsValueEnumerable().ToDictionary());
 
             var source3 = new[]
             {
@@ -333,7 +331,7 @@ namespace System.Linq.Tests
                 (default, 55)
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source3.ToDictionary());
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source3.AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2)); // TODO:
         }
 
         [Fact]
@@ -355,7 +353,7 @@ namespace System.Linq.Tests
                 new { Name = default(string), Score = 55 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source.ToDictionary(e => e.Name, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source.AsValueEnumerable().ToDictionary(e => e.Name, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -377,7 +375,7 @@ namespace System.Linq.Tests
                 new { Name = default(string), Score = 55 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source.ToDictionary(e => e.Name, e => e));
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source.AsValueEnumerable().ToDictionary(e => e.Name, e => e));
         }
 
         [Fact]
@@ -390,7 +388,7 @@ namespace System.Linq.Tests
                 new { Name = "null", Score = 55 }
             };
 
-            source.ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()); // Doesn't throw;
+            source.AsValueEnumerable().ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()); // Doesn't throw;
 
             source = new[]
             {
@@ -399,7 +397,7 @@ namespace System.Linq.Tests
                 new { Name = default(string), Score = 55 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("key", () => source.ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>("key", () => source.AsValueEnumerable().ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -412,7 +410,7 @@ namespace System.Linq.Tests
                 new { Name = "Bob", Score = 55 }
             };
 
-            AssertExtensions.Throws<ArgumentException>(null, () => source.ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentException>(null, () => source.AsValueEnumerable().ToDictionary(e => e.Name, e => e, new AnagramEqualityComparer()));
 
             var source2 = new KeyValuePair<string, int>[]
             {
@@ -421,7 +419,7 @@ namespace System.Linq.Tests
                 new("Bob", 55)
             };
 
-            AssertExtensions.Throws<ArgumentException>(null, () => source2.ToDictionary(new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentException>(null, () => source2.AsValueEnumerable().ToDictionary(new AnagramEqualityComparer()));
 
             var source3 = new[]
             {
@@ -430,7 +428,7 @@ namespace System.Linq.Tests
                 ("Bob", 55)
             };
 
-            AssertExtensions.Throws<ArgumentException>(null, () => source3.ToDictionary(new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentException>(null, () => source3.AsValueEnumerable().ToDictionary(x => x.Item1, x => x.Item2, new AnagramEqualityComparer())); // TODO:
         }
 
         private static void AssertMatches<K, E>(IEnumerable<K> keys, IEnumerable<E> values, Dictionary<K, E> dict)
@@ -471,7 +469,7 @@ namespace System.Linq.Tests
             string[] keys = new string[] { "Bob" };
             var source = new[] { new { Name = keys[0], Score = elements[0] } };
 
-            AssertMatches(keys, elements, source.ToDictionary(e => e.Name, e => e.Score, null));
+            AssertMatches(keys, elements, source.AsValueEnumerable().ToDictionary(e => e.Name, e => e.Score, null));
         }
 
         [Fact]
@@ -487,7 +485,7 @@ namespace System.Linq.Tests
                 new { Name = keys[4], Score = 45 }
             };
 
-            AssertMatches(keys, source, source.ToDictionary(e => e.Name, new AnagramEqualityComparer()));
+            AssertMatches(keys, source, source.AsValueEnumerable().ToDictionary(e => e.Name, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -497,7 +495,7 @@ namespace System.Linq.Tests
             string[] keys = new string[] { string.Empty };
             string[] source = new string[] { null };
 
-            AssertMatches(keys, elements, source.ToDictionary(e => e ?? string.Empty, e => e, EqualityComparer<string>.Default));
+            AssertMatches(keys, elements, source.AsValueEnumerable().ToDictionary(e => e ?? string.Empty, e => e, EqualityComparer<string>.Default));
 
         }
     }

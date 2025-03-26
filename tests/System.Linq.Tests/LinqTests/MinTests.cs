@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class MinTests : EnumerableTests
     {
@@ -13,48 +13,54 @@ namespace System.Linq.Tests
         {
             for (int length = 2; length < 65; length++)
             {
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i)), (byte)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i)), (byte)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i).ToArray()), (byte)length };
 
                 // Unit Tests does +T.One so we should generate data up to one value below sbyte.MaxValue, otherwise the type overflows
                 if ((length + length) < sbyte.MaxValue)
                 {
-                    yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i)), (sbyte)length };
+                    // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i)), (sbyte)length };
                     yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i).ToArray()), (sbyte)length };
                 }
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i)), (ushort)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i)), (ushort)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i).ToArray()), (ushort)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i)), (short)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i)), (short)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i).ToArray()), (short)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i)), (uint)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i)), (uint)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i).ToArray()), (uint)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i)), (int)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i)), (int)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i).ToArray()), (int)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i)), (ulong)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i)), (ulong)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i).ToArray()), (ulong)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i)), (long)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i)), (long)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i).ToArray()), (long)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i)), (float)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i)), (float)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i).ToArray()), (float)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i)), (double)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i)), (double)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i).ToArray()), (double)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i)), (decimal)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i)), (decimal)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i).ToArray()), (decimal)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i)), (nuint)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i)), (nuint)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i).ToArray()), (nuint)length };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i)), (nint)length };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i)), (nint)length };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i).ToArray()), (nint)length };
+
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (Int128)i)), (Int128)length };
+                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (Int128)i).ToArray()), (Int128)length };
+
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (UInt128)i)), (UInt128)length };
+                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (UInt128)i).ToArray()), (UInt128)length };
             }
         }
 
@@ -62,16 +68,16 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_AllTypes_TestData))]
         public void Min_AllTypes<T>(IEnumerable<T> source, T expected) where T : INumber<T>
         {
-            Assert.Equal(expected, source.Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
 
-            Assert.Equal(expected, source.Min(comparer: null));
-            Assert.Equal(expected, source.Min(Comparer<T>.Default));
-            Assert.Equal(expected, source.Min(Comparer<T>.Create(Comparer<T>.Default.Compare)));
+            Assert.Equal(expected, source.AsValueEnumerable().Min(comparer: null));
+            Assert.Equal(expected, source.AsValueEnumerable().Min(Comparer<T>.Default));
+            Assert.Equal(expected, source.AsValueEnumerable().Min(Comparer<T>.Create(Comparer<T>.Default.Compare)));
 
             T first = source.First();
-            Assert.Equal(first, source.Min(Comparer<T>.Create((x, y) => x == first ? -1 : 1)));
+            Assert.Equal(first, source.AsValueEnumerable().Min(Comparer<T>.Create((x, y) => x == first ? -1 : 1)));
 
-            Assert.Equal(expected + T.One, source.Min(x => x + T.One));
+            Assert.Equal(expected + T.One, source.AsValueEnumerable().Min(x => x + T.One));
         }
 
         [Fact]
@@ -121,26 +127,26 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_Int_TestData))]
         public void Min_Int(IEnumerable<int> source, int expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Int_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Int_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<int>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<int>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<int>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<int>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<int>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<int>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<int>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<int>().AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_Long_TestData()
@@ -169,26 +175,26 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_Long_TestData))]
         public void Min_Long(IEnumerable<long> source, long expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Long_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Long_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<long>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<long>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<long>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<long>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<long>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<long>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<long>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<long>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<long>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<long>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<long>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<long>().AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_Float_TestData()
@@ -239,26 +245,26 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_Float_TestData))]
         public void Min_Float(IEnumerable<float> source, float expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Float_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Float_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<float>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<float>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<float>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<float>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<float>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<float>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<float>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<float>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<float>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<float>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<float>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<float>().AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_Double_TestData()
@@ -307,26 +313,26 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_Double_TestData))]
         public void Min_Double(IEnumerable<double> source, double expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Double_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Double_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<double>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<double>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<double>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<double>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<double>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<double>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<double>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<double>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<double>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<double>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<double>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<double>().AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_Decimal_TestData()
@@ -355,26 +361,26 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_Decimal_TestData))]
         public void Min_Decimal(IEnumerable<decimal> source, decimal expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_Decimal_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<decimal>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<decimal>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<decimal>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<decimal>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<decimal>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<decimal>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<decimal>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<decimal>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<decimal>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<decimal>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<decimal>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<decimal>().AsValueEnumerable().Min());
         }
 
         [Fact]
         public void Min_Decimal_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal>)null).AsValueEnumerable().Min(x => x));
         }
 
         public static IEnumerable<object[]> Min_NullableInt_TestData()
@@ -382,7 +388,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (int?)i).ToArray(), 1 };
             yield return new object[] { new int?[] { null, -1, -10, 10, 200, 1000 }, -10 };
             yield return new object[] { new int?[] { null, 3000, 100, 200, 1000 }, 100 };
-            yield return new object[] { new int?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((int?)int.MinValue, 1)), int.MinValue };
+            yield return new object[] { new int?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((int?)int.MinValue, 1)).ToArray(), int.MinValue };
             yield return new object[] { Enumerable.Repeat(default(int?), 100), null };
             yield return new object[] { Enumerable.Repeat((int?)42, 1), 42 };
 
@@ -398,20 +404,20 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_NullableInt_TestData))]
         public void Min_NullableInt(IEnumerable<int?> source, int? expected)
         {
-            Assert.Equal(expected, source.Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
         }
 
         [Theory, MemberData(nameof(Min_NullableInt_TestData))]
         public void Min_NullableIntRunOnce(IEnumerable<int?> source, int? expected)
         {
-            Assert.Equal(expected, source.RunOnce().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
         }
 
         [Fact]
         public void Min_NullableInt_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int?>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int?>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int?>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int?>)null).AsValueEnumerable().Min(x => x));
         }
 
         public static IEnumerable<object[]> Min_NullableLong_TestData()
@@ -419,7 +425,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (long?)i).ToArray(), 1L };
             yield return new object[] { new long?[] { null, -1, -10, 10, 200, 1000 }, -10L };
             yield return new object[] { new long?[] { null, 3000, 100, 200, 1000 }, 100L };
-            yield return new object[] { new long?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((long?)long.MinValue, 1)), long.MinValue };
+            yield return new object[] { new long?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((long?)long.MinValue, 1)).ToArray(), long.MinValue };
             yield return new object[] { Enumerable.Repeat(default(long?), 100), null };
             yield return new object[] { Enumerable.Repeat((long?)42, 1), 42L };
 
@@ -435,14 +441,14 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_NullableLong_TestData))]
         public void Min_NullableLong(IEnumerable<long?> source, long? expected)
         {
-            Assert.Equal(expected, source.Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
         }
 
         [Fact]
         public void Min_NullableLong_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long?>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long?>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long?>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<long?>)null).AsValueEnumerable().Min(x => x));
         }
 
         public static IEnumerable<object[]> Min_NullableFloat_TestData()
@@ -450,7 +456,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (float?)i).ToArray(), 1f };
             yield return new object[] { new float?[] { null, -1, -10, 10, 200, 1000 }, -10f };
             yield return new object[] { new float?[] { null, 3000, 100, 200, 1000 }, 100f };
-            yield return new object[] { new float?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((float?)float.MinValue, 1)), float.MinValue };
+            yield return new object[] { new float?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((float?)float.MinValue, 1)).ToArray(), float.MinValue };
             yield return new object[] { Enumerable.Repeat(default(float?), 100), null };
             yield return new object[] { Enumerable.Repeat((float?)42, 1), 42f };
 
@@ -481,15 +487,15 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_NullableFloat_TestData))]
         public void Min_NullableFloat(IEnumerable<float?> source, float? expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_NullableFloat_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float?>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float?>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float?>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<float?>)null).AsValueEnumerable().Min(x => x));
         }
 
         public static IEnumerable<object[]> Min_NullableDouble_TestData()
@@ -497,7 +503,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (double?)i).ToArray(), 1.0 };
             yield return new object[] { new double?[] { null, -1, -10, 10, 200, 1000 }, -10.0 };
             yield return new object[] { new double?[] { null, 3000, 100, 200, 1000 }, 100.0 };
-            yield return new object[] { new double?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((double?)double.MinValue, 1)), double.MinValue };
+            yield return new object[] { new double?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((double?)double.MinValue, 1)).ToArray(), double.MinValue };
             yield return new object[] { Enumerable.Repeat(default(double?), 100), null };
             yield return new object[] { Enumerable.Repeat((double?)42, 1), 42.0 };
 
@@ -528,14 +534,14 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_NullableDouble_TestData))]
         public void Min_NullableDouble(IEnumerable<double?> source, double? expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_NullableDouble_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double?>)null).Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<double?>)null).AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_NullableDecimal_TestData()
@@ -543,7 +549,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (decimal?)i).ToArray(), 1m };
             yield return new object[] { new decimal?[] { null, -1, -10, 10, 200, 1000 }, -10m };
             yield return new object[] { new decimal?[] { null, 3000, 100, 200, 1000 }, 100m };
-            yield return new object[] { new decimal?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MinValue, 1)), decimal.MinValue };
+            yield return new object[] { new decimal?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MinValue, 1)).ToArray(), decimal.MinValue };
             yield return new object[] { Enumerable.Repeat(default(decimal?), 100), null };
             yield return new object[] { Enumerable.Repeat((decimal?)42, 1), 42m };
 
@@ -559,15 +565,15 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_NullableDecimal_TestData))]
         public void Min_NullableDecimal(IEnumerable<decimal?> source, decimal? expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_NullableDecimal_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<decimal?>)null).AsValueEnumerable().Min(x => x));
         }
 
         public static IEnumerable<object[]> Min_DateTime_TestData()
@@ -583,33 +589,33 @@ namespace System.Linq.Tests
                 new DateTime(1000, 1, 1)
             };
             yield return new object[] { hundred, new DateTime(100, 1, 1) };
-            yield return new object[] { hundred.Concat(Enumerable.Repeat(DateTime.MinValue, 1)), DateTime.MinValue };
+            yield return new object[] { hundred.Concat(Enumerable.Repeat(DateTime.MinValue, 1).ToArray()).ToArray(), DateTime.MinValue };
         }
 
         [Theory]
         [MemberData(nameof(Min_DateTime_TestData))]
         public void Min_DateTime(IEnumerable<DateTime> source, DateTime expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_DateTime_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<DateTime>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<DateTime>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<DateTime>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<DateTime>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_DateTime_EmptySource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<DateTime>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<DateTime>().Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<DateTime>()).Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<DateTime>()).Min(x => x));
-            Assert.Throws<InvalidOperationException>(() => Array.Empty<DateTime>().Min());
-            Assert.Throws<InvalidOperationException>(() => new List<DateTime>().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<DateTime>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<DateTime>().AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<DateTime>()).AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<DateTime>()).AsValueEnumerable().Min(x => x));
+            Assert.Throws<InvalidOperationException>(() => Array.Empty<DateTime>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => new List<DateTime>().AsValueEnumerable().Min());
         }
 
         public static IEnumerable<object[]> Min_String_TestData()
@@ -631,22 +637,22 @@ namespace System.Linq.Tests
         [MemberData(nameof(Min_String_TestData))]
         public void Min_String(IEnumerable<string> source, string expected)
         {
-            Assert.Equal(expected, source.Min());
-            Assert.Equal(expected, source.Min(x => x));
+            Assert.Equal(expected, source.AsValueEnumerable().Min());
+            Assert.Equal(expected, source.AsValueEnumerable().Min(x => x));
         }
 
         [Theory, MemberData(nameof(Min_String_TestData))]
         public void Min_StringRunOnce(IEnumerable<string> source, string expected)
         {
-            Assert.Equal(expected, source.RunOnce().Min());
-            Assert.Equal(expected, source.RunOnce().Min(x => x));
+            Assert.Equal(expected, source.RunOnce().AsValueEnumerable().Min());
+            Assert.Equal(expected, source.RunOnce().AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
         public void Min_String_NullSource_ThrowsArgumentNullException()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).Min(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<string>)null).AsValueEnumerable().Min(x => x));
         }
 
         [Fact]
@@ -658,14 +664,14 @@ namespace System.Linq.Tests
                 new { name="John", num=-105 },
                 new { name="Bob", num=-30 }
             };
-            Assert.Equal(-105, source.Min(e => e.num));
+            Assert.Equal(-105, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_Int_NullSelector_ThrowsArgumentNullException()
         {
             Func<int, int> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<int>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<int>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -678,14 +684,14 @@ namespace System.Linq.Tests
                 new { name="Bob", num=-10L }
             };
 
-            Assert.Equal(long.MinValue, source.Min(e => e.num));
+            Assert.Equal(long.MinValue, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_Long_NullSelector_ThrowsArgumentNullException()
         {
             Func<long, long> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<long>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<long>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -697,14 +703,14 @@ namespace System.Linq.Tests
                 new { name="John", num=-132.5f },
                 new { name="Bob", num=20.45f }
             };
-            Assert.Equal(-132.5f, source.Min(e => e.num));
+            Assert.Equal(-132.5f, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_Float_NullSelector_ThrowsArgumentNullException()
         {
             Func<float, float> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -716,14 +722,14 @@ namespace System.Linq.Tests
                 new { name="John", num=-132.5 },
                 new { name="Bob", num=20.45 }
             };
-            Assert.Equal(-132.5, source.Min(e => e.num));
+            Assert.Equal(-132.5, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_Double_NullSelector_ThrowsArgumentNullException()
         {
             Func<double, double> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<double>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<double>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -735,14 +741,14 @@ namespace System.Linq.Tests
                 new {name="John", num=10.5m},
                 new {name="Bob", num=0.05m}
             };
-            Assert.Equal(0.05m, source.Min(e => e.num));
+            Assert.Equal(0.05m, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_Decimal_NullSelector_ThrowsArgumentNullException()
         {
             Func<decimal, decimal> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<decimal>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<decimal>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -754,14 +760,14 @@ namespace System.Linq.Tests
                 new { name="John", num=default(int?) },
                 new { name="Bob", num=(int?)-30 }
             };
-            Assert.Equal(-30, source.Min(e => e.num));
+            Assert.Equal(-30, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_NullableInt_NullSelector_ThrowsArgumentNullException()
         {
             Func<int?, int?> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<int?>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<int?>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -773,14 +779,14 @@ namespace System.Linq.Tests
                 new { name="John", num=(long?)long.MinValue },
                 new { name="Bob", num=(long?)-10L }
             };
-            Assert.Equal(long.MinValue, source.Min(e => e.num));
+            Assert.Equal(long.MinValue, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_NullableLong_NullSelector_ThrowsArgumentNullException()
         {
             Func<long?, long?> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<long?>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<long?>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -793,14 +799,14 @@ namespace System.Linq.Tests
                 new {name="Bob", num=default(float?)}
             };
 
-            Assert.Equal(-132.5f, source.Min(e => e.num));
+            Assert.Equal(-132.5f, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_NullableFloat_NullSelector_ThrowsArgumentNullException()
         {
             Func<float?, float?> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float?>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<float?>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -812,14 +818,14 @@ namespace System.Linq.Tests
                 new { name="John", num=(double?)-132.5 },
                 new { name="Bob", num=default(double?) }
             };
-            Assert.Equal(-132.5, source.Min(e => e.num));
+            Assert.Equal(-132.5, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_NullableDouble_NullSelector_ThrowsArgumentNullException()
         {
             Func<double?, double?> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<double?>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<double?>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -831,21 +837,21 @@ namespace System.Linq.Tests
                 new { name="John", num=(decimal?)10.5m },
                 new { name="Bob", num=default(decimal?) }
             };
-            Assert.Equal(10.5m, source.Min(e => e.num));
+            Assert.Equal(10.5m, source.AsValueEnumerable().Min(e => e.num));
         }
 
         [Fact]
         public void Min_NullableDecimal_NullSelector_ThrowsArgumentNullException()
         {
             Func<decimal?, decimal?> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<decimal?>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<decimal?>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
         public void Min_DateTime_NullSelector_ThrowsArgumentNullException()
         {
             Func<DateTime, DateTime> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<DateTime>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<DateTime>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
@@ -857,21 +863,21 @@ namespace System.Linq.Tests
                 new { name="John", num=10.5m },
                 new { name="Bob", num=0.05m }
             };
-            Assert.Equal("Bob", source.Min(e => e.name));
+            Assert.Equal("Bob", source.AsValueEnumerable().Min(e => e.name));
         }
 
         [Fact]
         public void Min_String_NullSelector_ThrowsArgumentNullException()
         {
             Func<string, string> selector = null;
-            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<string>().Min(selector));
+            AssertExtensions.Throws<ArgumentNullException>("selector", () => Enumerable.Empty<string>().AsValueEnumerable().Min(selector));
         }
 
         [Fact]
         public void Min_Bool_EmptySource_ThrowsInvalodOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<bool>().Min());
-            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<bool>()).Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<bool>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<bool>()).AsValueEnumerable().Min());
         }
 
         [Fact]
@@ -879,31 +885,31 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = null;
 
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.Min());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.Min(comparer: null));
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.Min(Comparer<int>.Create((_, _) => 0)));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().Min());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().Min(comparer: null));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().Min(Comparer<int>.Create((_, _) => 0)));
         }
 
         [Fact]
         public static void Min_Generic_EmptyStructSource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().Min());
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().Min(comparer: null));
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().Min(Comparer<int>.Create((_, _) => 0)));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().Min());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().Min(comparer: null));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().Min(Comparer<int>.Create((_, _) => 0)));
         }
 
         [Theory]
         [MemberData(nameof(Min_Generic_TestData))]
         public static void Min_Generic_HasExpectedOutput<TSource>(IEnumerable<TSource> source, IComparer<TSource>? comparer, TSource? expected)
         {
-            Assert.Equal(expected, source.Min(comparer));
+            Assert.Equal(expected, source.AsValueEnumerable().Min(comparer));
         }
 
         [Theory]
         [MemberData(nameof(Min_Generic_TestData))]
         public static void Min_Generic_RunOnce_HasExpectedOutput<TSource>(IEnumerable<TSource> source, IComparer<TSource>? comparer, TSource? expected)
         {
-            Assert.Equal(expected, source.RunOnce().Min(comparer));
+            Assert.Equal(expected, source.AsValueEnumerable().Min(comparer));
         }
 
         public static IEnumerable<object[]> Min_Generic_TestData()
@@ -952,9 +958,9 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = null;
 
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.MinBy(x => x));
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.MinBy(x => x, comparer: null));
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.MinBy(x => x, Comparer<int>.Create((_, _) => 0)));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().MinBy(x => x));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().MinBy(x => x, comparer: null));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().MinBy(x => x, Comparer<int>.Create((_, _) => 0)));
         }
 
         [Fact]
@@ -963,71 +969,71 @@ namespace System.Linq.Tests
             IEnumerable<int> source = Enumerable.Empty<int>();
             Func<int, int> keySelector = null;
 
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.MinBy(keySelector));
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.MinBy(keySelector, comparer: null));
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.MinBy(keySelector, Comparer<int>.Create((_, _) => 0)));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.AsValueEnumerable().MinBy(keySelector));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.AsValueEnumerable().MinBy(keySelector, comparer: null));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.AsValueEnumerable().MinBy(keySelector, Comparer<int>.Create((_, _) => 0)));
         }
 
         [Fact]
         public static void MinBy_Generic_EmptyStructSource_ThrowsInvalidOperationException()
         {
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().MinBy(x => x.ToString()));
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().MinBy(x => x.ToString(), comparer: null));
-            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().MinBy(x => x.ToString(), Comparer<string>.Create((_, _) => 0)));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().MinBy(x => x.ToString()));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().MinBy(x => x.ToString(), comparer: null));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<int>().AsValueEnumerable().MinBy(x => x.ToString(), Comparer<string>.Create((_, _) => 0)));
         }
 
         [Fact]
         public static void MinBy_Generic_EmptyNullableSource_ReturnsNull()
         {
-            Assert.Null(Enumerable.Empty<int?>().MinBy(x => x.GetHashCode()));
-            Assert.Null(Enumerable.Empty<int?>().MinBy(x => x.GetHashCode(), comparer: null));
-            Assert.Null(Enumerable.Empty<int?>().MinBy(x => x.GetHashCode(), Comparer<int>.Create((_, _) => 0)));
+            Assert.Null(Enumerable.Empty<int?>().AsValueEnumerable().MinBy(x => x.GetHashCode()));
+            Assert.Null(Enumerable.Empty<int?>().AsValueEnumerable().MinBy(x => x.GetHashCode(), comparer: null));
+            Assert.Null(Enumerable.Empty<int?>().AsValueEnumerable().MinBy(x => x.GetHashCode(), Comparer<int>.Create((_, _) => 0)));
         }
 
         [Fact]
         public static void MinBy_Generic_EmptyReferenceSource_ReturnsNull()
         {
-            Assert.Null(Enumerable.Empty<string>().MinBy(x => x.GetHashCode()));
-            Assert.Null(Enumerable.Empty<string>().MinBy(x => x.GetHashCode(), comparer: null));
-            Assert.Null(Enumerable.Empty<string>().MinBy(x => x.GetHashCode(), Comparer<int>.Create((_, _) => 0)));
+            Assert.Null(Enumerable.Empty<string>().AsValueEnumerable().MinBy(x => x.GetHashCode()));
+            Assert.Null(Enumerable.Empty<string>().AsValueEnumerable().MinBy(x => x.GetHashCode(), comparer: null));
+            Assert.Null(Enumerable.Empty<string>().AsValueEnumerable().MinBy(x => x.GetHashCode(), Comparer<int>.Create((_, _) => 0)));
         }
 
         [Fact]
         public static void MinBy_Generic_StructSourceAllKeysAreNull_ReturnsFirstElement()
         {
-            Assert.Equal(0, Enumerable.Range(0, 5).MinBy(x => default(string)));
-            Assert.Equal(0, Enumerable.Range(0, 5).MinBy(x => default(string), comparer: null));
-            Assert.Equal(0, Enumerable.Range(0, 5).MinBy(x => default(string), Comparer<string>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().MinBy(x => default(string)));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().MinBy(x => default(string), comparer: null));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().MinBy(x => default(string), Comparer<string>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
         }
 
         [Fact]
         public static void MinBy_Generic_NullableSourceAllKeysAreNull_ReturnsFirstElement()
         {
-            Assert.Equal(0, Enumerable.Range(0, 5).Cast<int?>().MinBy(x => default(int?)));
-            Assert.Equal(0, Enumerable.Range(0, 5).Cast<int?>().MinBy(x => default(int?), comparer: null));
-            Assert.Equal(0, Enumerable.Range(0, 5).Cast<int?>().MinBy(x => default(int?), Comparer<int?>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().Cast<int?>().MinBy(x => default(int?)));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().Cast<int?>().MinBy(x => default(int?), comparer: null));
+            Assert.Equal(0, Enumerable.Range(0, 5).AsValueEnumerable().Cast<int?>().MinBy(x => default(int?), Comparer<int?>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
         }
 
         [Fact]
         public static void MinBy_Generic_ReferenceSourceAllKeysAreNull_ReturnsFirstElement()
         {
-            Assert.Equal("0", Enumerable.Range(0, 5).Select(x => x.ToString()).MinBy(x => default(string)));
-            Assert.Equal("0", Enumerable.Range(0, 5).Select(x => x.ToString()).MinBy(x => default(string), comparer: null));
-            Assert.Equal("0", Enumerable.Range(0, 5).Select(x => x.ToString()).MinBy(x => default(string), Comparer<string>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
+            Assert.Equal("0", Enumerable.Range(0, 5).AsValueEnumerable().Select(x => x.ToString()).MinBy(x => default(string)));
+            Assert.Equal("0", Enumerable.Range(0, 5).AsValueEnumerable().Select(x => x.ToString()).MinBy(x => default(string), comparer: null));
+            Assert.Equal("0", Enumerable.Range(0, 5).AsValueEnumerable().Select(x => x.ToString()).MinBy(x => default(string), Comparer<string>.Create((_, _) => throw new InvalidOperationException("comparer should not be called."))));
         }
 
         [Theory]
         [MemberData(nameof(MinBy_Generic_TestData))]
         public static void MinBy_Generic_HasExpectedOutput<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer, TSource? expected)
         {
-            Assert.Equal(expected, source.MinBy(keySelector, comparer));
+            Assert.Equal(expected, source.AsValueEnumerable().MinBy(keySelector, comparer));
         }
 
         [Theory]
         [MemberData(nameof(MinBy_Generic_TestData))]
         public static void MinBy_Generic_RunOnce_HasExpectedOutput<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer, TSource? expected)
         {
-            Assert.Equal(expected, source.RunOnce().MinBy(keySelector, comparer));
+            Assert.Equal(expected, source.AsValueEnumerable().MinBy(keySelector, comparer));
         }
 
         public static IEnumerable<object[]> MinBy_Generic_TestData()

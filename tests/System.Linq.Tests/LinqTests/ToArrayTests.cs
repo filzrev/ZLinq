@@ -10,8 +10,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Sdk;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ToArrayTests : EnumerableTests
     {
@@ -19,10 +20,10 @@ namespace System.Linq.Tests
         public void ToArray_CreateACopyWhenNotEmpty()
         {
             int[] sourceArray = new int[] { 1, 2, 3, 4, 5 };
-            int[] resultArray = sourceArray.ToArray();
+            int[] resultArray = sourceArray.AsValueEnumerable().ToArray();
 
-            Assert.NotSame(sourceArray, resultArray);
-            Assert.Equal(sourceArray, resultArray);
+            Xunit.Assert.NotSame(sourceArray, resultArray);
+            Xunit.Assert.Equal(sourceArray, resultArray);
         }
 
         [Fact]
@@ -30,22 +31,21 @@ namespace System.Linq.Tests
         {
             int[] emptySourceArray = Array.Empty<int>();
 
-            Assert.Same(emptySourceArray.ToArray(), emptySourceArray.ToArray());
+            Xunit.Assert.Same(emptySourceArray.AsValueEnumerable().ToArray(), emptySourceArray.AsValueEnumerable().ToArray());
 
-            Assert.Same(emptySourceArray.Select(i => i).ToArray(), emptySourceArray.Select(i => i).ToArray());
-            Assert.Same(emptySourceArray.ToList().Select(i => i).ToArray(), emptySourceArray.ToList().Select(i => i).ToArray());
-            Assert.Same(new Collection<int>(emptySourceArray).Select(i => i).ToArray(), new Collection<int>(emptySourceArray).Select(i => i).ToArray());
-            Assert.Same(emptySourceArray.OrderBy(i => i).ToArray(), emptySourceArray.OrderBy(i => i).ToArray());
+            Xunit.Assert.Same(emptySourceArray.AsValueEnumerable().Select(i => i).ToArray(), emptySourceArray.AsValueEnumerable().Select(i => i).ToArray());
+            Xunit.Assert.Same(emptySourceArray.AsValueEnumerable().ToList().Select(i => i).ToArray(), emptySourceArray.AsValueEnumerable().ToList().Select(i => i).ToArray());
+            Xunit.Assert.Same(new Collection<int>(emptySourceArray).AsValueEnumerable().Select(i => i).ToArray(), new Collection<int>(emptySourceArray).AsValueEnumerable().Select(i => i).ToArray());
+            Xunit.Assert.Same(emptySourceArray.AsValueEnumerable().OrderBy(i => i).ToArray(), emptySourceArray.AsValueEnumerable().OrderBy(i => i).ToArray());
 
-            Assert.Same(Enumerable.Range(5, 0).ToArray(), Enumerable.Range(3, 0).ToArray());
-            Assert.Same(Enumerable.Range(5, 3).Take(0).ToArray(), Enumerable.Range(3, 0).ToArray());
-            Assert.Same(Enumerable.Range(5, 3).Skip(3).ToArray(), Enumerable.Range(3, 0).ToArray());
+            Xunit.Assert.Same(Enumerable.Range(5, 0).AsValueEnumerable().ToArray(), Enumerable.Range(3, 0).AsValueEnumerable().ToArray());
+            Xunit.Assert.Same(Enumerable.Range(5, 3).AsValueEnumerable().Take(0).ToArray(), Enumerable.Range(3, 0).AsValueEnumerable().ToArray());
+            Xunit.Assert.Same(Enumerable.Range(5, 3).AsValueEnumerable().Skip(3).ToArray(), Enumerable.Range(3, 0).AsValueEnumerable().ToArray());
 
-            Assert.Same(Enumerable.Repeat(42, 0).ToArray(), Enumerable.Range(84, 0).ToArray());
-            Assert.Same(Enumerable.Repeat(42, 3).Take(0).ToArray(), Enumerable.Range(84, 3).Take(0).ToArray());
-            Assert.Same(Enumerable.Repeat(42, 3).Skip(3).ToArray(), Enumerable.Range(84, 3).Skip(3).ToArray());
+            Xunit.Assert.Same(Enumerable.Repeat(42, 0).AsValueEnumerable().ToArray(), Enumerable.Range(84, 0).AsValueEnumerable().ToArray());
+            Xunit.Assert.Same(Enumerable.Repeat(42, 3).AsValueEnumerable().Take(0).ToArray(), Enumerable.Range(84, 3).AsValueEnumerable().Take(0).ToArray());
+            Xunit.Assert.Same(Enumerable.Repeat(42, 3).AsValueEnumerable().Skip(3).ToArray(), Enumerable.Range(84, 3).AsValueEnumerable().Skip(3).ToArray());
         }
-
 
         private void RunToArrayOnAllCollectionTypes<T>(T[] items, Action<T[]> validation)
         {
@@ -79,13 +79,14 @@ namespace System.Linq.Tests
                     Assert.Equal(sourceArray, resultArray);
                 });
 
+
             string[] sourceStringArray = new string[] { "1", "2", "3", "4", "5", "6", "7", "8" };
             RunToArrayOnAllCollectionTypes(sourceStringArray,
                 resultStringArray =>
                 {
                     Assert.Equal(sourceStringArray.Length, resultStringArray.Length);
                     for (int i = 0; i < sourceStringArray.Length; i++)
-                        Assert.Same(sourceStringArray[i], resultStringArray[i]);
+                        Xunit.Assert.Same(sourceStringArray[i], resultStringArray[i]);
                 });
         }
 
@@ -95,14 +96,14 @@ namespace System.Linq.Tests
             Assert.Equal(new int[] { 1, 2, 3, 4, 5, 6, 7 }, Enumerable.Range(1, 7).RunOnce().ToArray());
             Assert.Equal(
                 new string[] { "1", "2", "3", "4", "5", "6", "7", "8" },
-                Enumerable.Range(1, 8).Select(i => i.ToString()).RunOnce().ToArray());
+                Enumerable.Range(1, 8).AsValueEnumerable().Select(i => i.ToString()).RunOnce().ToArray());
         }
 
         [Fact]
         public void ToArray_TouchCountWithICollection()
         {
             TestCollection<int> source = new TestCollection<int>(new int[] { 1, 2, 3, 4 });
-            var resultArray = source.ToArray();
+            var resultArray = source.AsValueEnumerable().ToArray();
 
             Assert.Equal(source, resultArray);
             Assert.Equal(1, source.CountTouched);
@@ -113,15 +114,15 @@ namespace System.Linq.Tests
         public void ToArray_ThrowArgumentNullExceptionWhenSourceIsNull()
         {
             int[] source = null;
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.ToArray());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().ToArray());
         }
 
         // Generally the optimal approach. Anything that breaks this should be confirmed as not harming performance.
-        [Fact]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void ToArray_UseCopyToWithICollection()
         {
             TestCollection<int> source = new TestCollection<int>(new int[] { 1, 2, 3, 4 });
-            var resultArray = source.ToArray();
+            var resultArray = source.AsValueEnumerable().ToArray();
 
             Assert.Equal(source, resultArray);
             Assert.Equal(1, source.CopyToTouched);
@@ -130,8 +131,11 @@ namespace System.Linq.Tests
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]
         public void ToArray_FailOnExtremelyLargeCollection()
         {
-            var largeSeq = new FastInfiniteEnumerator<byte>();
-            var thrownException = Assert.ThrowsAny<Exception>(() => { largeSeq.ToArray(); });
+            var thrownException = Xunit.Assert.ThrowsAny<Exception>(() =>
+            {
+                var largeSeq = new FastInfiniteEnumerator<byte>();
+                largeSeq.AsValueEnumerable().ToArray();
+            });
             Assert.True(
                 thrownException.GetType() == typeof(OverflowException) ||
                 thrownException.GetType() == typeof(OutOfMemoryException),
@@ -207,8 +211,8 @@ namespace System.Linq.Tests
                           where !string.IsNullOrEmpty(x)
                           select x;
 
-            Assert.NotSame(qInt.ToArray(), qInt.ToArray());
-            Assert.NotSame(qString.ToArray(), qString.ToArray());
+            Xunit.Assert.NotSame(qInt.ToArray(), qInt.ToArray());
+            Xunit.Assert.NotSame(qString.ToArray(), qString.ToArray());
         }
 
         [Fact]
@@ -216,10 +220,10 @@ namespace System.Linq.Tests
         {
             // .NET Core returns the instance as an optimization.
             // see https://github.com/dotnet/corefx/pull/2401.
-            Assert.True(ReferenceEquals(Enumerable.Empty<int>().ToArray(), Enumerable.Empty<int>().ToArray()));
+            Assert.True(ReferenceEquals(Enumerable.Empty<int>().AsValueEnumerable().ToArray(), Enumerable.Empty<int>().AsValueEnumerable().ToArray()));
 
             var array = new int[0];
-            Assert.NotSame(array, array.ToArray());
+            Xunit.Assert.NotSame(array, array.ToArray());
         }
 
         [Fact]
@@ -229,8 +233,8 @@ namespace System.Linq.Tests
 
             ICollection<int> collection = source as ICollection<int>;
 
-            Assert.Empty(source.ToArray());
-            Assert.Empty(collection.ToArray());
+            Assert.Empty(source.AsValueEnumerable().ToArray());
+            Assert.Empty(collection.AsValueEnumerable().ToArray());
         }
 
         [Fact]
@@ -241,8 +245,8 @@ namespace System.Linq.Tests
 
             ICollection<int?> collection = source as ICollection<int?>;
 
-            Assert.Equal(expected, source.ToArray());
-            Assert.Equal(expected, collection.ToArray());
+            Assert.Equal(expected, source.AsValueEnumerable().ToArray());
+            Assert.Equal(expected, collection.AsValueEnumerable().ToArray());
         }
 
         [Fact]
@@ -252,7 +256,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as ICollection<int>);
 
-            Assert.Empty(source.ToArray());
+            Assert.Empty(source.AsValueEnumerable().ToArray());
         }
 
         [Fact]
@@ -263,7 +267,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as ICollection<int>);
 
-            Assert.Equal(expected, source.ToArray());
+            Assert.Equal(expected, source.AsValueEnumerable().ToArray());
         }
 
         [Fact]
@@ -274,7 +278,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as ICollection<int>);
 
-            Assert.Equal(expected, source.ToArray());
+            Assert.Equal(expected, source.AsValueEnumerable().ToArray());
         }
 
         [Fact]
@@ -341,7 +345,7 @@ namespace System.Linq.Tests
 
             var range = Enumerable.Range(0, length);
             var lazyEnumerable = ForceNotCollection(range); // We won't go down the IIListProvider path
-            Assert.Equal(range, lazyEnumerable.ToArray());
+            Assert.Equal(range, lazyEnumerable.AsValueEnumerable().ToArray());
         }
 
         // Consider that two very similar enums is not unheard of, if e.g. two assemblies map the
@@ -365,7 +369,7 @@ namespace System.Linq.Tests
         {
             Enum0[] source = { Enum0.First, Enum0.Second, Enum0.Third };
             var cast = source.Cast<Enum1>();
-            Assert.IsType<Enum0[]>(cast);
+            // Assert.IsType<Enum0[]>(cast); // ZLinq don't support implicit cast to IEnumerable
             var castArray = cast.ToArray();
             Assert.IsType<Enum1[]>(castArray);
             Assert.Equal(new[] { Enum1.First, Enum1.Second, Enum1.Third }, castArray);

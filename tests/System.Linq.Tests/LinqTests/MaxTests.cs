@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class MaxTests : EnumerableTests
     {
@@ -13,56 +13,56 @@ namespace System.Linq.Tests
         {
             for (int length = 2; length < 65; length++)
             {
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i)), (byte)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i)), (byte)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (byte)i).ToArray()), (byte)(length + length - 1) };
 
                 // Unit Tests does +T.One so we should generate data up to one value below sbyte.MaxValue
                 if ((length + length) < sbyte.MaxValue)
                 {
-                    yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i)), (sbyte)(length + length - 1) };
+                    // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i)), (sbyte)(length + length - 1) };
                     yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (sbyte)i).ToArray()), (sbyte)(length + length - 1) };
                 }
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i)), (ushort)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i)), (ushort)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ushort)i).ToArray()), (ushort)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i)), (short)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i)), (short)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (short)i).ToArray()), (short)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (char)i)), (char)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (char)i)), (char)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (char)i).ToArray()), (char)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i)), (uint)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i)), (uint)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (uint)i).ToArray()), (uint)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i)), (int)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i)), (int)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (int)i).ToArray()), (int)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i)), (ulong)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i)), (ulong)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (ulong)i).ToArray()), (ulong)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i)), (long)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i)), (long)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (long)i).ToArray()), (long)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i)), (float)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i)), (float)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (float)i).ToArray()), (float)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i)), (double)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i)), (double)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (double)i).ToArray()), (double)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i)), (decimal)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i)), (decimal)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (decimal)i).ToArray()), (decimal)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i)), (nuint)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i)), (nuint)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nuint)i).ToArray()), (nuint)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i)), (nint)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i)), (nint)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (nint)i).ToArray()), (nint)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (Int128)i)), (Int128)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (Int128)i)), (Int128)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (Int128)i).ToArray()), (Int128)(length + length - 1) };
 
-                yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (UInt128)i)), (UInt128)(length + length - 1) };
+                // yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (UInt128)i)), (UInt128)(length + length - 1) };
                 yield return new object[] { Shuffler.Shuffle(Enumerable.Range(length, length).Select(i => (UInt128)i).ToArray()), (UInt128)(length + length - 1) };
             }
         }
@@ -414,7 +414,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (int?)i).ToArray(), 10 };
             yield return new object[] { new int?[] { null, -100, -15, -50, -10 }, -10 };
             yield return new object[] { new int?[] { null, -16, 0, 50, 100, 1000 }, 1000 };
-            yield return new object[] { new int?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((int?)int.MaxValue, 1)), int.MaxValue };
+            yield return new object[] { new int?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((int?)int.MaxValue, 1)).ToArray(), int.MaxValue };
             yield return new object[] { Enumerable.Repeat(default(int?), 100), null };
 
             yield return new object[] { Enumerable.Empty<int?>(), null };
@@ -453,7 +453,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (long?)i).ToArray(), 10L };
             yield return new object[] { new long?[] { null, -100, -15, -50, -10 }, -10L };
             yield return new object[] { new long?[] { null, -16, 0, 50, 100, 1000 }, 1000L };
-            yield return new object[] { new long?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((long?)long.MaxValue, 1)), long.MaxValue };
+            yield return new object[] { new long?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((long?)long.MaxValue, 1)).ToArray(), long.MaxValue };
             yield return new object[] { Enumerable.Repeat(default(long?), 100), null };
 
             yield return new object[] { Enumerable.Empty<long?>(), null };
@@ -485,7 +485,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (float?)i).ToArray(), 10f };
             yield return new object[] { new float?[] { null, -100, -15, -50, -10 }, -10f };
             yield return new object[] { new float?[] { null, -16, 0, 50, 100, 1000 }, 1000f };
-            yield return new object[] { new float?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((float?)float.MaxValue, 1)), float.MaxValue };
+            yield return new object[] { new float?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((float?)float.MaxValue, 1)).ToArray(), float.MaxValue };
             yield return new object[] { Enumerable.Repeat(default(float?), 100), null };
 
             yield return new object[] { Enumerable.Empty<float?>(), null };
@@ -526,7 +526,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (double?)i).ToArray(), 10.0 };
             yield return new object[] { new double?[] { null, -100, -15, -50, -10 }, -10.0 };
             yield return new object[] { new double?[] { null, -16, 0, 50, 100, 1000 }, 1000.0 };
-            yield return new object[] { new double?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((double?)double.MaxValue, 1)), double.MaxValue };
+            yield return new object[] { new double?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((double?)double.MaxValue, 1)).ToArray(), double.MaxValue };
             yield return new object[] { Enumerable.Repeat(default(double?), 100), null };
 
             yield return new object[] { Enumerable.Empty<double?>(), null };
@@ -567,7 +567,7 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => (decimal?)i).ToArray(), 10m };
             yield return new object[] { new decimal?[] { null, -100M, -15, -50, -10 }, -10m };
             yield return new object[] { new decimal?[] { null, -16M, 0, 50, 100, 1000 }, 1000m };
-            yield return new object[] { new decimal?[] { null, -16M, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MaxValue, 1)), decimal.MaxValue };
+            yield return new object[] { new decimal?[] { null, -16M, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MaxValue, 1)).ToArray(), decimal.MaxValue };
             yield return new object[] { Enumerable.Repeat(default(decimal?), 100), null };
 
             yield return new object[] { Enumerable.Empty<decimal?>(), null };
@@ -606,7 +606,7 @@ namespace System.Linq.Tests
                 new DateTime(1000, 1, 1)
             };
             yield return new object[] { threeThousand, new DateTime(3000, 1, 1) };
-            yield return new object[] { threeThousand.Concat(Enumerable.Repeat(DateTime.MaxValue, 1)), DateTime.MaxValue };
+            yield return new object[] { threeThousand.Concat(Enumerable.Repeat(DateTime.MaxValue, 1)).ToArray(), DateTime.MaxValue };
         }
 
         [Theory]

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SingleTests : EnumerableTests
     {
@@ -41,7 +41,7 @@ namespace System.Linq.Tests
         {
             int[] source = { };
 
-            Assert.Throws<InvalidOperationException>(() => source.Single());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace System.Linq.Tests
             int[] source = { 4 };
             int expected = 4;
 
-            Assert.Equal(expected, source.Single());
+            Assert.Equal(expected, source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -58,7 +58,7 @@ namespace System.Linq.Tests
         {
             int[] source = { 4, 4, 4, 4, 4 };
 
-            Assert.Throws<InvalidOperationException>(() => source.Single());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = RepeatedNumberGuaranteedNotCollectionType(0, 0);
 
-            Assert.Throws<InvalidOperationException>(() => source.Single());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace System.Linq.Tests
             IEnumerable<int> source = RepeatedNumberGuaranteedNotCollectionType(-5, 1);
             int expected = -5;
 
-            Assert.Equal(expected, source.Single());
+            Assert.Equal(expected, source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = RepeatedNumberGuaranteedNotCollectionType(3, 5);
 
-            Assert.Throws<InvalidOperationException>(() => source.Single());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single());
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.Single(i => i % 2 == 0));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -105,7 +105,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.Single(i => i % 2 == 0));
+                Assert.Equal(expected, source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -116,7 +116,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.Single(i => i % 2 == 0));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -127,7 +127,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.Single(i => i % 2 == 0));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -139,7 +139,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.Single(i => i % 2 == 0));
+                Assert.Equal(expected, source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -150,7 +150,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.Single(i => i % 2 == 0));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().Single(i => i % 2 == 0));
             });
         }
 
@@ -161,7 +161,7 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(0, range)), source =>
             {
-                Assert.Equal(target, source.Single(i => i == target));
+                Assert.Equal(target, source.AsValueEnumerable().Single(i => i == target));
             });
         }
 
@@ -172,7 +172,7 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(0, range)), source =>
             {
-                Assert.Equal(target, source.RunOnce().Single(i => i == target));
+                Assert.Equal(target, source.AsValueEnumerable().Single(i => i == target));
             });
         }
 
@@ -180,8 +180,8 @@ namespace System.Linq.Tests
         public void ThrowsOnNullSource()
         {
             int[] source = null;
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.Single());
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.Single(i => i % 2 == 0));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().Single());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().Single(i => i % 2 == 0));
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace System.Linq.Tests
         {
             int[] source = { };
             Func<int, bool> nullPredicate = null;
-            AssertExtensions.Throws<ArgumentNullException>("predicate", () => source.Single(nullPredicate));
+            AssertExtensions.Throws<ArgumentNullException>("predicate", () => source.AsValueEnumerable().Single(nullPredicate));
         }
     }
 }

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ReverseTests : EnumerableTests
     {
@@ -21,7 +21,7 @@ namespace System.Linq.Tests
             T[] expected = source.ToArray();
             Array.Reverse(expected);
 
-            IEnumerable<T> actual = source.Reverse();
+            var actual = source.Reverse();
 
             Assert.Equal(expected, actual);
             Assert.Equal(expected.Count(), actual.Count()); // Count may be optimized.
@@ -54,7 +54,7 @@ namespace System.Linq.Tests
             T[] expected = source.ToArray();
             Array.Reverse(expected);
 
-            IEnumerable<T> actual = source.RunOnce().Reverse();
+            var actual = source.RunOnce().Reverse();
 
             Assert.Equal(expected, actual);
         }
@@ -71,18 +71,17 @@ namespace System.Linq.Tests
 
             return integers
                 .Select(collection => new object[] { collection })
-                .Concat(
-                    integers.Select(c => new object[] { c.Select(i => i.ToString()) })
-                );
+                .Concat(integers.Select(c => new object[] { c.Select(i => i.ToString()).ToArray() }).ToArray())
+                .ToArray();
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Reverse();
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Reverse();
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
     }
 }

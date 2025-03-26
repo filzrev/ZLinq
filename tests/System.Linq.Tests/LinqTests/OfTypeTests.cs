@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class OfTypeTests : EnumerableTests
     {
@@ -124,34 +124,34 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<object>)null).OfType<string>());
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).OfType<int>();
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).OfType<int>();
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void ValueType_ReturnsOriginal()
         {
-            IEnumerable<int> e = Enumerable.Range(0, 10);
+            var e = Enumerable.Range(0, 10);
             Assert.Same(e, e.OfType<int>());
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void NullableValueType_ReturnsNewEnumerable()
         {
-            IEnumerable<int?> e = Enumerable.Range(0, 10).Select(i => (int?)i);
+            var e = Enumerable.Range(0, 10).Select(i => (int?)i);
             Assert.NotSame(e, e.OfType<int>());
             Assert.NotSame(e, e.OfType<int?>());
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void ReferenceType_ReturnsNewEnumerable()
         {
-            IEnumerable<object> e = Enumerable.Range(0, 10).Select(i => (object)i);
+            var e = Enumerable.Range(0, 10).Select(i => (object)i);
             Assert.NotSame(e, e.OfType<int>());
             Assert.NotSame(e, e.OfType<int?>());
             Assert.NotSame(e, e.OfType<object>());
@@ -178,7 +178,7 @@ namespace System.Linq.Tests
         public void Count()
         {
             Assert.Empty(new object[] { }.OfType<string>());
-            Assert.Single(new object[] { "abc" }.OfType<string>());
+            Assert.Single(new object[] { "abc" }.OfType<string>().ToArray());
             Assert.Equal(2, new object[] { "abc", "def" }.OfType<string>().Count());
             Assert.Equal(2, new object[] { "abc", 42, "def" }.OfType<string>().Count());
             Assert.Equal(2, new object[] { "abc", 42, null, "def" }.OfType<string>().Count());
@@ -217,7 +217,7 @@ namespace System.Linq.Tests
         public void MultipleIterations()
         {
             var orig = new object[] { null, null, null, null, null };
-            IEnumerable<object> objects = orig.OfType<object>();
+            var objects = orig.OfType<object>();
 
             for (int i = 0; i < orig.Length; i++)
             {

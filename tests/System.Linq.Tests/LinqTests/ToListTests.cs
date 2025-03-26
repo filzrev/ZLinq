@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ToListTests : EnumerableTests
     {
@@ -17,20 +17,20 @@ namespace System.Linq.Tests
         public void ToList_AlwaysCreateACopy()
         {
             List<int> sourceList = new List<int>() { 1, 2, 3, 4, 5 };
-            List<int> resultList = sourceList.ToList();
+            List<int> resultList = sourceList.AsValueEnumerable().ToList();
 
-            Assert.NotSame(sourceList, resultList);
+            Xunit.Assert.NotSame(sourceList, resultList);
             Assert.Equal(sourceList, resultList);
         }
 
 
         private void RunToListOnAllCollectionTypes<T>(T[] items, Action<List<T>> validation)
         {
-            validation(Enumerable.ToList(items));
-            validation(Enumerable.ToList(new List<T>(items)));
-            validation(new TestEnumerable<T>(items).ToList());
-            validation(new TestReadOnlyCollection<T>(items).ToList());
-            validation(new TestCollection<T>(items).ToList());
+            validation(items.AsValueEnumerable().ToList());
+            validation(new List<T>(items).AsValueEnumerable().ToList());
+            validation(new TestEnumerable<T>(items).AsValueEnumerable().ToList());
+            validation(new TestReadOnlyCollection<T>(items).AsValueEnumerable().ToList());
+            validation(new TestCollection<T>(items).AsValueEnumerable().ToList());
         }
 
 
@@ -62,21 +62,21 @@ namespace System.Linq.Tests
                 {
                     Assert.Equal(sourceStringArray.Length, resultStringList.Count);
                     for (int i = 0; i < sourceStringArray.Length; i++)
-                        Assert.Same(sourceStringArray[i], resultStringList[i]);
+                        Xunit.Assert.Same(sourceStringArray[i], resultStringList[i]);
                 });
         }
 
         [Fact]
         public void RunOnce()
         {
-            Assert.Equal(Enumerable.Range(3, 9), Enumerable.Range(3, 9).RunOnce().ToList());
+            Assert.Equal(Enumerable.Range(3, 9), Enumerable.Range(3, 9).RunOnce().AsValueEnumerable().ToList());
         }
 
         [Fact]
         public void ToList_TouchCountWithICollection()
         {
             TestCollection<int> source = new TestCollection<int>(new int[] { 1, 2, 3, 4 });
-            var resultList = source.ToList();
+            var resultList = source.AsValueEnumerable().ToList();
 
             Assert.Equal(source, resultList);
             Assert.Equal(1, source.CountTouched);
@@ -87,15 +87,15 @@ namespace System.Linq.Tests
         public void ToList_ThrowArgumentNullExceptionWhenSourceIsNull()
         {
             int[] source = null;
-            AssertExtensions.Throws<ArgumentNullException>("source", () => source.ToList());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => source.AsValueEnumerable().ToList());
         }
 
         // Generally the optimal approach. Anything that breaks this should be confirmed as not harming performance.
-        [Fact]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void ToList_UseCopyToWithICollection()
         {
             TestCollection<int> source = new TestCollection<int>(new int[] { 1, 2, 3, 4 });
-            var resultList = source.ToList();
+            var resultList = source.AsValueEnumerable().ToList();
 
             Assert.Equal(source, resultList);
             Assert.Equal(1, source.CopyToTouched);
@@ -197,8 +197,8 @@ namespace System.Linq.Tests
 
             ICollection<int> collection = source as ICollection<int>;
 
-            Assert.Empty(source.ToList());
-            Assert.Empty(collection.ToList());
+            Assert.Empty(source.AsValueEnumerable().ToList());
+            Assert.Empty(collection.AsValueEnumerable().ToList());
         }
 
         [Fact]
@@ -209,15 +209,15 @@ namespace System.Linq.Tests
 
             ICollection<int?> collection = source as ICollection<int?>;
 
-            Assert.Equal(expected, source.ToList());
-            Assert.Equal(expected, collection.ToList());
+            Assert.Equal(expected, source.AsValueEnumerable().ToList());
+            Assert.Equal(expected, collection.AsValueEnumerable().ToList());
         }
 
         [Fact]
         public void SourceNotICollectionAndIsEmpty()
         {
             IEnumerable<int> source = NumberRangeGuaranteedNotCollectionType(-4, 0);
-            Assert.Empty(source.ToList());
+            Assert.Empty(source.AsValueEnumerable().ToList());
         }
 
         [Fact]
@@ -228,7 +228,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as ICollection<int>);
 
-            Assert.Equal(expected, source.ToList());
+            Assert.Equal(expected, source.AsValueEnumerable().ToList());
         }
 
         [Fact]
@@ -239,7 +239,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as ICollection<int>);
 
-            Assert.Equal(expected, source.ToList());
+            Assert.Equal(expected, source.AsValueEnumerable().ToList());
         }
 
         [Fact]

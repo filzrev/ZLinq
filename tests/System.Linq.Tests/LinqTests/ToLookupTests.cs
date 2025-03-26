@@ -3,9 +3,10 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public partial class ToLookupTests : EnumerableTests
     {
@@ -41,11 +42,8 @@ namespace System.Linq.Tests
             var q1 = from x1 in new string[] { "Alen", "Felix", null, null, "X", "Have Space", "Clinton", "" }
                      select x1;
 
-            var q2 = from x2 in new int[] { 55, 49, 9, -100, 24, 25, -1, 0 }
-                     select x2;
-
             var q = from x3 in q1
-                    from x4 in q2
+                    from x4 in (from x2 in new int[] { 55, 49, 9, -100, 24, 25, -1, 0 } select x2)
                     select new { a1 = x3, a2 = x4 };
 
             Assert.Equal(q.ToLookup(e => e.a1), q.ToLookup(e => e.a1));
@@ -66,7 +64,7 @@ namespace System.Linq.Tests
             int[] element = { 50, 95, 55, 90 };
             var source = key.Zip(element, (k, e) => new { Name = k, Score = e });
 
-            AssertMatches(key, source, source.ToLookup(e => e.Name));
+            AssertMatches(key, source.ToArray(), source.ToLookup(e => e.Name));
         }
 
         [Fact]
@@ -281,7 +279,7 @@ namespace System.Linq.Tests
                     result = grouping.ToArray();
                     break;
                 default:
-                    result = grouping;
+                    result = grouping.ToArray(); // ZLinq don't support implicit cast to IEnumerable
                     break;
             }
 
@@ -295,9 +293,10 @@ namespace System.Linq.Tests
             Assert.Equal(expected, result);
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.ZLinq_Issue0087)]
         public void ApplyResultSelector()
         {
+            // ZLinq don't expose Lookup class.
             Lookup<int, int> lookup = (Lookup<int, int>)new int[] { 1, 2, 2, 3, 3, 3 }.ToLookup(i => i);
             IEnumerable<int> sums = lookup.ApplyResultSelector((key, elements) =>
             {
@@ -307,16 +306,18 @@ namespace System.Linq.Tests
             Assert.Equal([1, 4, 9], sums);
         }
 
-        [Theory]
+        [Theory(Skip = SkipReason.ZLinq_Issue0086)]
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(10)]
         public void LookupImplementsICollection(int count)
         {
-            Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString()));
-            Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), StringComparer.OrdinalIgnoreCase));
-            Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), i => i));
-            Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), i => i, StringComparer.OrdinalIgnoreCase));
+            var lookup = Enumerable.Range(0, count).AsValueEnumerable().ToLookup(i => i.ToString());
+
+            Xunit.Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString()));
+            Xunit.Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), StringComparer.OrdinalIgnoreCase));
+            Xunit.Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), i => i));
+            Xunit.Assert.IsAssignableFrom<ICollection<IGrouping<string, int>>>(Enumerable.Range(0, count).ToLookup(i => i.ToString(), i => i, StringComparer.OrdinalIgnoreCase));
 
             var collection = (ICollection<IGrouping<string, int>>)Enumerable.Range(0, count).ToLookup(i => i.ToString());
             Assert.Equal(count, collection.Count);

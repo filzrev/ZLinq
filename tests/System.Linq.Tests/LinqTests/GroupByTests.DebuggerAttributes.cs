@@ -6,11 +6,13 @@ using System.Diagnostics;
 using System.Reflection;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public partial class GroupByTests : EnumerableTests
     {
-        [ConditionalTheory(typeof(PlatformDetection), nameof(PlatformDetection.IsDebuggerTypeProxyAttributeSupported))]
+        [ConditionalTheory(
+            typeof(PlatformDetection), nameof(PlatformDetection.IsDebuggerTypeProxyAttributeSupported),
+            Skip = SkipReason.NotCompatibile)]
         [MemberData(nameof(DebuggerAttributesValid_Data))]
         public void DebuggerAttributesValid<TKey, TElement>(IGrouping<TKey, TElement> grouping, string keyString)
         {
@@ -35,18 +37,18 @@ namespace System.Linq.Tests
             TElement[] values = (TElement[])valuesProperty.GetValue(proxyObject);
             Assert.IsType<TElement[]>(values); // Arrays can be covariant / of assignment-compatible types
             Assert.Equal(grouping, values);
-            Assert.Same(values, valuesProperty.GetValue(proxyObject)); // The result should be cached, as Grouping is immutable.
+            Xunit.Assert.Same(values, valuesProperty.GetValue(proxyObject)); // The result should be cached, as Grouping is immutable.
         }
 
         public static IEnumerable<object[]> DebuggerAttributesValid_Data()
         {
-            IEnumerable<int> source = new[] { 1 };
-            yield return new object[] { source.GroupBy(i => i).Single(), "1" };
-            yield return new object[] { source.GroupBy(i => i.ToString(), i => i).Single(), @"""1""" };
-            yield return new object[] { source.GroupBy(i => TimeSpan.FromSeconds(i), i => i).Single(), "{00:00:01}" };
+            IEnumerable<int> source = [1];
+            yield return [source.GroupBy(i => i).Single(), "1"];
+            yield return [source.GroupBy(i => i.ToString(), i => i).Single(), @"""1"""];
+            yield return [source.GroupBy(i => TimeSpan.FromSeconds(i), i => i).Single(), "{00:00:01}"];
 
-            yield return new object[] { new string[] { null }.GroupBy(x => x).Single(), "null" };
-            yield return new object[] { new int?[] { null }.GroupBy(x => x).Single(), "null" };
+            yield return [new string[] { null }.GroupBy(x => x).Single(), "null"];
+            yield return [new int?[] { null }.GroupBy(x => x).Single(), "null"];
         }
     }
 }

@@ -4,14 +4,14 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ToHashSetTests
     {
         [Fact]
         public void NoExplicitComparer()
         {
-            var hs = Enumerable.Range(0, 50).ToHashSet();
+            var hs = Enumerable.Range(0, 50).AsValueEnumerable().ToHashSet();
             Assert.IsType<HashSet<int>>(hs);
             Assert.Equal(50, hs.Count);
             Assert.Equal(EqualityComparer<int>.Default, hs.Comparer);
@@ -21,16 +21,16 @@ namespace System.Linq.Tests
         public void ExplicitComparer()
         {
             var cmp = EqualityComparer<int>.Create((x, y) => x == y, x => x);
-            var hs = Enumerable.Range(0, 50).ToHashSet(cmp);
+            var hs = Enumerable.Range(0, 50).AsValueEnumerable().ToHashSet(cmp);
             Assert.IsType<HashSet<int>>(hs);
             Assert.Equal(50, hs.Count);
-            Assert.Same(cmp, hs.Comparer);
+            Xunit.Assert.Same(cmp, hs.Comparer);
         }
 
         [Fact]
         public void RunOnce()
         {
-            Enumerable.Range(0, 50).RunOnce().ToHashSet();
+            Enumerable.Range(0, 50).RunOnce().AsValueEnumerable().ToHashSet();
         }
 
         [Fact]
@@ -38,7 +38,7 @@ namespace System.Linq.Tests
         {
             // Unlike the keys of a dictionary, HashSet tolerates null items.
             Assert.DoesNotContain(null, new HashSet<string>());
-            var hs = new[] { "abc", null, "def" }.ToHashSet();
+            var hs = new[] { "abc", null, "def" }.AsValueEnumerable().ToHashSet();
             Assert.Contains(null, hs);
         }
 
@@ -60,7 +60,7 @@ namespace System.Linq.Tests
         [Fact]
         public void ThrowOnNullSource()
         {
-            Assert.Throws<ArgumentNullException>(() => ((IEnumerable<object>)null).ToHashSet());
+            Assert.Throws<ArgumentNullException>(() => ((IEnumerable<object>)null).AsValueEnumerable().ToHashSet());
         }
     }
 }

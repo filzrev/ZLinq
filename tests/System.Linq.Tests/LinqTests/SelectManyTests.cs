@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SelectManyTests : EnumerableTests
     {
@@ -212,14 +212,14 @@ namespace System.Linq.Tests
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]
         public void IndexOverflow()
         {
-            var selected = new FastInfiniteEnumerator<int>().SelectMany((e, i) => Enumerable.Empty<int>());
-            using (var en = selected.GetEnumerator())
-                Assert.Throws<OverflowException>(() =>
+            Assert.Throws<OverflowException>(() =>
+            {
+                var selected = new FastInfiniteEnumerator<int>().SelectMany((e, i) => Enumerable.Empty<int>());
+                using var en = selected.GetEnumerator();
+                while (en.MoveNext())
                 {
-                    while (en.MoveNext())
-                    {
-                    }
-                });
+                }
+            });
         }
 
         [Fact]
@@ -342,34 +342,34 @@ namespace System.Linq.Tests
         [Fact]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany(i => new int[0]);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany(i => new int[0]);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
         public void ForcedToEnumeratorDoesntEnumerateIndexed()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany((e, i) => new int[0]);
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany((e, i) => new int[0]);
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
         public void ForcedToEnumeratorDoesntEnumerateResultSel()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany(i => new int[0], (e, i) => e);
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany(i => new int[0], (e, i) => e);
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
         public void ForcedToEnumeratorDoesntEnumerateIndexedResultSel()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany((e, i) => new int[0], (e, i) => e);
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SelectMany((e, i) => new int[0], (e, i) => e);
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Theory]
@@ -378,7 +378,7 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(source), source =>
             {
-                var expected = source.Select(i => selector(i)).Aggregate((l, r) => l.Concat(r));
+                var expected = source.Select(i => selector(i)).Aggregate((l, r) => l.Concat(r).ToArray()).ToArray();
                 var actual = source.SelectMany(selector);
 
                 Assert.Equal(expected, actual);
@@ -424,9 +424,8 @@ namespace System.Linq.Tests
             var iterator = source.SelectMany(_ => subCollection);
 
             int index = 0; // How much have we gone into the iterator?
-            IEnumerator<int> e = iterator.GetEnumerator();
 
-            using (e)
+            using (var e = iterator.GetEnumerator())
             {
                 while (e.MoveNext())
                 {
@@ -443,31 +442,33 @@ namespace System.Linq.Tests
 
                     // However, all of the sub-collections before us should have been disposed.
                     // Their indices should also be maxed out.
-                    Assert.All(subState.Take(subIndex), s => Assert.Equal(subLength + 1, s));
-                    Assert.All(subCollectionDisposed.Take(subIndex), t => Assert.True(t));
+                    var substateValues = subState.Take(subIndex).ToArray();
+                    var subCollectionDisposedValues = subCollectionDisposed.Take(subIndex).ToArray();
+                    Assert.All(substateValues, s => Assert.Equal(subLength + 1, s));
+                    Assert.All(subCollectionDisposedValues, t => Assert.True(t));
 
                     index++;
                 }
+
+                // .NET Core fixes an oversight where we wouldn't properly dispose
+                // the SelectMany iterator. See https://github.com/dotnet/corefx/pull/13942.
+                int expectedCurrent = 0;
+                Assert.Equal(expectedCurrent, e.Current);
+                Assert.False(e.MoveNext());
+                Assert.Equal(expectedCurrent, e.Current);
             }
 
             Assert.True(sourceDisposed);
             Assert.Equal(sourceLength, subIndex);
             Assert.All(subState, s => Assert.Equal(subLength + 1, s));
-            Assert.All(subCollectionDisposed, t => Assert.True(t));
-
-            // .NET Core fixes an oversight where we wouldn't properly dispose
-            // the SelectMany iterator. See https://github.com/dotnet/corefx/pull/13942.
-            int expectedCurrent = 0;
-            Assert.Equal(expectedCurrent, e.Current);
-            Assert.False(e.MoveNext());
-            Assert.Equal(expectedCurrent, e.Current);
+            Assert.All(subCollectionDisposed, Assert.True);
         }
 
         public static IEnumerable<object[]> DisposeAfterEnumerationData()
         {
             int[] lengths = { 1, 2, 3, 5, 8, 13, 21, 34 };
 
-            return lengths.SelectMany(l => lengths, (l1, l2) => new object[] { l1, l2 });
+            return lengths.SelectMany(l => lengths, (l1, l2) => new object[] { l1, l2 }).ToArray();
         }
 
         [ConditionalTheory(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
@@ -476,7 +477,7 @@ namespace System.Linq.Tests
         [InlineData(new[] { 123, 456, int.MaxValue - 100000, 123456 })]
         public void ThrowOverflowExceptionOnConstituentLargeCounts(int[] counts)
         {
-            IEnumerable<int> iterator = counts.SelectMany(c => Enumerable.Range(1, c));
+            IEnumerable<int> iterator = counts.SelectMany(c => Enumerable.Range(1, c)).ToArray();
             Assert.Throws<OverflowException>(() => iterator.Count());
         }
 
@@ -501,7 +502,7 @@ namespace System.Linq.Tests
             int[] timesCalledMap = new int[count];
 
             IEnumerable<int> source = Enumerable.Range(0, 10);
-            IEnumerable<int> iterator = source.SelectMany(index =>
+            var iterator = source.SelectMany(index =>
             {
                 timesCalledMap[index]++;
                 return new[] { index };

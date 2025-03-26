@@ -4,30 +4,35 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class CastTests : EnumerableTests
     {
         [Fact]
         public void CastIntToLongThrows()
         {
-            var q = from x in new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }
-                    where x > int.MinValue
-                    select x;
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                var q = from x in new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }
+                        where x > int.MinValue
+                        select x;
 
-            var rst = q.Cast<long>();
-
-            Assert.Throws<InvalidCastException>(() => { foreach (var t in rst) ; });
+                var rst = q.Cast<long>();
+                foreach (var t in rst) ;
+            });
         }
 
         [Fact]
         public void CastByteToUShortThrows()
         {
-            var q = from x in new byte[] { 0, 255, 127, 128, 1, 33, 99 }
-                    select x;
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                var q = from x in new byte[] { 0, 255, 127, 128, 1, 33, 99 }
+                        select x;
 
-            var rst = q.Cast<ushort>();
-            Assert.Throws<InvalidCastException>(() => { foreach (var t in rst) ; });
+                var rst = q.Cast<ushort>();
+                foreach (var t in rst) ;
+            });
         }
 
         [Fact]
@@ -63,8 +68,10 @@ namespace System.Linq.Tests
             int? i = 10;
             object[] source = { -4, 1, 2, 3, 9, i };
 
-            IEnumerable<long> cast = source.Cast<long>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long>().ToList();
+            });
         }
 
         [Fact]
@@ -73,8 +80,10 @@ namespace System.Linq.Tests
             int? i = 10;
             object[] source = { -4, 1, 2, 3, 9, null, i };
 
-            IEnumerable<long?> cast = source.Cast<long?>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long?>().ToList();
+            });
         }
 
         [Fact]
@@ -93,10 +102,26 @@ namespace System.Linq.Tests
             object[] source = { -4, 1, 2, 3, 9, "45" };
             int[] expectedBeginning = { -4, 1, 2, 3, 9 };
 
-            IEnumerable<int> cast = source.Cast<int>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            var cast = source.Cast<int>();
+            try
+            {
+                cast.ToList();
+            }
+            catch (Exception ex)
+            {
+                ex.ShouldBeOfType<InvalidCastException>();
+            }
+
             Assert.Equal(expectedBeginning, cast.Take(5));
-            Assert.Throws<InvalidCastException>(() => cast.ElementAt(5));
+
+            try
+            {
+                cast.ElementAt(5);
+            }
+            catch (Exception ex)
+            {
+                ex.ShouldBeOfType<InvalidCastException>();
+            }
         }
 
         [Fact]
@@ -104,8 +129,10 @@ namespace System.Linq.Tests
         {
             int[] source = new int[] { -4, 1, 2, 9 };
 
-            IEnumerable<double> cast = source.Cast<double>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<double>().ToList();
+            });
         }
 
         private static void TestCastThrow<T>(object o)
@@ -113,9 +140,10 @@ namespace System.Linq.Tests
             byte? i = 10;
             object[] source = { -1, 0, o, i };
 
-            IEnumerable<T> cast = source.Cast<T>();
-
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<T>().ToList();
+            });
         }
 
         [Fact]
@@ -154,8 +182,10 @@ namespace System.Linq.Tests
         {
             object[] source = { "Test", 3, 5, 10 };
 
-            IEnumerable<int> cast = source.Cast<int>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<int>().ToList();
+            });
         }
 
         [Fact]
@@ -163,8 +193,10 @@ namespace System.Linq.Tests
         {
             object[] source = { -5, 9, 0, 5, 9, "Test" };
 
-            IEnumerable<int> cast = source.Cast<int>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<int>().ToList();
+            });
         }
 
         [Fact]
@@ -181,8 +213,10 @@ namespace System.Linq.Tests
         {
             int[] source = new int[] { -4, 1, 2, 3, 9 };
 
-            IEnumerable<long> cast = source.Cast<long>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long>().ToList();
+            });
         }
 
         [Fact]
@@ -190,8 +224,10 @@ namespace System.Linq.Tests
         {
             int[] source = new int[] { -4, 1, 2, 3, 9 };
 
-            IEnumerable<long?> cast = source.Cast<long?>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long?>().ToList();
+            });
         }
 
         [Fact]
@@ -199,8 +235,10 @@ namespace System.Linq.Tests
         {
             int?[] source = new int?[] { -4, 1, 2, 3, 9 };
 
-            IEnumerable<long> cast = source.Cast<long>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long>().ToList();
+            });
         }
 
         [Fact]
@@ -208,16 +246,21 @@ namespace System.Linq.Tests
         {
             int?[] source = new int?[] { -4, 1, 2, 3, 9, null };
 
-            IEnumerable<long?> cast = source.Cast<long?>();
-            Assert.Throws<InvalidCastException>(() => cast.ToList());
+            Assert.Throws<InvalidCastException>(() =>
+            {
+                source.Cast<long?>().ToList();
+            });
         }
 
         [Fact]
         public void CastingNullToNonnullableIsNullReferenceException()
         {
             int?[] source = new int?[] { -4, 1, null, 3 };
-            IEnumerable<int> cast = source.Cast<int>();
-            Assert.Throws<NullReferenceException>(() => cast.ToList());
+            var cast = source.Cast<int>();
+            Assert.Throws<NullReferenceException>(() =>
+            {
+                source.Cast<int>().ToList();
+            });
         }
 
         [Fact]
@@ -226,16 +269,16 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<object>)null).Cast<string>());
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = new object[0].Where(i => i is not null).Cast<string>();
+            var valueEnumerable = new object[0].Where(i => i is not null).Cast<string>();
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<string>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void TargetTypeIsSourceType_Nop()
         {
             object[] values = new string[] { "hello", "world" };

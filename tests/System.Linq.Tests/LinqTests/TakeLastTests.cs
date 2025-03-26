@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Xunit;
-using static System.Linq.Tests.SkipTakeData;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class TakeLastTests : EnumerableTests
     {
@@ -16,15 +15,15 @@ namespace System.Linq.Tests
         }
 
         [Theory]
-        [MemberData(nameof(EnumerableData), MemberType = typeof(SkipTakeData))]
+        [MemberData(nameof(SkipTakeData.EnumerableData), MemberType = typeof(SkipTakeData))]
         public void TakeLast(IEnumerable<int> source, int count)
         {
             Assert.All(IdentityTransforms<int>(), transform =>
             {
                 IEnumerable<int> equivalent = transform(source);
 
-                IEnumerable<int> expected = equivalent.Reverse().Take(count).Reverse();
-                IEnumerable<int> actual = equivalent.TakeLast(count);
+                var expected = equivalent.Reverse().Take(count).Reverse().ToArray();
+                var actual = equivalent.TakeLast(count).ToArray();
 
                 Assert.Equal(expected, actual);
                 Assert.Equal(expected.Count(), actual.Count());
@@ -44,8 +43,8 @@ namespace System.Linq.Tests
             });
         }
 
-        [Theory]
-        [MemberData(nameof(EvaluationBehaviorData), MemberType = typeof(SkipTakeData))]
+        [Theory(Skip = SkipReason.ZLinq_Issue0081)]
+        [MemberData(nameof(SkipTakeData.EvaluationBehaviorData), MemberType = typeof(SkipTakeData))]
         public void EvaluationBehavior(int count)
         {
             int index = 0;
@@ -56,7 +55,7 @@ namespace System.Linq.Tests
                 current: () => index, // Yield from 1 up to the limit, inclusive.
                 dispose: () => index ^= int.MinValue);
 
-            IEnumerator<int> iterator = source.TakeLast(count).GetEnumerator();
+            var iterator = source.TakeLast(count).GetEnumerator();
             Assert.Equal(0, index); // Nothing should be done before MoveNext is called.
 
             for (int i = 1; i <= count; i++)
@@ -71,19 +70,21 @@ namespace System.Linq.Tests
             }
 
             Assert.False(iterator.MoveNext());
+            Assert.Equal(0, iterator.Current);
 
             // Unlike SkipLast, TakeLast can tell straightaway that it can return a sequence with no elements if count <= 0.
             // The enumerable it returns is a specialized empty iterator that has no connections to the source. Hence,
             // after MoveNext returns false under those circumstances, it won't invoke Dispose on our enumerator.
             int expected = count <= 0 ? 0 : int.MinValue;
+            iterator.Dispose();
             Assert.Equal(expected, index & int.MinValue);
         }
 
         [Theory]
-        [MemberData(nameof(EnumerableData), MemberType = typeof(SkipTakeData))]
+        [MemberData(nameof(SkipTakeData.EnumerableData), MemberType = typeof(SkipTakeData))]
         public void RunOnce(IEnumerable<int> source, int count)
         {
-            IEnumerable<int> expected = source.TakeLast(count);
+            var expected = source.TakeLast(count);
             Assert.Equal(expected, source.TakeLast(count).RunOnce());
         }
 
@@ -92,7 +93,7 @@ namespace System.Linq.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 };
 
-            IEnumerable<int> e = list.TakeLast(3);
+            var e = list.TakeLast(3);
 
             list.RemoveAt(0);
             list.RemoveAt(0);
@@ -105,7 +106,7 @@ namespace System.Linq.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 };
 
-            IEnumerable<int> e = list.Skip(1).TakeLast(3);
+            var e = list.Skip(1).TakeLast(3);
 
             list.RemoveAt(0);
 

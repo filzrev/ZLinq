@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public partial class GroupByTests : EnumerableTests
     {
@@ -53,7 +53,7 @@ namespace System.Linq.Tests
             }
             foreach (IGrouping<TKey, TElement> group in grouping)
             {
-                Assert.NotEmpty(group);
+                Assert.NotEmpty(group.ToArray());
                 TKey key = group.Key;
                 List<TElement> list;
 
@@ -85,21 +85,18 @@ namespace System.Linq.Tests
             var q1 = from x1 in new string[] { "Alen", "Felix", null, null, "X", "Have Space", "Clinton", "" }
                      select x1;
 
-            var q2 = from x2 in new int[] { 55, 49, 9, -100, 24, 25, -1, 0 }
-                     select x2;
-
             var q = from x3 in q1
-                    from x4 in q2
+                    from x4 in (from x2 in new int[] { 55, 49, 9, -100, 24, 25, -1, 0 } select x2)
                     select new { a1 = x3, a2 = x4 };
 
-            Assert.NotNull(q.GroupBy(e => e.a1, e => e.a2));
+            Assert.NotNull(q.GroupBy(e => e.a1, e => e.a2).ToArray());
             Assert.Equal(q.GroupBy(e => e.a1, e => e.a2), q.GroupBy(e => e.a1, e => e.a2));
         }
 
         [Fact]
         public void Grouping_IList_IsReadOnly()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             foreach (IList<int> grouping in oddsEvens)
             {
                 Assert.True(grouping.IsReadOnly);
@@ -109,7 +106,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Grouping_IList_NotSupported()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             foreach (IList<int> grouping in oddsEvens)
             {
                 Assert.Throws<NotSupportedException>(() => grouping.Add(5));
@@ -124,7 +121,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Grouping_IList_IndexerGetter()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
@@ -141,7 +138,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Grouping_IList_IndexGetterOutOfRange()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
@@ -153,7 +150,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Grouping_ICollection_Contains()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
@@ -174,7 +171,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Grouping_IList_IndexOf()
         {
-            IEnumerable<IGrouping<bool, int>> oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
+            var oddsEvens = new int[] { 1, 2, 3, 4 }.GroupBy(i => i % 2 == 0);
             var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
@@ -198,7 +195,7 @@ namespace System.Linq.Tests
             string[] key = { null };
             string[] element = { null };
 
-            AssertGroupingCorrect(key, element, new string[] { null }.GroupBy(e => e, e => e, EqualityComparer<string>.Default), EqualityComparer<string>.Default);
+            AssertGroupingCorrect(key, element, new string[] { null }.GroupBy(e => e, e => e, EqualityComparer<string>.Default).ToArray(), EqualityComparer<string>.Default);
         }
 
         [Fact]
@@ -304,9 +301,12 @@ namespace System.Linq.Tests
         {
             string[] key = { "Tim", "Tim", "Tim", "Tim" };
             int[] element = { 60, -10, 40, 100 };
-            var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
 
-            AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.GroupBy(null, (k, es) => es.Sum(e => e.Score), new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>("keySelector", () =>
+            {
+                var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
+                source.GroupBy(null, (k, es) => es.Sum(e => e.Score), new AnagramEqualityComparer());
+            });
         }
 
         [Fact]
@@ -401,11 +401,14 @@ namespace System.Linq.Tests
         {
             string[] key = { "Tim", "Tim", "Tim", "Tim" };
             int[] element = { 60, -10, 40, 100 };
-            var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
 
             Func<string, IEnumerable<Record>, long> resultSelector = null;
 
-            AssertExtensions.Throws<ArgumentNullException>("resultSelector", () => source.GroupBy(e => e.Name, resultSelector, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>("resultSelector", () =>
+            {
+                var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
+                source.GroupBy(e => e.Name, resultSelector, new AnagramEqualityComparer());
+            });
         }
 
         [Fact]
@@ -495,7 +498,7 @@ namespace System.Linq.Tests
             string[] key = { "Tim" };
             Record[] source = { new Record { Name = key[0], Score = 60 } };
 
-            AssertGroupingCorrect(key, source, source.GroupBy(e => e.Name));
+            AssertGroupingCorrect(key, source, source.GroupBy(e => e.Name).ToArray());
         }
 
         [Fact]
@@ -505,7 +508,7 @@ namespace System.Linq.Tests
             int[] scores = { 60, -10, 40, 100 };
             var source = key.Zip(scores, (k, e) => new Record { Name = k, Score = e });
 
-            AssertGroupingCorrect(key, source, source.GroupBy(e => e.Name, new AnagramEqualityComparer()), new AnagramEqualityComparer());
+            AssertGroupingCorrect(key, source.ToArray(), source.GroupBy(e => e.Name, new AnagramEqualityComparer()).ToArray(), new AnagramEqualityComparer());
         }
 
         [Fact]
@@ -515,7 +518,7 @@ namespace System.Linq.Tests
             int[] element = { 60, -10, 40, 100 };
             var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
 
-            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score));
+            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score).ToArray());
         }
 
         [Fact]
@@ -525,7 +528,7 @@ namespace System.Linq.Tests
             int[] element = { 55, 25, 49, 24, -100, 9 };
             var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
 
-            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score));
+            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score).ToArray());
         }
 
         [Fact]
@@ -535,7 +538,7 @@ namespace System.Linq.Tests
             int[] element = { 55, 25, 49, 24, 9, 9 };
             var source = key.Zip(element, (k, e) => new Record { Name = k, Score = e });
 
-            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score));
+            AssertGroupingCorrect(key, element, source.GroupBy(e => e.Name, e => e.Score).ToArray());
         }
 
         [Fact]
@@ -556,7 +559,7 @@ namespace System.Linq.Tests
 
             var result = elements.GroupBy(e => e, (e, f) => new { Key = e, Element = f });
 
-            Assert.Single(result);
+            Assert.Single(result.ToArray());
 
             var grouping = result.First();
 
@@ -867,7 +870,7 @@ namespace System.Linq.Tests
         [Fact]
         public void MultipleIterationsOfSameEnumerable()
         {
-            foreach (IEnumerable<IGrouping<int, int>> e1 in new[] { Enumerable.Range(0, 10).GroupBy(i => i), Enumerable.Range(0, 10).GroupBy(i => i, i => i) })
+            foreach (IEnumerable<IGrouping<int, int>> e1 in new[] { Enumerable.Range(0, 10).GroupBy(i => i).ToArray(), Enumerable.Range(0, 10).GroupBy(i => i, i => i).ToArray() })
             {
                 for (int trial = 0; trial < 3; trial++)
                 {
@@ -877,7 +880,7 @@ namespace System.Linq.Tests
                 }
             }
 
-            foreach (IEnumerable<int> e2 in new[] { Enumerable.Range(0, 10).GroupBy(i => i, (i, e) => i), Enumerable.Range(0, 10).GroupBy(i => i, i => i, (i, e) => i) })
+            foreach (IEnumerable<int> e2 in new[] { Enumerable.Range(0, 10).GroupBy(i => i, (i, e) => i).ToArray(), Enumerable.Range(0, 10).GroupBy(i => i, i => i, (i, e) => i).ToArray() })
             {
                 for (int trial = 0; trial < 3; trial++)
                 {

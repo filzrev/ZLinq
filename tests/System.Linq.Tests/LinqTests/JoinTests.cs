@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class JoinTests : EnumerableTests
     {
@@ -134,7 +134,7 @@ namespace System.Linq.Tests
                 new AnagramRec{ name = "Prakash", orderID = 323232, total = 9 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("outer", () => outer.Join(inner, e => e.name, e => e.name, createJoinRec, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => outer.Join(inner, e => e.name, e => e.name, createJoinRec, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -215,7 +215,7 @@ namespace System.Linq.Tests
                 new AnagramRec{ name = "Prakash", orderID = 323232, total = 9 }
             };
 
-            AssertExtensions.Throws<ArgumentNullException>("outer", () => outer.Join(inner, e => e.name, e => e.name, createJoinRec));
+            AssertExtensions.Throws<ArgumentNullException>(() => outer.Join(inner, e => e.name, e => e.name, createJoinRec));
         }
 
         [Fact]
@@ -409,13 +409,13 @@ namespace System.Linq.Tests
             Assert.Empty(outer.Join(inner, e => e.custID, e => e.custID, createJoinRec));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Join(Enumerable.Empty<int>(), i => i, i => i, (o, i) => i);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Join(Enumerable.Empty<int>(), i => i, i => i, (o, i) => i);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
     }
 }

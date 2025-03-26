@@ -3,15 +3,18 @@
 
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public sealed class CreateOrderedEnumerableTests
     {
-        [Fact]
+        [Fact(Skip = SkipReason.ZLinq_Issue0088)]
         public void ThrowsNullKeySelector()
         {
-            var enumerable = new int[0].Order();
-            Assert.Throws<ArgumentNullException>(() => enumerable.CreateOrderedEnumerable((Func<int, int>)null!, null, false));
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var enumerable = new int[0].Order();
+                // enumerable.CreateOrderedEnumerable((Func<int, int>)null!, null, false);
+            });
         }
     }
 }

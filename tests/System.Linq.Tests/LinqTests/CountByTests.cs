@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class CountByTests : EnumerableTests
     {
@@ -32,9 +32,11 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnGetEnumerator();
 
-            var enumerator = source.CountBy(x => x).GetEnumerator();
-
-            Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var enumerator = source.CountBy(x => x).GetEnumerator();
+                enumerator.MoveNext();
+            });
         }
 
         [Fact]
@@ -42,9 +44,11 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnMoveNext();
 
-            var enumerator = source.CountBy(x => x).GetEnumerator();
-
-            Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var enumerator = source.CountBy(x => x).GetEnumerator();
+                enumerator.MoveNext();
+            });
         }
 
         [Fact]
@@ -52,9 +56,11 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnCurrentEnumerator();
 
-            var enumerator = source.CountBy(x => x).GetEnumerator();
-
-            Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
+            Assert.Throws<InvalidOperationException>(() =>
+            {
+                var enumerator = source.CountBy(x => x).GetEnumerator();
+                enumerator.MoveNext();
+            });
         }
 
         [Fact]
@@ -70,25 +76,25 @@ namespace System.Linq.Tests
                 source: Enumerable.Range(0, 10),
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Range(0, 10).Select(x => new KeyValuePair<int, int>(x, 1)));
+                expected: Enumerable.Range(0, 10).Select(x => new KeyValuePair<int, int>(x, 1)).ToArray());
 
             Validate(
                 source: Enumerable.Range(5, 10),
                 keySelector: x => true,
                 comparer: null,
-                expected: Enumerable.Repeat(true, 1).Select(x => new KeyValuePair<bool, int>(x, 10)));
+                expected: Enumerable.Repeat(true, 1).Select(x => new KeyValuePair<bool, int>(x, 10)).ToArray());
 
             Validate(
                 source: Enumerable.Range(0, 20),
                 keySelector: x => x % 5,
                 comparer: null,
-                expected: Enumerable.Range(0, 5).Select(x => new KeyValuePair<int, int>(x, 4)));
+                expected: Enumerable.Range(0, 5).Select(x => new KeyValuePair<int, int>(x, 4)).ToArray());
 
             Validate(
                 source: Enumerable.Repeat(5, 20),
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Repeat(5, 1).Select(x => new KeyValuePair<int, int>(x, 20)));
+                expected: Enumerable.Repeat(5, 1).Select(x => new KeyValuePair<int, int>(x, 20)).ToArray());
 
             Validate(
                 source: new string[] { "Bob", "bob", "tim", "Bob", "Tim" },
@@ -116,7 +122,7 @@ namespace System.Linq.Tests
                 source: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },
                 keySelector: x => x.Age,
                 comparer: null,
-                expected: new int[] { 20, 30, 40 }.Select(x => new KeyValuePair<int, int>(x, 1)));
+                expected: new int[] { 20, 30, 40 }.Select(x => new KeyValuePair<int, int>(x, 1)).ToArray());
 
             Validate(
                 source: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 20), ("Harry", 40) },
@@ -132,7 +138,7 @@ namespace System.Linq.Tests
                 source: new (string Name, int Age)[] { ("Bob", 20), ("bob", 30), ("Harry", 40) },
                 keySelector: x => x.Name,
                 comparer: null,
-                expected: new string[] { "Bob", "bob", "Harry" }.Select(x => new KeyValuePair<string, int>(x, 1)));
+                expected: new string[] { "Bob", "bob", "Harry" }.Select(x => new KeyValuePair<string, int>(x, 1)).ToArray());
 
             Validate(
                 source: new (string Name, int Age)[] { ("Bob", 20), ("bob", 30), ("Harry", 40) },

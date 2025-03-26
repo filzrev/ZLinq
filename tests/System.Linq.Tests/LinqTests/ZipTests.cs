@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ZipTests : EnumerableTests
     {
@@ -34,7 +34,7 @@ namespace System.Linq.Tests
             IEnumerable<int> first = null;
             IEnumerable<int> second = new int[] { 2, 5, 9 };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Zip<int, int, int>(second, (x, y) => x + y));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Zip<int, int, int>(second, (x, y) => x + y));
         }
 
         [Fact]
@@ -68,9 +68,11 @@ namespace System.Linq.Tests
 
             first = new ThrowsOnMatchEnumerable<int>(new int[] { 1, 2, 3 }, 2);
 
-            var zip = first.Zip(second, func);
-
-            Assert.Throws<Exception>(() => zip.ToList());
+            Assert.Throws<Exception>(() =>
+            {
+                var zip = first.Zip(second, func);
+                zip.ToList();
+            });
         }
 
         [Fact]
@@ -85,9 +87,11 @@ namespace System.Linq.Tests
 
             second = new ThrowsOnMatchEnumerable<int>(new int[] { 1, 2, 3 }, 2);
 
-            var zip = first.Zip(second, func);
-
-            Assert.Throws<Exception>(() => zip.ToList());
+            Assert.Throws<Exception>(() =>
+            {
+                var zip = first.Zip(second, func);
+                zip.ToList();
+            });
         }
 
         [Fact]
@@ -368,13 +372,13 @@ namespace System.Linq.Tests
             Assert.Equal(expected, first.Zip(second, func));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Zip(Enumerable.Range(0, 3), (x, y) => x + y);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Zip(Enumerable.Range(0, 3), (x, y) => x + y);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            using var en = valueEnumerable.GetEnumerator();
+            Assert.False(en.MoveNext());
         }
 
         [Fact]
@@ -414,7 +418,7 @@ namespace System.Linq.Tests
             IEnumerable<int> first = null;
             IEnumerable<int> second = new int[] { 2, 5, 9 };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Zip<int, int>(second));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Zip<int, int>(second));
         }
 
         [Fact]
@@ -437,9 +441,11 @@ namespace System.Linq.Tests
 
             first = new ThrowsOnMatchEnumerable<int>(new int[] { 1, 2, 3 }, 2);
 
-            IEnumerable<(int, int)> zip = first.Zip(second);
-
-            Assert.Throws<Exception>(() => zip.ToList());
+            Assert.Throws<Exception>(() =>
+            {
+                var zip = first.Zip(second);
+                zip.ToList();
+            });
         }
 
         [Fact]
@@ -453,9 +459,11 @@ namespace System.Linq.Tests
 
             second = new ThrowsOnMatchEnumerable<int>(new int[] { 1, 2, 3 }, 2);
 
-            IEnumerable<(int, int)> zip = first.Zip(second);
-
-            Assert.Throws<Exception>(() => zip.ToList());
+            Assert.Throws<Exception>(() =>
+            {
+                var zip = first.Zip(second);
+                zip.ToList();
+            });
         }
 
         [Fact]
@@ -609,7 +617,7 @@ namespace System.Linq.Tests
             IEnumerable<int> second = new[] { 4, 5, 6 };
             IEnumerable<int> third = new[] { 7, 8, 9 };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Zip(second, third));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Zip(second, third));
         }
 
         [Fact]

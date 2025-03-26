@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Xunit;
-using static System.Linq.Tests.SkipTakeData;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SkipLastTests : EnumerableTests
     {
@@ -16,15 +15,15 @@ namespace System.Linq.Tests
         }
 
         [Theory]
-        [MemberData(nameof(EnumerableData), MemberType = typeof(SkipTakeData))]
+        [MemberData(nameof(SkipTakeData.EnumerableData), MemberType = typeof(SkipTakeData))]
         public void SkipLast(IEnumerable<int> source, int count)
         {
             Assert.All(IdentityTransforms<int>(), transform =>
             {
                 IEnumerable<int> equivalent = transform(source);
 
-                IEnumerable<int> expected = equivalent.Reverse().Skip(count).Reverse();
-                IEnumerable<int> actual = equivalent.SkipLast(count);
+                var expected = equivalent.Reverse().Skip(count).Reverse().ToArray();
+                var actual = equivalent.SkipLast(count).ToArray();
 
                 Assert.Equal(expected, actual);
                 Assert.Equal(expected.Count(), actual.Count());
@@ -45,7 +44,7 @@ namespace System.Linq.Tests
         }
 
         [Theory]
-        [MemberData(nameof(EvaluationBehaviorData), MemberType = typeof(SkipTakeData))]
+        [MemberData(nameof(SkipTakeData.EvaluationBehaviorData), MemberType = typeof(SkipTakeData))]
         public void EvaluationBehavior(int count)
         {
             // We want to make sure no more than `count` items are ever evaluated ahead of the current position.
@@ -59,7 +58,8 @@ namespace System.Linq.Tests
                 current: () => index, // Yield from 1 up to the limit, inclusive.
                 dispose: () => index ^= int.MinValue);
 
-            IEnumerator<int> iterator = source.SkipLast(count).GetEnumerator();
+            var iterator = source.SkipLast(count).GetEnumerator();
+
             Assert.Equal(0, index); // Nothing should be done before MoveNext is called.
 
             for (int i = 1; i <= count; i++)
@@ -70,14 +70,17 @@ namespace System.Linq.Tests
             }
 
             Assert.False(iterator.MoveNext());
+            Assert.Equal(0, iterator.Current);
+
+            iterator.Dispose();
             Assert.Equal(int.MinValue, index & int.MinValue);
         }
 
         [Theory]
-        [MemberData(nameof(EnumerableData), MemberType = typeof(SkipTakeData))]
+        [MemberData(nameof(SkipTakeData.EnumerableData), MemberType = typeof(SkipTakeData))]
         public void RunOnce(IEnumerable<int> source, int count)
         {
-            IEnumerable<int> expected = source.SkipLast(count);
+            var expected = source.SkipLast(count);
             Assert.Equal(expected, source.SkipLast(count).RunOnce());
         }
 
@@ -86,7 +89,7 @@ namespace System.Linq.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 };
 
-            IEnumerable<int> e = list.SkipLast(2);
+            var e = list.SkipLast(2);
 
             list.RemoveAt(4);
             list.RemoveAt(3);
@@ -99,7 +102,7 @@ namespace System.Linq.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 };
 
-            IEnumerable<int> e = list.Skip(1).SkipLast(2);
+            var e = list.Skip(1).SkipLast(2);
 
             list.RemoveAt(4);
 

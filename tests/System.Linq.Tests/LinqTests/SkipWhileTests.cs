@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class SkipWhileTests : EnumerableTests
     {
@@ -41,11 +41,12 @@ namespace System.Linq.Tests
         [Fact]
         public void SkipWhilePassesPredicateExceptionWhenEnumerated()
         {
-            var source = Enumerable.Range(-2, 5).SkipWhile(i => 1 / i <= 0);
-            using (var en = source.GetEnumerator())
+            Assert.Throws<DivideByZeroException>(() =>
             {
-                Assert.Throws<DivideByZeroException>(() => en.MoveNext());
-            }
+                var source = Enumerable.Range(-2, 5).SkipWhile(i => 1 / i <= 0);
+                using var en = source.GetEnumerator();
+                en.MoveNext();
+            });
         }
 
         [Fact]
@@ -65,11 +66,12 @@ namespace System.Linq.Tests
         [Fact]
         public void SkipErrorWhenSourceErrors()
         {
-            var source = NumberRangeGuaranteedNotCollectionType(-2, 5).Select(i => (decimal)i).Select(m => 1 / m).Skip(4);
-            using (var en = source.GetEnumerator())
+            Assert.Throws<DivideByZeroException>(() =>
             {
-                Assert.Throws<DivideByZeroException>(() => en.MoveNext());
-            }
+                var source = NumberRangeGuaranteedNotCollectionType(-2, 5).Select(i => (decimal)i).Select(m => 1 / m).Skip(4);
+                using var en = source.GetEnumerator();
+                en.MoveNext();
+            });
         }
 
         [Fact]
@@ -149,33 +151,32 @@ namespace System.Linq.Tests
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]
         public void IndexSkipWhileOverflowBeyondIntMaxValueElements()
         {
-            var skipped = new FastInfiniteEnumerator<int>().SkipWhile((e, i) => true);
-
-            using (var en = skipped.GetEnumerator())
-                Assert.Throws<OverflowException>(() =>
+            Assert.Throws<OverflowException>(() =>
+            {
+                var skipped = new FastInfiniteEnumerator<int>().SkipWhile((e, i) => true);
+                using var en = skipped.GetEnumerator();
+                while (en.MoveNext())
                 {
-                    while (en.MoveNext())
-                    {
-                    }
-                });
+                }
+            });
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SkipWhile(e => true);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SkipWhile(e => true);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateIndexed()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).SkipWhile((e, i) => true);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).SkipWhile((e, i) => true);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
     }
 }

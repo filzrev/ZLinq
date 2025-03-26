@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class DefaultIfEmptyTests : EnumerableTests
     {
@@ -44,22 +44,24 @@ namespace System.Linq.Tests
         [MemberData(nameof(TestData))]
         public static void DefaultIfEmpty(IEnumerable<int> source, int defaultValue, int[] expected)
         {
-            IEnumerable<int> result;
             if (defaultValue == 0)
             {
-                result = source.DefaultIfEmpty();
+                var result = source.DefaultIfEmpty();
                 Assert.Equal(result, result);
                 Assert.Equal(expected, result);
                 Assert.Equal(expected.Length, result.Count());
                 Assert.Equal(expected, result.ToList());
                 Assert.Equal(expected, result.ToArray());
             }
-            result = source.DefaultIfEmpty(defaultValue);
-            Assert.Equal(result, result);
-            Assert.Equal(expected, result);
-            Assert.Equal(expected.Length, result.Count());
-            Assert.Equal(expected, result.ToList());
-            Assert.Equal(expected, result.ToArray());
+
+            {
+                var result = source.DefaultIfEmpty(defaultValue);
+                Assert.Equal(result, result);
+                Assert.Equal(expected, result);
+                Assert.Equal(expected.Length, result.Count());
+                Assert.Equal(expected, result.ToList());
+                Assert.Equal(expected, result.ToArray());
+            }
         }
 
         [Theory, MemberData(nameof(TestData))]
@@ -97,13 +99,13 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("source", () => source.DefaultIfEmpty(42));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).DefaultIfEmpty();
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).DefaultIfEmpty();
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]

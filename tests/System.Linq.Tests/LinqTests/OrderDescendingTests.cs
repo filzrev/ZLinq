@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public sealed class OrderDescendingTests : EnumerableTests
     {
@@ -172,7 +172,7 @@ namespace System.Linq.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void OrderByExtremeComparer()
         {
             int[] outOfOrder = new[] { 7, 1, 0, 9, 3, 5, 4, 2, 8, 6 };
@@ -194,10 +194,10 @@ namespace System.Linq.Tests
         public void SortsLargeAscendingEnumerableCorrectly()
         {
             const int Items = 1_000_000;
-            IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items).Reverse();
+            var expected = NumberRangeGuaranteedNotCollectionType(0, Items).Reverse();
 
-            IEnumerable<int> unordered = expected.Select(i => i);
-            IOrderedEnumerable<int> ordered = unordered.OrderDescending();
+            var unordered = expected.Select(i => i);
+            var ordered = unordered.OrderDescending().ToArray();
 
             Assert.Equal(expected, ordered);
         }
@@ -206,10 +206,10 @@ namespace System.Linq.Tests
         public void SortsLargeDescendingEnumerableCorrectly()
         {
             const int Items = 1_000_000;
-            IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items).Reverse();
+            var expected = NumberRangeGuaranteedNotCollectionType(0, Items).Reverse();
 
-            IEnumerable<int> unordered = expected.Select(i => Items - i - 1);
-            IOrderedEnumerable<int> ordered = unordered.OrderDescending();
+            var unordered = expected.Select(i => Items - i - 1);
+            var ordered = unordered.OrderDescending();
 
             Assert.Equal(expected, ordered);
         }
@@ -250,8 +250,8 @@ namespace System.Linq.Tests
 
             foreach (object[] objects in arrays)
             {
-                Assert.Same(objects.OrderDescending().First(), objects.OrderDescending().ToArray().First());
-                Assert.Same(objects.OrderDescending().Last(), objects.OrderDescending().ToArray().Last());
+                Assert.Equal(objects.OrderDescending().First(), objects.OrderDescending().ToArray().First());
+                Assert.Equal(objects.OrderDescending().Last(), objects.OrderDescending().ToArray().Last());
             }
         }
     }

@@ -96,8 +96,8 @@ namespace ZLinq.Tests
             string[] first = null;
             string[] second = { "ekiM", "bBo" };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Intersect(second));
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.Intersect(second, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Intersect(second));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.Intersect(second, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -110,14 +110,14 @@ namespace ZLinq.Tests
             AssertExtensions.Throws<ArgumentNullException>("second", () => first.Intersect(second, new AnagramEqualityComparer()));
         }
 
-        ////[Fact]
-        ////public void ForcedToEnumeratorDoesntEnumerate()
-        ////{
-        ////    var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Intersect(Enumerable.Range(0, 3));
-        ////    // Don't insist on this behaviour, but check it's correct if it happens
-        ////    var en = iterator as IEnumerator<int>;
-        ////    Assert.False(en is not null && en.MoveNext());
-        ////}
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
+        public void ForcedToEnumeratorDoesntEnumerate()
+        {
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Intersect(Enumerable.Range(0, 3));
+            // Don't insist on this behaviour, but check it's correct if it happens
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
+        }
 
         [Fact]
         public void HashSetWithBuiltInComparer_HashSetContainsNotUsed()
@@ -142,8 +142,8 @@ namespace ZLinq.Tests
             string[] first = null;
             string[] second = { "bBo", "shriC" };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.IntersectBy(second, x => x));
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.IntersectBy(second, x => x, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.IntersectBy(second, x => x));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.IntersectBy(second, x => x, new AnagramEqualityComparer()));
         }
 
         [Fact]

@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class RepeatTests : EnumerableTests
     {
@@ -51,7 +51,7 @@ namespace System.Linq.Tests
             var array = Enumerable.Repeat(objectInstance, 100).ToArray();
             Assert.Equal(100, array.Length);
             for (var i = 0; i < array.Length; i++)
-                Assert.Same(objectInstance, array[i]);
+                Xunit.Assert.Same(objectInstance, array[i]);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace System.Linq.Tests
             var repeatEnumerable = Enumerable.Repeat(1, 1);
             using (var repeatEnumerator = repeatEnumerable.GetEnumerator())
             {
-                Assert.Same(repeatEnumerable, repeatEnumerator);
+                Xunit.Assert.Same(repeatEnumerable, repeatEnumerator);
             }
         }
 
@@ -107,7 +107,7 @@ namespace System.Linq.Tests
             using (var enum1 = repeatEnumerable.GetEnumerator())
             using (var enum2 = repeatEnumerable.GetEnumerator())
             {
-                Assert.NotSame(enum1, enum2);
+                Xunit.Assert.NotSame(enum1, enum2);
             }
         }
 
@@ -244,7 +244,7 @@ namespace System.Linq.Tests
         public void ICollectionImplementationIsValid()
         {
             Validate(Enumerable.Repeat(42, 10), new[] { 42, 42, 42, 42, 42, 42, 42, 42, 42, 42 });
-            Validate(Enumerable.Repeat(42, 10).Skip(3).Take(4), new[] { 42, 42, 42, 42 });
+            Validate(Enumerable.Repeat(42, 10).Skip(3).Take(4).ToArray(), new[] { 42, 42, 42, 42 });
 
             static void Validate(IEnumerable<int> e, int[] expected)
             {
@@ -256,7 +256,7 @@ namespace System.Linq.Tests
                 Assert.Throws<NotSupportedException>(() => list.Clear());
                 Assert.Throws<NotSupportedException>(() => list.Remove(42));
                 Assert.Throws<NotSupportedException>(() => list.RemoveAt(0));
-                Assert.Throws<NotSupportedException>(() => list[0] = 42);
+                // Assert.Throws<NotSupportedException>(() => list[0] = 42); // ZLinq require ToArray()
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => list[-1]);
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => list[expected.Length]);
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => roList[-1]);

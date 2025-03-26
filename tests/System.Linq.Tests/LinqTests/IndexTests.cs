@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class IndexTests : EnumerableTests
     {
@@ -25,15 +25,15 @@ namespace System.Linq.Tests
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]
         public void LargeEnumerable_ThrowsOverflowException()
         {
-            long maxInt = int.MaxValue;
-            var overflowRange = RepeatedNumberGuaranteedNotCollectionType(num: 1, count: maxInt + 2).Index();
-            using (var en = overflowRange.GetEnumerator())
-                Assert.Throws<OverflowException>(() =>
+            long maxInt = int.MaxValue;            
+            Assert.Throws<OverflowException>(() =>
+            {
+                var overflowRange = RepeatedNumberGuaranteedNotCollectionType(num: 1, count: maxInt + 2).Index();
+                using var en = overflowRange.GetEnumerator();
+                while (en.MoveNext())
                 {
-                    while (en.MoveNext())
-                    {
-                    }
-                });
+                }
+            });
         }
 
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]

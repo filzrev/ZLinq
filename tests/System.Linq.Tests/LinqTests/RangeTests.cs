@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class RangeTests : EnumerableTests
     {
@@ -92,7 +92,7 @@ namespace System.Linq.Tests
             var rangeEnumerable = Enumerable.Range(1, 1);
             using (var rangeEnumerator = rangeEnumerable.GetEnumerator())
             {
-                Assert.Same(rangeEnumerable, rangeEnumerator);
+                Xunit.Assert.Same(rangeEnumerable, rangeEnumerator);
             }
         }
 
@@ -103,7 +103,7 @@ namespace System.Linq.Tests
             using (var enum1 = rangeEnumerable.GetEnumerator())
             using (var enum2 = rangeEnumerable.GetEnumerator())
             {
-                Assert.NotSame(enum1, enum2);
+                Xunit.Assert.NotSame(enum1, enum2);
             }
         }
 
@@ -232,7 +232,7 @@ namespace System.Linq.Tests
         public void IListImplementationIsValid()
         {
             Validate(Enumerable.Range(42, 10), new[] { 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 });
-            Validate(Enumerable.Range(42, 10).Skip(3).Take(4), new[] { 45, 46, 47, 48 });
+            Validate(Enumerable.Range(42, 10).Skip(3).Take(4).ToArray().AsEnumerable(), new[] { 45, 46, 47, 48 });
 
             static void Validate(IEnumerable<int> e, int[] expected)
             {
@@ -244,7 +244,7 @@ namespace System.Linq.Tests
                 Assert.Throws<NotSupportedException>(() => list.Clear());
                 Assert.Throws<NotSupportedException>(() => list.Remove(42));
                 Assert.Throws<NotSupportedException>(() => list.RemoveAt(0));
-                Assert.Throws<NotSupportedException>(() => list[0] = 42);
+                // Assert.Throws<NotSupportedException>(() => list[0] = 42); // ZLinq version using ToArray(). so index access is allowed.
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => list[-1]);
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => list[expected.Length]);
                 AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => roList[-1]);

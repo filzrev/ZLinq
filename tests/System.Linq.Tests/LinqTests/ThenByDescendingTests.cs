@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class ThenByDescendingTests : EnumerableTests
     {
@@ -174,8 +174,8 @@ And Immortality.".Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.Remov
             const int Items = 100_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => i);
-            IOrderedEnumerable<int> ordered = unordered.OrderBy(_ => 0);
+            var unordered = expected.Select(i => i);
+            var ordered = unordered.OrderBy(_ => 0);
             switch (thenBys)
             {
                 case 1: ordered = ordered.ThenByDescending(i => -i); break;
@@ -195,8 +195,8 @@ And Immortality.".Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.Remov
             const int Items = 100_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => Items - i - 1);
-            IOrderedEnumerable<int> ordered = unordered.OrderBy(_ => 0);
+            var unordered = expected.Select(i => Items - i - 1);
+            var ordered = unordered.OrderBy(_ => 0);
             switch (thenBys)
             {
                 case 1: ordered = ordered.ThenByDescending(i => -i); break;
@@ -218,7 +218,7 @@ And Immortality.".Split(new[] { ' ', '\n', '\r', '-' }, StringSplitOptions.Remov
 
             int[] randomized = Enumerable.Range(0, Items).Select(i => r.Next()).ToArray();
 
-            IOrderedEnumerable<int> orderedEnumerable = randomized.OrderBy(_ => 0);
+            var orderedEnumerable = randomized.OrderBy(_ => 0);
             switch (thenBys)
             {
                 case 1: orderedEnumerable = orderedEnumerable.ThenByDescending(i => -i); break;

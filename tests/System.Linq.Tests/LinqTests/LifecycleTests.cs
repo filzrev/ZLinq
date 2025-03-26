@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class LifecycleTests : EnumerableTests
     {
@@ -15,11 +15,11 @@ namespace System.Linq.Tests
         {
             // Using Assert.All instead of a Theory to avoid overloading the system with hundreds of thousands of distinct test cases.
             IEnumerable<(Source source, Unary unary1, Unary unary2, Sink sink)> inputs =
-                from source in Sources()
-                from unary1 in UnaryOperations()
-                from unary2 in UnaryOperations()
-                from sink in Sinks()
-                select (source, unary1, unary2, sink);
+                (from source in Sources()
+                 from unary1 in UnaryOperations()
+                 from unary2 in UnaryOperations()
+                 from sink in Sinks()
+                 select (source, unary1, unary2, sink)).ToArray();
 
             foreach (var input in inputs)
             {
@@ -51,11 +51,11 @@ namespace System.Linq.Tests
         {
             // Using Assert.All instead of a Theory to avoid overloading the system with hundreds of thousands of distinct test cases.
             IEnumerable<(Source source, Unary unary, Binary binary, Sink sink)> inputs =
-                from source in Sources()
+                (from source in Sources()
                 from unary in UnaryOperations()
                 from binary in BinaryOperations()
                 from sink in Sinks()
-                select (source, unary, binary, sink);
+                select (source, unary, binary, sink)).ToArray();
 
             foreach (var input in inputs)
             {
@@ -99,47 +99,47 @@ namespace System.Linq.Tests
 
         private static IEnumerable<Unary> UnaryOperations()
         {
-            yield return new Unary(nameof(Enumerable.Append), e => e.Append(Interlocked.Increment(ref s_nextValue)));
-            yield return new Unary(nameof(Enumerable.AsEnumerable), e => e.AsEnumerable());
-            yield return new Unary(nameof(Enumerable.Cast), e => e.Cast<int>());
-            yield return new Unary(nameof(Enumerable.Distinct), e => e.Distinct());
-            yield return new Unary(nameof(Enumerable.DefaultIfEmpty), e => e.DefaultIfEmpty());
-            yield return new Unary(nameof(Enumerable.GroupBy), e => e.GroupBy(i => i).Select(g => g.Key));
-            yield return new Unary(nameof(Enumerable.GroupBy), e => e.GroupBy(i => i, i => i).Select(g => g.Key));
-            yield return new Unary(nameof(Enumerable.OfType), e => e.OfType<int>());
-            yield return new Unary(nameof(Enumerable.OrderBy), e => e.OrderBy(i => i));
-            yield return new Unary(nameof(Enumerable.OrderByDescending), e => e.OrderByDescending(i => i));
-            yield return new Unary(nameof(Enumerable.Prepend), e => e.Prepend(Interlocked.Increment(ref s_nextValue)));
-            yield return new Unary(nameof(Enumerable.Reverse), e => e.Reverse());
-            yield return new Unary(nameof(Enumerable.Select), e => e.Select(i => i));
-            yield return new Unary(nameof(Enumerable.Select), e => e.Select((i, index) => i));
-            yield return new Unary(nameof(Enumerable.SelectMany), e => e.SelectMany(i => new[] { i }));
-            yield return new Unary(nameof(Enumerable.SelectMany), e => e.SelectMany((i, index) => new[] { i }));
-            yield return new Unary(nameof(Enumerable.Skip), e => e.Skip(1));
-            yield return new Unary(nameof(Enumerable.SkipWhile), e => e.SkipWhile(i => true));
-            yield return new Unary(nameof(Enumerable.SkipWhile), e => e.SkipWhile(i => false));
-            yield return new Unary(nameof(Enumerable.SkipLast), e => e.SkipLast(1));
-            yield return new Unary(nameof(Enumerable.Take), e => e.Take(int.MaxValue - 1));
-            yield return new Unary(nameof(Enumerable.TakeLast), e => e.TakeLast(int.MaxValue - 1));
-            yield return new Unary(nameof(Enumerable.TakeWhile), e => e.TakeWhile(i => true));
-            yield return new Unary(nameof(Enumerable.TakeWhile), e => e.TakeWhile(i => false), shortCircuits: true);
-            yield return new Unary(nameof(Enumerable.ThenBy), e => e.OrderBy(i => i).ThenBy(i => i));
-            yield return new Unary(nameof(Enumerable.ThenByDescending), e => e.OrderByDescending(i => i).ThenByDescending(i => i));
-            yield return new Unary(nameof(Enumerable.Where), e => e.Where(i => true));
-            yield return new Unary(nameof(Enumerable.Where), e => e.Where((i, index) => false));
+            yield return new Unary(nameof(Enumerable.Append), e => e.Append(Interlocked.Increment(ref s_nextValue)).ToArray());
+            yield return new Unary(nameof(Enumerable.AsEnumerable), e => e.AsEnumerable().ToArray());
+            yield return new Unary(nameof(Enumerable.Cast), e => e.Cast<int>().ToArray());
+            yield return new Unary(nameof(Enumerable.Distinct), e => e.Distinct().ToArray());
+            yield return new Unary(nameof(Enumerable.DefaultIfEmpty), e => e.DefaultIfEmpty().ToArray());
+            yield return new Unary(nameof(Enumerable.GroupBy), e => e.GroupBy(i => i).Select(g => g.Key).ToArray());
+            yield return new Unary(nameof(Enumerable.GroupBy), e => e.GroupBy(i => i, i => i).Select(g => g.Key).ToArray());
+            yield return new Unary(nameof(Enumerable.OfType), e => e.OfType<int>().ToArray());
+            yield return new Unary(nameof(Enumerable.OrderBy), e => e.OrderBy(i => i).ToArray());
+            yield return new Unary(nameof(Enumerable.OrderByDescending), e => e.OrderByDescending(i => i).ToArray());
+            yield return new Unary(nameof(Enumerable.Prepend), e => e.Prepend(Interlocked.Increment(ref s_nextValue)).ToArray());
+            yield return new Unary(nameof(Enumerable.Reverse), e => e.Reverse().ToArray());
+            yield return new Unary(nameof(Enumerable.Select), e => e.Select(i => i).ToArray());
+            yield return new Unary(nameof(Enumerable.Select), e => e.Select((i, index) => i).ToArray());
+            yield return new Unary(nameof(Enumerable.SelectMany), e => e.SelectMany(i => new[] { i }).ToArray());
+            yield return new Unary(nameof(Enumerable.SelectMany), e => e.SelectMany((i, index) => new[] { i }).ToArray());
+            yield return new Unary(nameof(Enumerable.Skip), e => e.Skip(1).ToArray());
+            yield return new Unary(nameof(Enumerable.SkipWhile), e => e.SkipWhile(i => true).ToArray());
+            yield return new Unary(nameof(Enumerable.SkipWhile), e => e.SkipWhile(i => false).ToArray());
+            yield return new Unary(nameof(Enumerable.SkipLast), e => e.SkipLast(1).ToArray());
+            yield return new Unary(nameof(Enumerable.Take), e => e.Take(int.MaxValue - 1).ToArray());
+            yield return new Unary(nameof(Enumerable.TakeLast), e => e.TakeLast(int.MaxValue - 1).ToArray());
+            yield return new Unary(nameof(Enumerable.TakeWhile), e => e.TakeWhile(i => true).ToArray());
+            yield return new Unary(nameof(Enumerable.TakeWhile), e => e.TakeWhile(i => false).ToArray(), shortCircuits: true);
+            yield return new Unary(nameof(Enumerable.ThenBy), e => e.OrderBy(i => i).ThenBy(i => i).ToArray());
+            yield return new Unary(nameof(Enumerable.ThenByDescending), e => e.OrderByDescending(i => i).ThenByDescending(i => i).ToArray());
+            yield return new Unary(nameof(Enumerable.Where), e => e.Where(i => true).ToArray());
+            yield return new Unary(nameof(Enumerable.Where), e => e.Where((i, index) => false).ToArray());
             yield return new Unary("identity", e => e);
         }
 
         private static IEnumerable<Binary> BinaryOperations()
         {
-            yield return new Binary(nameof(Enumerable.Concat), (e1, e2) => e1.Concat(e2));
-            yield return new Binary(nameof(Enumerable.Except), (e1, e2) => e1.Except(e2));
-            yield return new Binary(nameof(Enumerable.GroupJoin), (e1, e2) => e1.GroupJoin(e2, i => i, i => i, (i, e3) => i), shortCircuits: true);
-            yield return new Binary(nameof(Enumerable.Intersect), (e1, e2) => e1.Intersect(e2));
-            yield return new Binary(nameof(Enumerable.Join), (e1, e2) => e1.Join(e2, i => i, i => i, (i1, i2) => i1), shortCircuits: true);
-            yield return new Binary(nameof(Enumerable.Union), (e1, e2) => e1.Union(e2));
-            yield return new Binary(nameof(Enumerable.Zip), (e1, e2) => e1.Zip(e2).Select(i => i.First), shortCircuits: true);
-            yield return new Binary(nameof(Enumerable.Zip), (e1, e2) => e1.Zip(e2, (i, j) => i), shortCircuits: true);
+            yield return new Binary(nameof(Enumerable.Concat), (e1, e2) => e1.Concat(e2).ToArray());
+            yield return new Binary(nameof(Enumerable.Except), (e1, e2) => e1.Except(e2).ToArray());
+            yield return new Binary(nameof(Enumerable.GroupJoin), (e1, e2) => e1.GroupJoin(e2, i => i, i => i, (i, e3) => i).ToArray(), shortCircuits: true);
+            yield return new Binary(nameof(Enumerable.Intersect), (e1, e2) => e1.Intersect(e2).ToArray());
+            yield return new Binary(nameof(Enumerable.Join), (e1, e2) => e1.Join(e2, i => i, i => i, (i1, i2) => i1).ToArray(), shortCircuits: true);
+            yield return new Binary(nameof(Enumerable.Union), (e1, e2) => e1.Union(e2).ToArray());
+            yield return new Binary(nameof(Enumerable.Zip), (e1, e2) => e1.Zip(e2).Select(i => i.First).ToArray(), shortCircuits: true);
+            yield return new Binary(nameof(Enumerable.Zip), (e1, e2) => e1.Zip(e2, (i, j) => i).ToArray(), shortCircuits: true);
         }
 
         private static IEnumerable<Sink> Sinks()

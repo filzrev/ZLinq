@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class OrderedSubsetting : EnumerableTests
     {
@@ -275,11 +275,11 @@ namespace System.Linq.Tests
             Assert.Equal(42, ordered.ElementAtOrDefault(42));
             Assert.Equal(93, ordered.ElementAtOrDefault(93));
             Assert.Equal(99, ordered.ElementAtOrDefault(99));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ordered.ElementAt(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ordered.ElementAt(100));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ordered.ElementAt(1000));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ordered.ElementAt(int.MinValue));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ordered.ElementAt(int.MaxValue));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).ElementAt(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).ElementAt(100));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).ElementAt(1000));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).ElementAt(int.MinValue));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).ElementAt(int.MaxValue));
             Assert.Equal(0, ordered.ElementAtOrDefault(-1));
             Assert.Equal(0, ordered.ElementAtOrDefault(100));
             Assert.Equal(0, ordered.ElementAtOrDefault(1000));
@@ -292,21 +292,21 @@ namespace System.Linq.Tests
             Assert.Equal(52, skipped.ElementAtOrDefault(42));
             Assert.Equal(83, skipped.ElementAtOrDefault(73));
             Assert.Equal(89, skipped.ElementAtOrDefault(79));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(80));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(1000));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(int.MinValue));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(int.MaxValue));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(80).ElementAt(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(80).ElementAt(80));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(80).ElementAt(1000));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(80).ElementAt(int.MinValue));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(80).ElementAt(int.MaxValue));
             Assert.Equal(0, skipped.ElementAtOrDefault(-1));
             Assert.Equal(0, skipped.ElementAtOrDefault(80));
             Assert.Equal(0, skipped.ElementAtOrDefault(1000));
             Assert.Equal(0, skipped.ElementAtOrDefault(int.MinValue));
             Assert.Equal(0, skipped.ElementAtOrDefault(int.MaxValue));
             skipped = ordered.Skip(1000).Take(20);
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(-1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => skipped.ElementAt(0));
-            Assert.Throws<InvalidOperationException>(() => skipped.First());
-            Assert.Throws<InvalidOperationException>(() => skipped.Last());
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(1000).Take(80).ElementAt(-1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(1000).Take(80).ElementAt(0));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(1000).Take(80).First());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(1000).Take(80).Last());
             Assert.Equal(0, skipped.ElementAtOrDefault(-1));
             Assert.Equal(0, skipped.ElementAtOrDefault(0));
             Assert.Equal(0, skipped.FirstOrDefault());
@@ -329,7 +329,7 @@ namespace System.Linq.Tests
         public void Count()
         {
             Assert.Equal(20, Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(20).Count());
-            Assert.Single(Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(2).Skip(1));
+            Assert.Single(Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(2).Skip(1).ToArray());
         }
 
         [Fact]
@@ -393,7 +393,7 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementCount()
         {
-            Assert.Single(Enumerable.Range(0, 20).Shuffle().OrderBy(i => i).Skip(10).Take(1));
+            Assert.Single(Enumerable.Range(0, 20).Shuffle().OrderBy(i => i).Skip(10).Take(1).ToArray());
         }
 
         [Fact]
@@ -410,13 +410,13 @@ namespace System.Linq.Tests
             Assert.Equal(new[] { 0, 2, 4, 6, 8 }, Enumerable.Range(-1, 8).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void SelectForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = Enumerable.Range(-1, 8).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
+            var valueEnumerable = Enumerable.Range(-1, 8).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
@@ -426,7 +426,7 @@ namespace System.Linq.Tests
             Assert.Equal(6, source.ElementAt(2));
             Assert.Equal(8, source.ElementAtOrDefault(3));
             Assert.Equal(0, source.ElementAtOrDefault(8));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => source.ElementAt(-2));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>(() => Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2).ElementAt(-2));
         }
 
         [Fact]
@@ -435,9 +435,8 @@ namespace System.Linq.Tests
             var source = Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
             Assert.Equal(2, source.First());
             Assert.Equal(2, source.FirstOrDefault());
-            source = source.Skip(20);
-            Assert.Equal(0, source.FirstOrDefault());
-            Assert.Throws<InvalidOperationException>(() => source.First());
+            Assert.Equal(0, source.Skip(20).FirstOrDefault());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2).Skip(20).First());
         }
 
         [Fact]
@@ -446,9 +445,8 @@ namespace System.Linq.Tests
             var source = Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
             Assert.Equal(10, source.Last());
             Assert.Equal(10, source.LastOrDefault());
-            source = source.Skip(20);
-            Assert.Equal(0, source.LastOrDefault());
-            Assert.Throws<InvalidOperationException>(() => source.Last());
+            Assert.Equal(0, source.Skip(20).LastOrDefault());
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2).Skip(20).Last());
         }
 
         [Fact]
@@ -485,7 +483,7 @@ namespace System.Linq.Tests
             Assert.Equal(93, source.RunOnce().OrderBy(i => i).ElementAt(93));
             Assert.Equal(42, source.RunOnce().OrderBy(i => i).ElementAtOrDefault(42));
             Assert.Equal(20, source.RunOnce().OrderBy(i => i).Skip(10).Take(20).Count());
-            Assert.Single(source.RunOnce().OrderBy(i => i).Take(2).Skip(1));
+            Assert.Single(source.RunOnce().OrderBy(i => i).Take(2).Skip(1).ToArray());
         }
     }
 }

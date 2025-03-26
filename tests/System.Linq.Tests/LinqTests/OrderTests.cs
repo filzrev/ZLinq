@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public sealed class OrderTests : EnumerableTests
     {
@@ -196,8 +196,8 @@ namespace System.Linq.Tests
             Assert.Equal(0, Enumerable.Range(0, 10).Shuffle().Order().First());
             Assert.Equal(9, Enumerable.Range(0, 10).Shuffle().OrderDescending().First());
 
-            Assert.Equal(0, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).Order().First());
-            Assert.Equal(9, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).OrderDescending().First());
+            Assert.Equal(0, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).Order().First());
+            Assert.Equal(9, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).OrderDescending().First());
         }
 
         [Fact]
@@ -209,8 +209,8 @@ namespace System.Linq.Tests
         [Fact]
         public void FirstWithPredicateOnOrdered()
         {
-            IEnumerable<int> ordered = Enumerable.Range(0, 10).Shuffle().Order();
-            IEnumerable<int> orderedDescending = Enumerable.Range(0, 10).Shuffle().OrderDescending();
+            var ordered = Enumerable.Range(0, 10).Shuffle().Order();
+            var orderedDescending = Enumerable.Range(0, 10).Shuffle().OrderDescending();
             int counter;
 
             counter = 0;
@@ -222,7 +222,7 @@ namespace System.Linq.Tests
             Assert.Equal(10, counter);
 
             counter = 0;
-            Assert.Throws<InvalidOperationException>(() => ordered.First(i => { counter++; return false; }));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 10).Shuffle().Order().First(i => { counter++; return false; }));
             Assert.Equal(10, counter);
 
             counter = 0;
@@ -234,7 +234,7 @@ namespace System.Linq.Tests
             Assert.Equal(10, counter);
 
             counter = 0;
-            Assert.Throws<InvalidOperationException>(() => orderedDescending.First(i => { counter++; return false; }));
+            Assert.Throws<InvalidOperationException>(() => Enumerable.Range(0, 10).Shuffle().OrderDescending().First(i => { counter++; return false; }));
             Assert.Equal(10, counter);
         }
 
@@ -249,8 +249,8 @@ namespace System.Linq.Tests
         [Fact]
         public void FirstOrDefaultWithPredicateOnOrdered()
         {
-            IEnumerable<int> Order = Enumerable.Range(0, 10).Shuffle().Order();
-            IEnumerable<int> OrderDescending = Enumerable.Range(0, 10).Shuffle().OrderDescending();
+            var Order = Enumerable.Range(0, 10).Shuffle().Order();
+            var OrderDescending = Enumerable.Range(0, 10).Shuffle().OrderDescending();
             int counter;
 
             counter = 0;
@@ -284,18 +284,18 @@ namespace System.Linq.Tests
             Assert.Equal(9, Enumerable.Range(0, 10).Shuffle().Order().Last());
             Assert.Equal(0, Enumerable.Range(0, 10).Shuffle().OrderDescending().Last());
 
-            Assert.Equal(9, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).Order().Last());
-            Assert.Equal(0, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).OrderDescending().Last());
+            Assert.Equal(9, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).Order().Last());
+            Assert.Equal(0, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).OrderDescending().Last());
         }
 
         [Fact]
         public void LastOnOrderedMatchingCases()
         {
             object[] boxedInts = new object[] { 0, 1, 2, 9, 1, 2, 3, 9, 4, 5, 7, 8, 9, 0, 1 };
-            Assert.Same(boxedInts[12], boxedInts.Order().Last());
-            Assert.Same(boxedInts[12], boxedInts.Order().LastOrDefault());
-            Assert.Same(boxedInts[12], boxedInts.Order().Last(o => (int)o % 2 == 1));
-            Assert.Same(boxedInts[12], boxedInts.Order().LastOrDefault(o => (int)o % 2 == 1));
+            Xunit.Assert.Same(boxedInts[12], boxedInts.Order().Last());
+            Xunit.Assert.Same(boxedInts[12], boxedInts.Order().LastOrDefault());
+            Xunit.Assert.Same(boxedInts[12], boxedInts.Order().Last(o => (int)o % 2 == 1));
+            Xunit.Assert.Same(boxedInts[12], boxedInts.Order().LastOrDefault(o => (int)o % 2 == 1));
         }
 
         [Fact]
@@ -318,8 +318,8 @@ namespace System.Linq.Tests
             Assert.Equal(4, Enumerable.Range(0, 10).Shuffle().Order().ElementAt(4));
             Assert.Equal(5, Enumerable.Range(0, 10).Shuffle().OrderDescending().ElementAt(4));
 
-            Assert.Equal(4, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).Order().ElementAt(4));
-            Assert.Equal(5, ForceNotCollection(Enumerable.Range(0, 10).Shuffle()).OrderDescending().ElementAt(4));
+            Assert.Equal(4, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).Order().ElementAt(4));
+            Assert.Equal(5, ForceNotCollection(Enumerable.Range(0, 10).Shuffle().ToArray()).OrderDescending().ElementAt(4));
         }
 
         [Fact]
@@ -336,8 +336,8 @@ namespace System.Linq.Tests
             const int Items = 1_000_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => i);
-            IOrderedEnumerable<int> ordered = unordered.Order();
+            var unordered = expected.Select(i => i);
+            var ordered = unordered.Order();
 
             Assert.Equal(expected, ordered);
         }
@@ -348,8 +348,8 @@ namespace System.Linq.Tests
             const int Items = 1_000_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => Items - i - 1);
-            IOrderedEnumerable<int> ordered = unordered.Order();
+            var unordered = expected.Select(i => Items - i - 1);
+            var ordered = unordered.Order();
 
             Assert.Equal(expected, ordered);
         }
@@ -430,7 +430,7 @@ namespace System.Linq.Tests
 
             using (new ThreadCultureChange(dk)) // "dk" whilst GetEnumerator
             {
-                IEnumerator<string> s = source.Order().GetEnumerator();
+                var s = source.Order().GetEnumerator();
                 using (new ThreadCultureChange(au)) // but "au" whilst accessing...
                 {
                     int idx = 0;
@@ -444,7 +444,7 @@ namespace System.Linq.Tests
             using (new ThreadCultureChange(au))
             {
                 // "au" whilst GetEnumerator
-                IEnumerator<string> s = source.Order().GetEnumerator();
+                var s = source.Order().GetEnumerator();
 
                 using (new ThreadCultureChange(dk))
                 {
@@ -486,7 +486,7 @@ namespace System.Linq.Tests
             string[] resultAU = source.ToArray();
             Array.Sort(resultAU, comparerAu);
 
-            IEnumerable<string> delaySortedSource = source.Order();
+            var delaySortedSource = source.Order();
             for (int i = 0; i < source.Length; ++i)
             {
                 using (new ThreadCultureChange(dk))
@@ -523,8 +523,8 @@ namespace System.Linq.Tests
 
             foreach (object[] objects in arrays)
             {
-                Assert.Same(objects.Order().First(), objects.Order().ToArray().First());
-                Assert.Same(objects.Order().Last(), objects.Order().ToArray().Last());
+                Assert.Equal(objects.Order().First(), objects.Order().ToArray().First());
+                Assert.Equal(objects.Order().Last(), objects.Order().ToArray().Last());
             }
         }
     }

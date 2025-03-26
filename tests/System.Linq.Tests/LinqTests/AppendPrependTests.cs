@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class AppendPrependTests : EnumerableTests
     {
@@ -49,13 +49,13 @@ namespace System.Linq.Tests
             Assert.Equal(q1.Prepend("hi"), (new string[] { "hi" }).Concat(q1));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void RepeatIteration()
         {
-            var q = Enumerable.Range(3, 4).Append(12);
-            Assert.Equal(q, q);
-            q = q.Append(14);
-            Assert.Equal(q, q);
+            var q1 = Enumerable.Range(3, 4).Append(12);
+            Assert.Equal(q1, q1);
+            var q2 = q1.Append(14);
+            Assert.Equal(q1, q2); // 14 is not contained on q1.
         }
 
         [Fact]
@@ -89,31 +89,31 @@ namespace System.Linq.Tests
             Assert.Equal(prepended, ie.Prepend(4));
         }
 
-        [Fact]
+        [Fact(Skip =SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumeratePrepend()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Prepend(4);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Prepend(4);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            using var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateAppend()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Append(4);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Append(4);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            using var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateMultipleAppendsAndPrepends()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Append(4).Append(5).Prepend(-1).Prepend(-2);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Append(4).Append(5).Prepend(-1).Prepend(-2);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            using var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
@@ -182,9 +182,9 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(0, 2)), source =>
             {
-                source = source.Append(2);
-                Assert.Equal(Enumerable.Range(0, 3), source.ToList());
-                Assert.Equal(Enumerable.Range(0, 3), source.ToArray());
+                var valueEnumerable = source.Append(2);
+                Assert.Equal(Enumerable.Range(0, 3), valueEnumerable.ToList());
+                Assert.Equal(Enumerable.Range(0, 3), valueEnumerable.ToArray());
             });
         }
 
@@ -193,9 +193,9 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(1, 2)), source =>
             {
-                source = source.Prepend(0);
-                Assert.Equal(Enumerable.Range(0, 3), source.ToList());
-                Assert.Equal(Enumerable.Range(0, 3), source.ToArray());
+                var valueEnumerable = source.Prepend(0);
+                Assert.Equal(Enumerable.Range(0, 3), valueEnumerable.ToList());
+                Assert.Equal(Enumerable.Range(0, 3), valueEnumerable.ToArray());
             });
         }
 
@@ -204,9 +204,9 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(0, 2)), source =>
             {
-                source = source.Append(2).Append(3);
-                Assert.Equal(Enumerable.Range(0, 4), source.ToList());
-                Assert.Equal(Enumerable.Range(0, 4), source.ToArray());
+                var valueEnumerable = source.Append(2).Append(3);
+                Assert.Equal(Enumerable.Range(0, 4), valueEnumerable.ToList());
+                Assert.Equal(Enumerable.Range(0, 4), valueEnumerable.ToArray());
             });
         }
 
@@ -215,9 +215,9 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(2, 2)), source =>
             {
-                source = source.Prepend(1).Prepend(0);
-                Assert.Equal(Enumerable.Range(0, 4), source.ToList());
-                Assert.Equal(Enumerable.Range(0, 4), source.ToArray());
+                var valueEnumerable = source.Prepend(1).Prepend(0);
+                Assert.Equal(Enumerable.Range(0, 4), valueEnumerable.ToList());
+                Assert.Equal(Enumerable.Range(0, 4), valueEnumerable.ToArray());
             });
         }
 
@@ -226,9 +226,9 @@ namespace System.Linq.Tests
         {
             Assert.All(CreateSources(Enumerable.Range(2, 2)), source =>
             {
-                source = source.Prepend(1).Append(4).Prepend(0).Append(5);
-                Assert.Equal(Enumerable.Range(0, 6), source.ToList());
-                Assert.Equal(Enumerable.Range(0, 6), source.ToArray());
+                var valueEnumerable = source.Prepend(1).Append(4).Prepend(0).Append(5);
+                Assert.Equal(Enumerable.Range(0, 6), valueEnumerable.ToList());
+                Assert.Equal(Enumerable.Range(0, 6), valueEnumerable.ToArray());
             });
         }
 

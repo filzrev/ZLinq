@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class TakeWhileTests : EnumerableTests
     {
@@ -125,15 +125,14 @@ namespace System.Linq.Tests
         [ConditionalFact(typeof(TestEnvironment), nameof(TestEnvironment.IsStressModeEnabled))]
         public void IndexTakeWhileOverflowBeyondIntMaxValueElements()
         {
-            var taken = new FastInfiniteEnumerator<int>().TakeWhile((e, i) => true);
-
-            using (var en = taken.GetEnumerator())
-                Assert.Throws<OverflowException>(() =>
+            Assert.Throws<OverflowException>(() =>
+            {
+                var taken = new FastInfiniteEnumerator<int>().TakeWhile((e, i) => true);
+                using var en = taken.GetEnumerator();
+                while (en.MoveNext())
                 {
-                    while (en.MoveNext())
-                    {
-                    }
-                });
+                }
+            });
         }
 
         [Fact]
@@ -168,22 +167,22 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("predicate", () => source.TakeWhile(nullPredicate));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).TakeWhile(e => true);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).TakeWhile(e => true);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateIndexed()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).TakeWhile((e, i) => true);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).TakeWhile((e, i) => true);
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
     }
 }

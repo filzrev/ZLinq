@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class LastOrDefaultTests : EnumerableTests
     {
@@ -36,7 +36,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<T>>(source);
 
-            Assert.Equal(expected, source.RunOnce().LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         private static void TestEmptyIListDefault<T>(T defaultValue)
@@ -45,7 +45,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<T>>(source);
 
-            Assert.Equal(defaultValue, source.RunOnce().LastOrDefault(defaultValue));
+            Assert.Equal(defaultValue, source.AsValueEnumerable().LastOrDefault(defaultValue));
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -84,7 +84,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault(4));
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(4));
         }
 
 
@@ -96,7 +96,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -118,7 +118,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault(5));
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(5));
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.LastOrDefault(5));
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(5));
         }
 
         private static IEnumerable<T> EmptySource<T>()
@@ -144,7 +144,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<T>);
 
-            Assert.Equal(expected, source.RunOnce().LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -164,7 +164,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<int>);
 
-            Assert.Equal(expected, source.LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<int>);
 
-            Assert.Equal(expected, source.LastOrDefault());
+            Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
@@ -185,8 +185,8 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Null(source.LastOrDefault(x => true));
-                Assert.Null(source.LastOrDefault(x => false));
+                Assert.Null(source.AsValueEnumerable().LastOrDefault(x => true));
+                Assert.Null(source.AsValueEnumerable().LastOrDefault(x => false));
             });
         }
 
@@ -199,7 +199,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate));
             });
         }
 
@@ -212,7 +212,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate, 5));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate, 5));
             });
         }
 
@@ -225,7 +225,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate));
             });
         }
 
@@ -238,7 +238,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate, 5));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate, 5));
             });
         }
 
@@ -251,7 +251,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate));
             });
         }
 
@@ -264,7 +264,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.LastOrDefault(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate));
             });
         }
 
@@ -277,27 +277,27 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.RunOnce().LastOrDefault(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().LastOrDefault(predicate));
             });
         }
 
         [Fact]
         public void NullSource()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).LastOrDefault());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().LastOrDefault());
         }
 
         [Fact]
         public void NullSourcePredicateUsed()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).LastOrDefault(i => i != 2));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().LastOrDefault(i => i != 2));
         }
 
         [Fact]
         public void NullPredicate()
         {
             Func<int, bool> predicate = null;
-            AssertExtensions.Throws<ArgumentNullException>("predicate", () => Enumerable.Range(0, 3).LastOrDefault(predicate));
+            AssertExtensions.Throws<ArgumentNullException>("predicate", () => Enumerable.Range(0, 3).AsValueEnumerable().LastOrDefault(predicate));
         }
     }
 }

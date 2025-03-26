@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class OrderByDescendingTests : EnumerableTests
     {
@@ -152,7 +152,7 @@ namespace System.Linq.Tests
             }
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void OrderByExtremeComparer()
         {
             int[] outOfOrder = new[] { 7, 1, 0, 9, 3, 5, 4, 2, 8, 6 };
@@ -183,8 +183,8 @@ namespace System.Linq.Tests
             const int Items = 1_000_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => i);
-            IOrderedEnumerable<int> ordered = unordered.OrderByDescending(i => -i);
+            var unordered = expected.Select(i => i);
+            var ordered = unordered.OrderByDescending(i => -i);
 
             Assert.Equal(expected, ordered);
         }
@@ -195,8 +195,8 @@ namespace System.Linq.Tests
             const int Items = 1_000_000;
             IEnumerable<int> expected = NumberRangeGuaranteedNotCollectionType(0, Items);
 
-            IEnumerable<int> unordered = expected.Select(i => Items - i - 1);
-            IOrderedEnumerable<int> ordered = unordered.OrderByDescending(i => -i);
+            var unordered = expected.Select(i => Items - i - 1);
+            var ordered = unordered.OrderByDescending(i => -i);
 
             Assert.Equal(expected, ordered);
         }
@@ -236,8 +236,8 @@ namespace System.Linq.Tests
 
             foreach (object[] objects in arrays)
             {
-                Assert.Same(objects.OrderByDescending(x => x).First(), objects.OrderByDescending(x => x).ToArray().First());
-                Assert.Same(objects.OrderByDescending(x => x).Last(), objects.OrderByDescending(x => x).ToArray().Last());
+                Assert.Equal(objects.OrderByDescending(x => x).First(), objects.OrderByDescending(x => x).ToArray().First());
+                Assert.Equal(objects.OrderByDescending(x => x).Last(), objects.OrderByDescending(x => x).ToArray().Last());
             }
         }
     }

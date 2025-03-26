@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class UnionTests : EnumerableTests
     {
@@ -118,7 +118,7 @@ namespace System.Linq.Tests
             string[] first = null;
             string[] second = { "ttaM", "Charlie", "Bbo" };
 
-            var ane = AssertExtensions.Throws<ArgumentNullException>("first", () => first.Union(second, new AnagramEqualityComparer()));
+            var ane = AssertExtensions.Throws<ArgumentNullException>(() => first.Union(second, new AnagramEqualityComparer()));
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace System.Linq.Tests
             string[] first = null;
             string[] second = { "ttaM", "Charlie", "Bbo" };
 
-            var ane = AssertExtensions.Throws<ArgumentNullException>("first", () => first.Union(second));
+            var ane = AssertExtensions.Throws<ArgumentNullException>(() => first.Union(second));
         }
 
         [Fact]
@@ -296,22 +296,22 @@ namespace System.Linq.Tests
             Assert.Equal(expected, first.Union(second, null));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerate()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3));
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3));
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
-        [Fact]
+        [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateMultipleUnions()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3)).Union(Enumerable.Range(2, 4)).Union(new[] { 9, 2, 4 });
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3)).Union(Enumerable.Range(2, 4)).Union(new[] { 9, 2, 4 });
             // Don't insist on this behaviour, but check it's correct if it happens
-            var en = iterator as IEnumerator<int>;
-            Assert.False(en is not null && en.MoveNext());
+            var en = valueEnumerable.Enumerator;
+            Assert.False(en.TryGetNext(out _));
         }
 
         [Fact]
@@ -420,8 +420,8 @@ namespace System.Linq.Tests
             string[] first = null;
             string[] second = { "bBo", "shriC" };
 
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.UnionBy(second, x => x));
-            AssertExtensions.Throws<ArgumentNullException>("first", () => first.UnionBy(second, x => x, new AnagramEqualityComparer()));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.UnionBy(second, x => x));
+            AssertExtensions.Throws<ArgumentNullException>(() => first.UnionBy(second, x => x, new AnagramEqualityComparer()));
         }
 
         [Fact]

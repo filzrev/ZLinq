@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class CountTests : EnumerableTests
     {
@@ -111,11 +111,11 @@ namespace System.Linq.Tests
             var range = Enumerable.Range(1, count);
             foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range))
                 yield return variant;
-            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (float)i)))
+            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (float)i).ToArray()))
                 yield return variant;
-            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (double)i)))
+            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (double)i).ToArray()))
                 yield return variant;
-            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (decimal)i)))
+            foreach (object[] variant in EnumerateCollectionTypesAndCounts(count, range.Select(i => (decimal)i).ToArray()))
                 yield return variant;
         }
 
@@ -139,20 +139,143 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).TryGetNonEnumeratedCount(out _));
         }
 
-        [Theory]
-        [MemberData(nameof(NonEnumeratedCount_SupportedEnumerables))]
-        public void NonEnumeratedCount_SupportedEnumerables_ShouldReturnExpectedCount<T>(int expectedCount, IEnumerable<T> source)
+        [Fact]
+        public void NonEnumeratedCount_SupportedEnumerables_ShouldReturnExpectedCount()
         {
-            Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
-            Assert.Equal(expectedCount, actualCount);
+            {
+                var source = new int[] { 1, 2, 3, 4 };
+                Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(source.Length, actualCount);
+            }
+            {
+                var source = new List<int>(new int[] { 1, 2, 3, 4 });
+                Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(source.Count, actualCount);
+            }
+            {
+                var source = new Stack<int>(new int[] { 1, 2, 3, 4 });
+                Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(source.Count, actualCount);
+            }
+            {
+                var source = Enumerable.Empty<string>();
+                Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(0, actualCount);
+            }
+
+            if (PlatformDetection.IsSpeedOptimized)
+            {
+                {
+                    var source = Enumerable.Range(1, 100);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Repeat(1, 80);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 50).Select(x => x + 1);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = new int[] { 1, 2, 3, 4 }.Select(x => x + 1);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 50).Select(x => x + 1).Select(x => x - 1);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 20).Reverse();
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 20).OrderBy(x => -x);
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10));
+                    Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(source.Count(), actualCount);
+                }
+            }
         }
 
-        [Theory]
-        [MemberData(nameof(NonEnumeratedCount_UnsupportedEnumerables))]
-        public void NonEnumeratedCount_UnsupportedEnumerables_ShouldReturnFalse<T>(IEnumerable<T> source)
+        [Fact]
+        public void NonEnumeratedCount_UnsupportedEnumerables_ShouldReturnFalse()
         {
-            Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
-            Assert.Equal(0, actualCount);
+            {
+                var source = Enumerable.Range(1, 100).Where(x => x % 2 == 0);
+                Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(0, actualCount);
+            }
+            {
+                var source = Enumerable.Range(1, 100).GroupBy(x => x % 2 == 0);
+                Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(0, actualCount);
+            }
+            // When using ZLinq. TryGetNonEnumeratedCount return true for Select query.
+            {
+                ////var source = new Stack<int>(new int[] { 1, 2, 3, 4 }).Select(x => x + 1);
+                ////Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                ////Assert.Equal(0, actualCount);
+            }
+            {
+                var source = Enumerable.Range(1, 100).Distinct();
+                Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                Assert.Equal(0, actualCount);
+            }
+
+            if (!PlatformDetection.IsSpeedOptimized)
+            {
+                {
+                    var source = Enumerable.Range(1, 100);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Repeat(1, 80);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 50).Select(x => x + 1);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = new int[] { 1, 2, 3, 4 }.Select(x => x + 1);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 50).Select(x => x + 1).Select(x => x - 1);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 20).Reverse();
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 20).OrderBy(x => -x);
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+                {
+                    var source = Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10));
+                    Assert.False(source.TryGetNonEnumeratedCount(out int actualCount));
+                    Assert.Equal(0, actualCount);
+                }
+            }
         }
 
         [Fact]
@@ -168,51 +291,6 @@ namespace System.Linq.Tests
                 isEnumerated = true;
                 yield return 42;
             }
-        }
-
-        public static IEnumerable<object[]> NonEnumeratedCount_SupportedEnumerables()
-        {
-            yield return WrapArgs(4, new int[] { 1, 2, 3, 4 });
-            yield return WrapArgs(4, new List<int>(new int[] { 1, 2, 3, 4 }));
-            yield return WrapArgs(4, new Stack<int>(new int[] { 1, 2, 3, 4 }));
-
-            yield return WrapArgs(0, Enumerable.Empty<string>());
-
-            if (PlatformDetection.IsSpeedOptimized)
-            {
-                yield return WrapArgs(100, Enumerable.Range(1, 100));
-                yield return WrapArgs(80, Enumerable.Repeat(1, 80));
-                yield return WrapArgs(50, Enumerable.Range(1, 50).Select(x => x + 1));
-                yield return WrapArgs(4, new int[] { 1, 2, 3, 4 }.Select(x => x + 1));
-                yield return WrapArgs(50, Enumerable.Range(1, 50).Select(x => x + 1).Select(x => x - 1));
-                yield return WrapArgs(20, Enumerable.Range(1, 20).Reverse());
-                yield return WrapArgs(20, Enumerable.Range(1, 20).OrderBy(x => -x));
-                yield return WrapArgs(20, Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10)));
-            }
-
-            static object[] WrapArgs<T>(int expectedCount, IEnumerable<T> source) => new object[] { expectedCount, source };
-        }
-
-        public static IEnumerable<object[]> NonEnumeratedCount_UnsupportedEnumerables()
-        {
-            yield return WrapArgs(Enumerable.Range(1, 100).Where(x => x % 2 == 0));
-            yield return WrapArgs(Enumerable.Range(1, 100).GroupBy(x => x % 2 == 0));
-            yield return WrapArgs(new Stack<int>(new int[] { 1, 2, 3, 4 }).Select(x => x + 1));
-            yield return WrapArgs(Enumerable.Range(1, 100).Distinct());
-
-            if (!PlatformDetection.IsSpeedOptimized)
-            {
-                yield return WrapArgs(Enumerable.Range(1, 100));
-                yield return WrapArgs(Enumerable.Repeat(1, 80));
-                yield return WrapArgs(Enumerable.Range(1, 50).Select(x => x + 1));
-                yield return WrapArgs(new int[] { 1, 2, 3, 4 }.Select(x => x + 1));
-                yield return WrapArgs(Enumerable.Range(1, 50).Select(x => x + 1).Select(x => x - 1));
-                yield return WrapArgs(Enumerable.Range(1, 20).Reverse());
-                yield return WrapArgs(Enumerable.Range(1, 20).OrderBy(x => -x));
-                yield return WrapArgs(Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10)));
-            }
-
-            static object[] WrapArgs<T>(IEnumerable<T> source) => new object[] { source };
         }
     }
 }

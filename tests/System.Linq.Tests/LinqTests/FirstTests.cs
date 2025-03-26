@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class FirstTests : EnumerableTests
     {
@@ -35,7 +35,7 @@ namespace System.Linq.Tests
 
             Assert.NotNull(source as IList<T>);
 
-            Assert.Throws<InvalidOperationException>(() => source.RunOnce().First());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace System.Linq.Tests
 
             Assert.NotNull(source as IList<int>);
 
-            Assert.Equal(expected, source.First());
+            Assert.Equal(expected, source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -66,7 +66,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.First());
+            Assert.Equal(expected, source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -77,7 +77,7 @@ namespace System.Linq.Tests
 
             Assert.IsAssignableFrom<IList<int?>>(source);
 
-            Assert.Equal(expected, source.First());
+            Assert.Equal(expected, source.AsValueEnumerable().First());
         }
 
         private static void TestEmptyNotIList<T>()
@@ -91,7 +91,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<T>);
 
-            Assert.Throws<InvalidOperationException>(() => source.RunOnce().First());
+            Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -111,7 +111,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<int>);
 
-            Assert.Equal(expected, source.First());
+            Assert.Equal(expected, source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace System.Linq.Tests
 
             Assert.Null(source as IList<int>);
 
-            Assert.Equal(expected, source.First());
+            Assert.Equal(expected, source.AsValueEnumerable().First());
         }
 
         [Fact]
@@ -131,8 +131,8 @@ namespace System.Linq.Tests
             int[] source = { };
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.First(x => true));
-                Assert.Throws<InvalidOperationException>(() => source.First(x => false));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().First(x => true));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().First(x => false));
             });
         }
 
@@ -145,7 +145,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.First(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().First(predicate));
             });
         }
 
@@ -157,7 +157,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Throws<InvalidOperationException>(() => source.First(predicate));
+                Assert.Throws<InvalidOperationException>(() => source.AsValueEnumerable().First(predicate));
             });
         }
 
@@ -170,7 +170,7 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.First(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().First(predicate));
             });
         }
 
@@ -181,7 +181,7 @@ namespace System.Linq.Tests
             Func<int, bool> predicate = IsEven;
             int expected = 10;
 
-            Assert.Equal(expected, source.First(predicate));
+            Assert.Equal(expected, source.AsValueEnumerable().First(predicate));
         }
 
         [Fact]
@@ -193,20 +193,20 @@ namespace System.Linq.Tests
 
             Assert.All(CreateSources(source), source =>
             {
-                Assert.Equal(expected, source.RunOnce().First(predicate));
+                Assert.Equal(expected, source.AsValueEnumerable().First(predicate));
             });
         }
 
         [Fact]
         public void NullSource()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).First());
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().First());
         }
 
         [Fact]
         public void NullSourcePredicateUsed()
         {
-            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).First(i => i != 2));
+            AssertExtensions.Throws<ArgumentNullException>("source", () => ((IEnumerable<int>)null).AsValueEnumerable().First(i => i != 2));
         }
 
         [Fact]

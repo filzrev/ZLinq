@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Xunit;
+using ZLinq.Linq;
 
-namespace System.Linq.Tests
+namespace ZLinq.Tests
 {
     public class AnyTests : EnumerableTests
     {
@@ -29,41 +30,29 @@ namespace System.Linq.Tests
             Assert.Equal(q.Any(predicate), q.Any(predicate));
         }
 
-        public static IEnumerable<object[]> TestData()
+        [Fact]
+        public void Any()
         {
             foreach (int count in new[] { 0, 1, 2 })
             {
                 bool expected = count > 0;
                 foreach (IEnumerable<int> source in CreateSources(new int[count]))
                 {
-                    yield return new object[] { source, expected };
-                    yield return new object[] { source.Select(i => i), expected };
-                    yield return new object[] { source.Where(i => true), expected };
-
-                    yield return new object[] { source.Where(i => false), false };
+                    Assert.Equal(expected, source.Any());
+                    Assert.Equal(expected, source.Select(i => i).Any());
+                    Assert.Equal(expected, source.Where(i => true).Any());
+                    Assert.Equal(false, source.Where(i => false).Any());
                 }
             }
         }
 
-        [Theory]
-        [MemberData(nameof(TestData))]
-        public void Any(IEnumerable<int> source, bool expected)
-        {
-            Assert.Equal(expected, source.Any());
-        }
-
-        public static IEnumerable<object[]> TestDataForGroupBy()
-        {
-            yield return new object[] { Array.Empty<int>().GroupBy(num => num), false };
-            yield return new object[] { new int[2] { 1, 2 }.GroupBy(num => num), true };
-            yield return new object[] { new int[5] { 1, 2, 1, 3, 2 }.GroupBy(n => n, (k, v) => v), true };
-        }
-
-        [Theory, MemberData(nameof(TestDataForGroupBy))]
-        public void Any_GroupBy(IEnumerable<object> values, bool expectedValue)
+        [Fact]
+        public void Any_GroupBy()
         {
             // Provide test coverage for `Any` calls over nonempty `IListSource` implementations.
-            Assert.Equal(expectedValue, values.Any());
+            Assert.Equal(false, Array.Empty<int>().GroupBy(num => num).Any());
+            Assert.Equal(true, new int[2] { 1, 2 }.GroupBy(num => num).Any());
+            Assert.Equal(true, new int[5] { 1, 2, 1, 3, 2 }.GroupBy(n => n, (k, v) => v).Any());
         }
 
         public static IEnumerable<object[]> TestDataWithPredicate()

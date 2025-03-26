@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System.Linq.Tests
+namespace System
 {
     public static class Shuffler
     {
