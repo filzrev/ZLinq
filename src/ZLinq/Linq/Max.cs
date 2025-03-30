@@ -262,6 +262,8 @@ partial class ValueEnumerableExtensions
         }
     }
 
+    // In case of float/double containing NaN, SIMD behavior might be inconsistent, so float/double shouldn't be processed with SIMD.
+    // The current implementation correctly handles NaN through IComparer<T>.
     static T SimdMaxBinaryInteger<T>(ReadOnlySpan<T> span)
         where T : struct, IBinaryInteger<T>
     {
