@@ -56,7 +56,7 @@ namespace ZLinq.Linq
         {
             if (first.TryGetNonEnumeratedCount(out var count1) && second.TryGetNonEnumeratedCount(out var count2))
             {
-                count = count1 + count2;
+                count = checked(count1 + count2);
                 return true;
             }
             count = 0;
