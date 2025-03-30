@@ -161,6 +161,9 @@ namespace ZLinq.Linq
 #endif
     {
         TEnumerator source = source;
+        internal TEnumerator GetSource() => source;
+        internal Func<TSource, bool> Predicate => predicate;
+        internal Func<TSource, TResult> Selector => selector;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -201,7 +204,7 @@ namespace ZLinq.Linq
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct WhereArray<TSource>(FromArray<TSource> source, Func<TSource, Boolean> predicate) : IValueEnumerator<TSource>
     {
-        internal TSource[] source = source.GetSource();
+        TSource[] source = source.GetSource();
         internal TSource[] GetSource() => source;
         internal Func<TSource, bool> Predicate => predicate;
         int index;
@@ -256,6 +259,10 @@ namespace ZLinq.Linq
         : IValueEnumerator<TResult>
     {
         int index;
+        TSource[] source = source;
+        internal TSource[] GetSource() => source;
+        internal Func<TSource, bool> Predicate => predicate;
+        internal Func<TSource, TResult> Selector => selector;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {

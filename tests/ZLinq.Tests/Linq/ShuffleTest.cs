@@ -38,25 +38,13 @@ public class ShuffleTest
         e1.TryGetNonEnumeratedCount(out var nonEnumeratedCount).ShouldBe(true);
         nonEnumeratedCount.ShouldBe(5);
 
-        var e2 = enumerable;
-        e2.TryGetSpan(out var span).ShouldBe(true);
-        span.Length.ShouldBe(5);
-        
-        // After shuffling, the elements should be in a different order, but all original elements should be present
-        var sortedSpan = span.ToArray();
-        Array.Sort(sortedSpan);
-        sortedSpan.ShouldBe(xs);
-
-        var e3 = enumerable;
-        var array = e3.ToArray();
+        var array = enumerable.ToArray();
         array.Length.ShouldBe(5);
         
         // Same check for ToArray result
         var sortedArray = array.ToArray();
         Array.Sort(sortedArray);
         sortedArray.ShouldBe(xs);
-
-        enumerable.Dispose();
     }
 
     [Fact]

@@ -189,6 +189,124 @@ partial class ValueEnumerableExtensions
         return array;
     }
 
+    public static TResult[] ToArray<TEnumerator, TSource, TResult>(this ValueEnumerable<WhereSelect<TEnumerator, TSource, TResult>, TResult> source)
+    where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+    , allows ref struct
+#endif
+    {
+        var whereEnumerator = source.Enumerator; // no needs dispose(using)
+        var predicate = whereEnumerator.Predicate;
+        var selector = whereEnumerator.Selector;
+        using var enumerator = whereEnumerator.GetSource(); // using only where source enumerator
+
+#if NETSTANDARD2_0
+        Span<TResult> initialBufferSpan = default;
+#elif NET8_0_OR_GREATER
+        var initialBuffer = default(InlineArray16<TResult>);
+        Span<TResult> initialBufferSpan = initialBuffer;
+#else
+        var initialBuffer = default(InlineArray16<TResult>);
+        Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
+#endif
+        var arrayBuilder = new SegmentedArrayBuilder<TResult>(initialBufferSpan);
+        var span = arrayBuilder.GetSpan();
+        var i = 0;
+
+        if (enumerator.TryGetSpan(out var sourceSpan))
+        {
+            foreach (var item in sourceSpan)
+            {
+                if (predicate(item))
+                {
+                    if (i == span.Length)
+                    {
+                        arrayBuilder.Advance(i);
+                        span = arrayBuilder.GetSpan();
+                        i = 0;
+                    }
+
+                    span[i++] = selector(item);
+                }
+            }
+            arrayBuilder.Advance(i);
+        }
+        else
+        {
+            while (enumerator.TryGetNext(out var item))
+            {
+                if (predicate(item))
+                {
+                    if (i == span.Length)
+                    {
+                        arrayBuilder.Advance(i);
+                        span = arrayBuilder.GetSpan();
+                        i = 0;
+                    }
+
+                    span[i++] = selector(item);
+                }
+            }
+            arrayBuilder.Advance(i);
+        }
+
+        var count = arrayBuilder.Count;
+        if (count == 0)
+        {
+            return Array.Empty<TResult>();
+        }
+
+        var array = GC.AllocateUninitializedArray<TResult>(count);
+        arrayBuilder.CopyToAndClear(array);
+        return array;
+    }
+
+    public static TResult[] ToArray<TSource, TResult>(this ValueEnumerable<WhereArraySelect<TSource, TResult>, TResult> source)
+    {
+        var whereEnumerator = source.Enumerator; // no needs dispose(using)
+        var predicate = whereEnumerator.Predicate;
+        var selector = whereEnumerator.Selector;
+        var sourceSpan = whereEnumerator.GetSource().AsSpan();
+
+#if NETSTANDARD2_0
+        Span<TResult> initialBufferSpan = default;
+#elif NET8_0_OR_GREATER
+        var initialBuffer = default(InlineArray16<TResult>);
+        Span<TResult> initialBufferSpan = initialBuffer;
+#else
+        var initialBuffer = default(InlineArray16<TResult>);
+        Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
+#endif
+        var arrayBuilder = new SegmentedArrayBuilder<TResult>(initialBufferSpan);
+        var span = arrayBuilder.GetSpan();
+        var i = 0;
+        foreach (ref var item in sourceSpan)
+        {
+            if (predicate(item))
+            {
+                if (i == span.Length)
+                {
+                    arrayBuilder.Advance(i);
+                    span = arrayBuilder.GetSpan();
+                    i = 0;
+                }
+
+                span[i++] = selector(item);
+            }
+        }
+        arrayBuilder.Advance(i);
+
+        var count = arrayBuilder.Count;
+        if (count == 0)
+        {
+            return Array.Empty<TResult>();
+        }
+
+        var array = GC.AllocateUninitializedArray<TResult>(count);
+        arrayBuilder.CopyToAndClear(array);
+        return array;
+    }
+
     public static TResult[] ToArray<TEnumerator, TSource, TResult>(this ValueEnumerable<OfType<TEnumerator, TSource, TResult>, TResult> source)
        where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER

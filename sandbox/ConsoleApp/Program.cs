@@ -33,6 +33,8 @@ using ZLinq.Traversables;
 var items = new int[] { 1, 2, 3, 4, 5 };
 var tuples = items.Select(x => (x, x)).ToArray();
 
+var foo = items.AsValueEnumerable().Where(x => x % 2 == 0).Select(x => x.ToString()).ToArray();
+
 // System.Linq
 var a = tuples.ToDictionary();
 
