@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ZLinq.Tests</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -11,15 +12,23 @@
 
     <!-- Use custom root namespace -->
     <RootNamespace>ZLinq.Tests</RootNamespace>
+  </PropertyGroup>
 
-    <!-- Microsoft.Testing.Platform Support -->
-    <OutputType>Exe</OutputType>
+  <!-- Microsoft.Testing.Platform Support -->
+  <PropertyGroup>
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
+  <!-- Add .NET 10 support when running build inside Visual Studio Preview-->
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != '' AND $(VisualStudioDir.Contains('Preview'))">
+    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
+  </PropertyGroup>
+
   <ItemGroup>
-    <None Remove="ZLinq.LinqCompatibility.Tests.slnx" />
+    <None Remove="$(MSBuildThisFileName).slnx" />
+    <None Remove="../../README.md" />
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,4 +60,5 @@
       <_Parameter2_TypeName>ZLinq.DropInGenerateTypes</_Parameter2_TypeName>
     </AssemblyAttribute>
   </ItemGroup>
+
 </Project>

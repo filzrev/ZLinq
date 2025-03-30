@@ -5,7 +5,7 @@
 
 using System.Collections;
 
-namespace ZLinq.Tests;
+namespace System.Linq;
 
 #nullable disable
 
@@ -50,7 +50,7 @@ public static class TestExtensions
 
         private void AssertIndex(int index)
         {
-            Assert.False(_called.Contains(-1));
+            Assert.DoesNotContain(-1, _called);
             Assert.True(_called.Add(index));
         }
 
