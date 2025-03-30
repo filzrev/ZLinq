@@ -172,22 +172,22 @@ public class ReverseTest
         
         // Act
         var reversed = xs.AsValueEnumerable().Reverse();
-        
+
         // Get span (triggers buffer initialization)
-        reversed.TryGetSpan(out var span1);
-        
-        // Perform enumeration (should use the same buffer)
+        using var e = reversed.Enumerator;
+        e.TryGetSpan(out var span1).ShouldBeTrue();
+
         var array = reversed.ToArray();
-        
-        // Get span again (should use the same buffer)
-        reversed.TryGetSpan(out var span2);
-        
-        // Assert
+
         span1.ToArray().ShouldBe(array);
-        span2.ToArray().ShouldBe(array);
+
+        // Perform enumeration (should use the same buffer)
         
-        // Dispose properly
-        reversed.Dispose();
+        //// Get span again (should use the same buffer)
+        e.TryGetSpan(out var span2);
+        
+        //// Assert
+        span2.ToArray().ShouldBe(array);
     }
     
     [Fact]
