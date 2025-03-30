@@ -17,6 +17,22 @@ namespace ZLinq
             , allows ref struct
 #endif
             => new(new(source.Enumerator, range));
+
+        // Optimize
+
+        public static ValueEnumerable<TakeSkip<TEnumerator, TSource>, TSource> Skip<TEnumerator, TSource>(this ValueEnumerable<Take<TEnumerator, TSource>, TSource> source, int count)
+            where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+            => new(source.Enumerator.Skip(count));
+
+        public static ValueEnumerable<TakeSkip<TEnumerator, TSource>, TSource> Skip<TEnumerator, TSource>(this ValueEnumerable<TakeSkip<TEnumerator, TSource>, TSource> source, int count)
+            where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+            => new(source.Enumerator.Skip(count));
     }
 }
 
@@ -37,7 +53,7 @@ namespace ZLinq.Linq
 #endif
     {
         TEnumerator source = source;
-        readonly int takeCount = (count < 0) ? 0 : count; // allows negative count
+        internal readonly int takeCount = Math.Max(0, count); // allows negative count
         int index;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -105,6 +121,9 @@ namespace ZLinq.Linq
         {
             source.Dispose();
         }
+
+        // Optimize
+        internal TakeSkip<TEnumerator, TSource> Skip(int skipCount) => new(source, takeCount: takeCount, skipCount: skipCount);
     }
 
     [StructLayout(LayoutKind.Auto)]
@@ -364,6 +383,223 @@ namespace ZLinq.Linq
         {
             q?.Dispose();
             source.Dispose();
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct TakeSkip<TEnumerator, TSource>(TEnumerator source, Int32 takeCount, Int32 skipCount)
+        : IValueEnumerator<TSource>
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        TEnumerator source = source;
+        readonly int takeCount = Math.Max(0, takeCount); // ensure non-negative
+        readonly int skipCount = Math.Max(0, skipCount); // ensure non-negative
+        int taken;
+        int skipped;
+        bool reachedTakeLimit;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            if (source.TryGetNonEnumeratedCount(out count))
+            {
+                // Apply take limit first
+                count = Math.Min(count, takeCount);
+
+                // Then apply skip
+                count = Math.Max(0, count - skipCount);
+
+                return true;
+            }
+
+            count = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        {
+            if (source.TryGetNonEnumeratedCount(out var sourceCount))
+            {
+                // First limit by take
+                var afterTake = Math.Min(sourceCount, takeCount);
+
+                // Then apply skip
+                var actualSkipCount = Math.Min(afterTake, skipCount);
+                var actualCount = afterTake - actualSkipCount;
+
+                if (actualCount <= 0)
+                {
+                    return false;
+                }
+
+                // Calculate offset within the resulting sequence
+                var offsetInResult = offset.GetOffset(actualCount);
+
+                if (offsetInResult < 0 || offsetInResult >= actualCount)
+                {
+                    return false;
+                }
+
+                // Calculate the source offset (within the take window, then skip)
+                var sourceOffset = actualSkipCount + offsetInResult;
+
+                // Calculate elements available after offset
+                var elementsAvailable = actualCount - offsetInResult;
+
+                // Calculate elements to copy
+                var elementsToCopy = Math.Min(elementsAvailable, destination.Length);
+
+                if (elementsToCopy <= 0)
+                {
+                    return false;
+                }
+
+                return source.TryCopyTo(destination.Slice(0, elementsToCopy), sourceOffset);
+            }
+
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TSource> span)
+        {
+            if (source.TryGetSpan(out span))
+            {
+                // First apply take limit
+                if (span.Length > takeCount)
+                {
+                    span = span.Slice(0, takeCount);
+                }
+
+                // Then skip elements
+                if (span.Length <= skipCount)
+                {
+                    span = default;
+                    return true;
+                }
+
+                span = span.Slice(skipCount);
+                return true;
+            }
+
+            span = default;
+            return false;
+        }
+
+        public bool TryGetNext(out TSource current)
+        {
+            if (IsResultEmpty())
+            {
+                Unsafe.SkipInit(out current);
+                return false;
+            }
+
+            // Once we've reached the take limit, we're done
+            if (reachedTakeLimit)
+            {
+                Unsafe.SkipInit(out current);
+                return false;
+            }
+
+            // Skip elements that have been emitted from the take portion
+            while (skipped < skipCount)
+            {
+                // First ensure we haven't exceeded the take limit
+                if (taken >= takeCount)
+                {
+                    reachedTakeLimit = true;
+                    Unsafe.SkipInit(out current);
+                    return false;
+                }
+
+                // Get next element from source
+                if (!source.TryGetNext(out var _))
+                {
+                    Unsafe.SkipInit(out current);
+                    return false;
+                }
+
+                taken++;
+
+                // If we've reached the take limit before finishing skipping,
+                // we won't be able to return any elements
+                if (taken >= takeCount)
+                {
+                    reachedTakeLimit = true;
+                    Unsafe.SkipInit(out current);
+                    return false;
+                }
+
+                skipped++;
+            }
+
+            // Check if we've reached the take limit
+            if (taken >= takeCount)
+            {
+                reachedTakeLimit = true;
+                Unsafe.SkipInit(out current);
+                return false;
+            }
+
+            // Return elements after taking and skipping
+            if (source.TryGetNext(out current))
+            {
+                taken++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        bool IsResultEmpty()
+        {
+            if (takeCount == 0)
+            {
+                return true;
+            }
+
+            if (skipCount >= takeCount)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Dispose()
+        {
+            source.Dispose();
+        }
+
+        // Optimize
+
+        internal TakeSkip<TEnumerator, TSource> Skip(int count)
+        {
+            if (count <= 0)
+            {
+                return this; // no changes.
+            }
+
+            // check overflow
+            int newSkipCount;
+            if (count > 0 && skipCount > int.MaxValue - count)
+            {
+                newSkipCount = int.MaxValue;
+            }
+            else
+            {
+                newSkipCount = skipCount + count;
+            }
+
+            return new TakeSkip<TEnumerator, TSource>(source, takeCount, newSkipCount);
         }
     }
 }

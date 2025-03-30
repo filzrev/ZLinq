@@ -99,7 +99,7 @@ namespace ZLinq.Linq
             source.Dispose();
         }
 
-        public SelectWhere<TEnumerator, TSource, TResult> Where(Func<TResult, bool> predicate)
+        internal SelectWhere<TEnumerator, TSource, TResult> Where(Func<TResult, bool> predicate)
             => new(source, selector, predicate);
     }
 

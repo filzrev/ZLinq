@@ -90,7 +90,7 @@ namespace ZLinq.Linq
         }
 
         // Optimize for common pattern: Where().Select()
-        public WhereSelect<TEnumerator, TSource, TResult> Select<TResult>(Func<TSource, TResult> selector)
+        internal WhereSelect<TEnumerator, TSource, TResult> Select<TResult>(Func<TSource, TResult> selector)
             => new(source, predicate, selector);
     }
 
