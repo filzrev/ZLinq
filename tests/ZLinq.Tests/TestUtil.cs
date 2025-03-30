@@ -151,3 +151,20 @@ public sealed class DelegateIterator<TSource> : IEnumerable<TSource>, IEnumerato
 
     void IDisposable.Dispose() => _dispose();
 }
+
+public sealed class FastInfiniteEnumerator<T> : IEnumerable<T>, IEnumerator<T>
+{
+    public IEnumerator<T> GetEnumerator() => this;
+
+    IEnumerator IEnumerable.GetEnumerator() => this;
+
+    public bool MoveNext() => true;
+
+    public void Reset() { }
+
+    object IEnumerator.Current => default(T)!;
+
+    public void Dispose() { }
+
+    public T Current => default(T)!;
+}

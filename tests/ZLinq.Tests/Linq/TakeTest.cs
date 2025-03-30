@@ -289,7 +289,7 @@ public class TakeTest
         // ZLinq
         {
             var values = source.AsValueEnumerable().Take(^5..3); // 1,2,3
-            Assert.Equal(values.ToArray(), values.ToArray()); 
+            Assert.Equal(values.ToArray(), values.ToArray());
         }
 
         static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)
@@ -364,6 +364,31 @@ public class TakeTest
 
         Assert.False(e.MoveNext());
         Assert.Equal(-1, state);
+    }
+
+    // [ConditionalTheory(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+    //[Theory]
+    //[InlineData(1000)]
+    //[InlineData(1000000)]
+    //[InlineData(int.MaxValue)]
+    [Fact]
+    public void LazySkipAllTakenForLargeNumbers(/*int largeNumber*/)
+    {
+        var largeNumber = 1000000;
+
+        var xs = new FastInfiniteEnumerator<int>().Take(largeNumber);
+        var ys = xs.Skip(largeNumber);
+        var e = ys.GetEnumerator();
+        var a = e.MoveNext();
+        var b = e.MoveNext();
+
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber));
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber).Skip(42));
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber / 2).Skip(largeNumber / 2 + 1));
+
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber));
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber).Skip(42));
+        Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber / 2).Skip(largeNumber / 2 + 1));
     }
 
 #endif
