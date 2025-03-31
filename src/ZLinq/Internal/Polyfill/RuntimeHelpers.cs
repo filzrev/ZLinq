@@ -6,7 +6,7 @@ using System.Text;
 
 namespace System.Runtime.CompilerServices
 {
-    public static class RuntimeHelpers
+    internal static class RuntimeHelpers
     {
         public static bool IsReferenceOrContainsReferences<T>()
         {

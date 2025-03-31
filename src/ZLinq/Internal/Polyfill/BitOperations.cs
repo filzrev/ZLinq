@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0 || NETSTANDARD2_1 || NET6_0
+﻿#if NETSTANDARD2_0 || NETSTANDARD2_1 || NET6_0 || NET48
 
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ namespace System.Numerics;
 
 // borrowed from dotnet/runtime
 
-public static class BitOperations
+internal static class BitOperations
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint RoundUpToPowerOf2(uint value)
