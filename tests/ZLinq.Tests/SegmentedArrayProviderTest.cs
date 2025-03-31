@@ -7,7 +7,7 @@ using ZLinq.Internal;
 
 namespace ZLinq.Tests;
 
-public class SegmentedArrayBuilderTest
+public class SegmentedArrayProviderTest
 {
     [Fact]
     public void InitialBuffer_UsesProvidedBuffer()
@@ -16,7 +16,7 @@ public class SegmentedArrayBuilderTest
         Span<int> initialBuffer = stackalloc int[10];
 
         // Act
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Assert
         builder.Count.ShouldBe(0);
@@ -28,7 +28,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[5];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Act
         var span = builder.GetSpan();
@@ -42,7 +42,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[5];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Act
         builder.Advance(3);
@@ -57,7 +57,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[3];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Act - fill the buffer
         builder.Advance(3);
@@ -73,7 +73,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[5];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         for (int i = 0; i < 3; i++)
         {
@@ -94,7 +94,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[3];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Fill initial buffer
         for (int i = 0; i < 3; i++)
@@ -123,7 +123,7 @@ public class SegmentedArrayBuilderTest
     {
         // Arrange
         Span<int> initialBuffer = stackalloc int[5];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Act
         int[] destination = new int[0];
@@ -142,7 +142,7 @@ public class SegmentedArrayBuilderTest
 
         // Arrange
         Span<int> initialBuffer = stackalloc int[2];
-        var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+        var builder = new SegmentedArrayProvider<int>(initialBuffer);
 
         // Fill initial buffer and expand twice
         for (int i = 0; i < 10; i++)
@@ -166,7 +166,7 @@ public class SegmentedArrayBuilderTest
 #else
         Span<string> initialBuffer = inlineArray.AsSpan();
 #endif
-        var builder = new SegmentedArrayBuilder<string>(initialBuffer);
+        var builder = new SegmentedArrayProvider<string>(initialBuffer);
 
         // Act
         builder.GetSpan()[0] = "hello";
@@ -194,7 +194,7 @@ public class SegmentedArrayBuilderTest
 #else
             Span<int> initialBuffer = inlineArray.AsSpan();
 #endif
-            var builder = new SegmentedArrayBuilder<int>(initialBuffer);
+            var builder = new SegmentedArrayProvider<int>(initialBuffer);
             var span = builder.GetSpan();
             var j = 0;
             foreach (var item in seq)

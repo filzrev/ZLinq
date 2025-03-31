@@ -41,7 +41,7 @@
                 var initialBuffer = default(InlineArray16<TSource>);
                 Span<TSource> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-                var arrayBuilder = new SegmentedArrayBuilder<TSource>(initialBufferSpan);
+                var arrayBuilder = new SegmentedArrayProvider<TSource>(initialBufferSpan);
                 var span = arrayBuilder.GetSpan();
                 var i = 0;
                 while (enumerator.TryGetNext(out var item))

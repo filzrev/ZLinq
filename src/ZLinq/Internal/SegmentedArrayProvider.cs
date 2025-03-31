@@ -8,7 +8,7 @@ namespace ZLinq.Internal;
 
 // similar as IBufferWriter style to avoid Add frequently.
 [StructLayout(LayoutKind.Auto)]
-internal ref struct SegmentedArrayBuilder<T>
+internal ref struct SegmentedArrayProvider<T>
 {
     const int ArrayMaxLength = 0X7FFFFFC7;
 
@@ -22,7 +22,7 @@ internal ref struct SegmentedArrayBuilder<T>
 
     public int Count => checked(countInFinishedSegments + countInCurrentSegment);
 
-    public SegmentedArrayBuilder(Span<T> initialBuffer)
+    public SegmentedArrayProvider(Span<T> initialBuffer)
     {
         this.initialBuffer = this.currentSegment = initialBuffer;
     }

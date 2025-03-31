@@ -43,7 +43,7 @@ partial class ValueEnumerableExtensions
             var initialBuffer = default(InlineArray16<TSource>);
             Span<TSource> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-            var arrayBuilder = new SegmentedArrayBuilder<TSource>(initialBufferSpan);
+            var arrayBuilder = new SegmentedArrayProvider<TSource>(initialBufferSpan);
             var span = arrayBuilder.GetSpan();
             var i = 0;
             while (enumerator.TryGetNext(out var item))
@@ -92,7 +92,7 @@ partial class ValueEnumerableExtensions
         var initialBuffer = default(InlineArray16<TSource>);
         Span<TSource> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-        var arrayBuilder = new SegmentedArrayBuilder<TSource>(initialBufferSpan);
+        var arrayBuilder = new SegmentedArrayProvider<TSource>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
 
@@ -159,7 +159,7 @@ partial class ValueEnumerableExtensions
         var initialBuffer = default(InlineArray16<TSource>);
         Span<TSource> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-        var arrayBuilder = new SegmentedArrayBuilder<TSource>(initialBufferSpan);
+        var arrayBuilder = new SegmentedArrayProvider<TSource>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
         foreach (ref var item in sourceSpan)
@@ -209,7 +209,7 @@ partial class ValueEnumerableExtensions
         var initialBuffer = default(InlineArray16<TResult>);
         Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-        var arrayBuilder = new SegmentedArrayBuilder<TResult>(initialBufferSpan);
+        var arrayBuilder = new SegmentedArrayProvider<TResult>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
 
@@ -277,9 +277,10 @@ partial class ValueEnumerableExtensions
         var initialBuffer = default(InlineArray16<TResult>);
         Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-        var arrayBuilder = new SegmentedArrayBuilder<TResult>(initialBufferSpan);
+        var arrayBuilder = new SegmentedArrayProvider<TResult>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
+
         foreach (ref var item in sourceSpan)
         {
             if (predicate(item))
@@ -325,7 +326,7 @@ partial class ValueEnumerableExtensions
         var initialBuffer = default(InlineArray16<TResult>);
         Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
 #endif
-        var arrayBuilder = new SegmentedArrayBuilder<TResult>(initialBufferSpan);
+        var arrayBuilder = new SegmentedArrayProvider<TResult>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
 

@@ -35,7 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\src\ZLinq\Internal\SegmentedArrayBuilder.cs" Link="InternalImport\SegmentedArrayBuilder.cs" />
     <Compile Include="..\..\src\ZLinq\Internal\ArrayBuilder.cs" Link="InternalImport\ArrayBuilder.cs" />
   </ItemGroup>
 
