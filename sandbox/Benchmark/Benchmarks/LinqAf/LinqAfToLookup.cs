@@ -77,7 +77,6 @@ namespace Benchmark.LinqAF
             }
         }
 
-        [CPUUsageDiagnoser]
         public class KeySelectorWithoutIterate
         {
             [Benchmark]
@@ -117,6 +116,19 @@ namespace Benchmark.LinqAF
                 }
             }
 
+            [Benchmark]
+            public void ZLinq()
+            {
+                var e = Source.AsValueEnumerable().ToLookup(_KeySelector, Comparer);
+                foreach (var grp in e)
+                {
+                    foreach (var item in grp)
+                    {
+                        GC.KeepAlive(item);
+                    }
+                }
+            }
+
             [Benchmark(Baseline = true)]
             public void LINQ2Objects()
             {
@@ -146,6 +158,19 @@ namespace Benchmark.LinqAF
                 }
             }
 
+            [Benchmark]
+            public void ZLinq()
+            {
+                var e = Source.AsValueEnumerable().ToLookup(_KeySelector, ElementSelector);
+                foreach (var grp in e)
+                {
+                    foreach (var item in grp)
+                    {
+                        GC.KeepAlive(item);
+                    }
+                }
+            }
+
             [Benchmark(Baseline = true)]
             public void LINQ2Objects()
             {
@@ -166,6 +191,19 @@ namespace Benchmark.LinqAF
             public void LinqAF()
             {
                 var e = Source.ToLookup(_KeySelector, ElementSelector, Comparer);
+                foreach (var grp in e)
+                {
+                    foreach (var item in grp)
+                    {
+                        GC.KeepAlive(item);
+                    }
+                }
+            }
+
+            [Benchmark]
+            public void ZLinq()
+            {
+                var e = Source.AsValueEnumerable().ToLookup(_KeySelector, ElementSelector, Comparer);
                 foreach (var grp in e)
                 {
                     foreach (var item in grp)

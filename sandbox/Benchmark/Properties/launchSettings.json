@@ -2,8 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelectorWithoutIterate.* -- Default",
-      "commandLineArgs": "--filter Benchmark.LookupBattle.*",
+      "commandLineArgs": "--filter Benchmark.LinqAf.Crazy+Giant.* -- Default",
 
       // Available config
       // 1. Default
