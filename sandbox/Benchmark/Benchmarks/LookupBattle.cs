@@ -14,9 +14,11 @@ namespace Benchmark;
 public class LookupBattle
 {
     [Params(8, 20, 50, 100, 1000, 10000)]
+    //[Params(8, 10000)]
     public int N;
 
     [Params(4, 10, 25, 50, 500, 5000)]
+    //[Params(5000)]
     public int M;
 
     int[] src = default!;
