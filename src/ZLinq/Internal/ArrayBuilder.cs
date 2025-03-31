@@ -7,7 +7,7 @@ namespace ZLinq.Internal;
 
 internal struct ArrayBuilder<T>
 {
-    public static int MaxLength => 0X7FFFFFC7; // Array.MaxLength
+    const int MaxLength = 0X7FFFFFC7; // Array.MaxLength
 
     private T[]? array;
     int count;
@@ -27,7 +27,8 @@ internal struct ArrayBuilder<T>
             Grow();
         }
 
-        array[count++] = value;
+        array[count] = value;
+        count++;
     }
 
     void Grow()
