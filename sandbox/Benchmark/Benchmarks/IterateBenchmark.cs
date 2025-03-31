@@ -71,7 +71,7 @@ public class IterateBenchmark
     [Benchmark]
     public void LinqAf()
     {
-        var seq = LinqAF.ArrayExtensionMethods
+        var seq = global::LinqAF.ArrayExtensionMethods
             .Where(array, x => x % 2 == 0)
             .Select(x => x * 3);
 
