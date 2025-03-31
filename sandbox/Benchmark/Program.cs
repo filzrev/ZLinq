@@ -22,8 +22,10 @@ internal static class Program
 #if DEBUG
         // BenchmarkRunner.Run<IterateBenchmark>(DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond)), args);
 
-        var b = new IterateBenchmark();
-        b.LinqAf();
+        var b = new LinqPerfBenchmarks.Count00();
+        b.Setup();
+        b.Linq();
+        b.ZLinq();
 
 
         var i = 0;

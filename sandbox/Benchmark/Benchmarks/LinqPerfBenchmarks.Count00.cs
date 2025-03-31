@@ -1,6 +1,7 @@
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
+using Microsoft.VSDiagnostics;
 using ZLinq;
 
 namespace Benchmark;
@@ -8,6 +9,7 @@ namespace Benchmark;
 public partial class LinqPerfBenchmarks
 {
     [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+    // [CPUUsageDiagnoser]
     public class Count00
     {
         const int IterationsCount00 = 1000000;
@@ -20,7 +22,7 @@ public partial class LinqPerfBenchmarks
         [BenchmarkCategory(Categories.LINQ)]
         public bool Linq()
         {
-            List<Product> products = TestData;
+            var products = TestData;
             int count = 0;
             for (int i = 0; i < IterationsCount00; i++)
             {
@@ -34,13 +36,11 @@ public partial class LinqPerfBenchmarks
         [BenchmarkCategory(Categories.ZLinq)]
         public bool ZLinq()
         {
-            List<Product> products = TestData;
+            var products = TestData.AsValueEnumerable();
             int count = 0;
             for (int i = 0; i < IterationsCount00; i++)
             {
-                count += products
-                           .AsValueEnumerable()
-                           .Count(p => p.UnitsInStock == 0);
+                count += products.Count(p => p.UnitsInStock == 0);
             }
 
             return (count == 5 * IterationsCount00);

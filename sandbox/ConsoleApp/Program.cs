@@ -23,7 +23,7 @@ using ZLinq.Traversables;
 //byte.MaxValue
 // 2147483647
 
-[assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
+[assembly: ZLinq.ZLinqDropInAttribute("MyLinq", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
 // Enumerable.Range(1, 10).ToDictionary();
 //var tako = ValueEnumerable.Range(1, 10).Select(x => x.ToString());

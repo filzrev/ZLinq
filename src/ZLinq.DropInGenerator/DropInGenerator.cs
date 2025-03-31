@@ -45,7 +45,9 @@ public class DropInGenerator : IIncrementalGenerator
     {
         if (attribute is null)
         {
-            context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.AttributeNotFound, null));
+            // In Unity, Source Generators are automatically referenced even in assemblies that don't need them, causing numerous errors.
+            // Until an effective countermeasure can be devised, these warnings will be temporarily excluded.
+            // context.ReportDiagnostic(Diagnostic.Create(DiagnosticDescriptors.AttributeNotFound, null));
             return;
         }
 
@@ -83,7 +85,7 @@ public class DropInGenerator : IIncrementalGenerator
             if (!string.IsNullOrWhiteSpace(attribute.GenerateNamespace))
             {
                 sb.Replace("using ZLinq.Linq;", $$"""
-using ZLinq.Linq
+using ZLinq.Linq;
 namespace {{attribute.GenerateNamespace}}
 {
 """);
