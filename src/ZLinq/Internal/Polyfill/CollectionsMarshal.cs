@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using static System.Runtime.InteropServices.CollectionsMarshal;
 
 #if NETSTANDARD2_0 || NETSTANDARD2_1
 #pragma warning disable
@@ -52,16 +54,62 @@ namespace System.Runtime.InteropServices
         {
             if (list is not null)
             {
-                if (ListSize == 3)
+                // Unsafe.As<>._size is failed in Unity so don't use it.
+                var collection = FillCollection<T>.Instance;
+                if (collection == null)
                 {
-                    var view = Unsafe.As<ListViewA<T>>(list);
-                    view._size = count;
+                    collection = FillCollection<T>.Instance = new FillCollection<T>(0);
                 }
-                else if (ListSize == 4)
+                collection.Count = count;
+
+                list.AddRange(collection);
+            }
+        }
+
+        // AddRange uses CopyTo only.
+        internal sealed class FillCollection<T>(int count) : ICollection<T>
+        {
+            [ThreadStatic]
+            public static FillCollection<T>? Instance;
+
+            public int Count { get; set; } = count; // mutable
+
+            public bool IsReadOnly => true;
+
+            public void CopyTo(T[] array, int arrayIndex)
+            {
+                // do nothing.
+            }
+
+            public void Add(T item)
+            {
+            }
+
+            public void Clear()
+            {
+            }
+
+            public bool Contains(T item)
+            {
+                return true;
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                for (var i = 0; i < count; i++)
                 {
-                    var view = Unsafe.As<ListViewB<T>>(list);
-                    view._size = count;
+                    yield return default(T);
                 }
+            }
+
+            public bool Remove(T item)
+            {
+                return true;
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
             }
         }
     }

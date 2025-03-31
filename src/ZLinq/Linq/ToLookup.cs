@@ -1,5 +1,6 @@
 ﻿#pragma warning disable
 
+using System;
 using System.Buffers;
 using System.Collections;
 using System.Diagnostics;
@@ -186,7 +187,7 @@ namespace ZLinq.Linq
                     }
                 }
 
-                bucket = new Grouping<TKey, TElement>(key, hash) { value };
+                bucket = new Grouping<TKey, TElement>(key, hash, value);
                 groupCount++;
                 if (last != null)
                 {
@@ -222,7 +223,7 @@ namespace ZLinq.Linq
                 }
 
                 // create new and chain
-                var newGroup = new Grouping<TKey, TElement>(key, hash) { value };
+                var newGroup = new Grouping<TKey, TElement>(key, hash, value);
                 previous.NextGroupInSameHashCode = newGroup;
 
                 groupCount++;
@@ -259,10 +260,6 @@ namespace ZLinq.Linq
                 return null;
             }
 
-            foreach (var item in buckets)
-            {
-                item?.Freeze();
-            }
             ArrayPool<Grouping<TKey, TElement>>.Shared.Return(buckets, clearArray: true);
 
             return last?.NextGroupInAddOrder; // as first.
@@ -342,11 +339,6 @@ namespace ZLinq.Linq
                 this.count = 0;
                 this.comparer = comparer;
                 return;
-            }
-
-            foreach (var item in groupings)
-            {
-                item?.Freeze();
             }
 
             this.groups = groupings;
@@ -472,7 +464,7 @@ namespace ZLinq.Linq
             ArgumentNullException.ThrowIfNull(array);
             if (arrayIndex < 0) throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Non-negative number required.");
             if (arrayIndex > array.Length) throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Index was out of range. Must be non-negative and less than the size of the collection.");
-            if (array.Length - arrayIndex < Count)  throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Destination array is not long enough to copy all the items in the collection. Check array index and length.");
+            if (array.Length - arrayIndex < Count) throw new ArgumentOutOfRangeException(nameof(arrayIndex), "Destination array is not long enough to copy all the items in the collection. Check array index and length.");
 
             if (last is null) return;
 
@@ -491,29 +483,40 @@ namespace ZLinq.Linq
     }
 
     [DebuggerDisplay("Key = {Key}, ({Count})")]
-    internal sealed class Grouping<TKey, TElement>(TKey key, uint hashCode) : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyList<TElement>
+    internal sealed class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyList<TElement>
     {
-        public TKey Key => key;
-        public uint HashCode => hashCode;
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        ArrayBuilder<TElement> elements; // in consturction phase as builder, after feezed it represents T[]
-
-        public int Count => elements.Count;
-
-        // mutable in construction, but readonly in public surface
+        TKey key;
+        uint hashCode;
+        TElement[] elements; // don't use ArrayPool. initial elements is 1.
+        int count; // elements count(index)
 
         public Grouping<TKey, TElement>? NextGroupInAddOrder;  // to gurantees add order
         public Grouping<TKey, TElement>? NextGroupInSameHashCode; // linked-list node for chaining
 
-        public void Add(TElement value)
+        public Grouping(TKey key, uint hashCode, TElement value)
         {
-            elements.Add(value);
+            this.key = key;
+            this.hashCode = hashCode;
+            this.elements = [value];
+            this.count = 1;
         }
 
-        public void Freeze()
+        public TKey Key => key;
+        public uint HashCode => hashCode;
+        public int Count => count;
+
+        // mutable in construction, but readonly in public surface
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Add(TElement value)
         {
-            elements.Freeze();
+            if (elements.Length == count)
+            {
+                Array.Resize(ref elements, checked(count * 2));
+            }
+
+            elements[count] = value;
+            count++;
         }
 
         // we needs IList implementation for Sytem.Linq internal optimization usage
@@ -522,22 +525,23 @@ namespace ZLinq.Linq
 
         public TElement this[int index]
         {
-#if NETSTANDARD2_0
-            get => elements.Array.GetAt(index);
-#else
-            get => elements.Array[index];
-#endif
+            get => elements.AsSpan(0, count)[index];
             set => throw new NotSupportedException();
         }
 
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         public IEnumerator<TElement> GetEnumerator()
         {
-            return elements.Array.GetEnumerator();
+            for (int i = 0; i < count; i++)
+            {
+                yield return elements[i];
+            }
         }
 
         public int IndexOf(TElement item)
         {
-            return ((IList<TElement>)elements.Array).IndexOf(item);
+            return Array.IndexOf(elements, item, 0, count);
         }
 
         public void Insert(int index, TElement item)
@@ -562,12 +566,12 @@ namespace ZLinq.Linq
 
         public bool Contains(TElement item)
         {
-            return ((ICollection<TElement>)elements.Array).Contains(item);
+            return elements.Contains(item); // System.Linq Contains
         }
 
         public void CopyTo(TElement[] array, int arrayIndex)
         {
-            ((ICollection<TElement>)elements.Array).CopyTo(array, arrayIndex);
+            elements.AsSpan(0, count).CopyTo(array.AsSpan(arrayIndex));
         }
 
         public bool Remove(TElement item)

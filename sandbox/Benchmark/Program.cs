@@ -6,6 +6,7 @@ using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Cathei.LinqGen;
 using Kokuban;
+using Microsoft.DiagnosticsHub;
 using Perfolizer.Horology;
 using SpanLinq;
 using System.Diagnostics;
@@ -22,10 +23,8 @@ internal static class Program
 #if DEBUG
         // BenchmarkRunner.Run<IterateBenchmark>(DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond)), args);
 
-        var b = new LinqPerfBenchmarks.Count00();
-        b.Setup();
-        b.Linq();
-        b.ZLinq();
+   
+
 
 
         var i = 0;
@@ -37,6 +36,9 @@ internal static class Program
         Console.WriteLine(i);
         return 0;
 #endif
+   
+
+
         if (args.Length != 0)
             Console.WriteLine($"Start ZLinq benchmarks with args: {string.Join(' ', args)}");
 

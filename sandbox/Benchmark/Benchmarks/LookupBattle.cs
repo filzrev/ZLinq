@@ -11,10 +11,23 @@ using ZLinq;
 
 namespace Benchmark;
 
-[Orderer(SummaryOrderPolicy.FastestToSlowest)]
 public class LookupBattle
 {
-    int[] src = Enumerable.Range(1, 10000).Select(_ => Random.Shared.Next(0, 32)).ToArray();
+    //[Params(8, 20, 50, 100, 1000, 10000)]
+    [Params(8, 10000)]
+    public int N;
+
+    // [Params(4, 10, 25, 50, 500, 5000)]
+    [Params(5000)]
+    public int M;
+
+    int[] src = default!;
+
+    [BenchmarkDotNet.Attributes.GlobalSetup]
+    public void Setup()
+    {
+        src = Enumerable.Range(1, N).Select(_ => Random.Shared.Next(0, M)).ToArray();
+    }
 
     [Benchmark]
     public ILookup<int, int> SystemLinq()
