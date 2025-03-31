@@ -21,8 +21,8 @@ public class IterateBenchmark
     public void SystemLinq()
     {
         var seq = array
-            .Select(x => x * 3)
-            .Where(x => x % 2 == 0);
+            .Where(x => x % 2 == 0)
+            .Select(x => x * 3);
 
         foreach (var item in seq)
         {
@@ -33,31 +33,34 @@ public class IterateBenchmark
     public void ZLinq()
     {
         var seq = array.AsValueEnumerable()
-            .Select(x => x * 3)
-            .Where(x => x % 2 == 0);
+            .Where(x => x % 2 == 0)
+            .Select(x => x * 3);
 
         foreach (var item in seq) { }
     }
 
-    //[Benchmark]
-    //public void ZLinqSpan()
-    //{
-    //    var seq = array.AsSpan().AsValueEnumerable()
-    //        .Select<SpanValueEnumerable<int>, int, int>(x => x * 3)
-    //        .Where<SelectValueEnumerable<SpanValueEnumerable<int>, int, int>, int>(x => x % 2 == 0);
+    [Benchmark]
+    public void ZLinqRaw()
+    {
+        var seq = array.AsValueEnumerable()
+            .Where(x => x % 2 == 0)
+            .Select(x => x * 3);
 
-    //    foreach (var item in seq)
-    //    {
+        using (var e = seq.Enumerator)
+        {
+            while (e.TryGetNext(out var item))
+            {
 
-    //    }
-    //}
+            }
+        }
+    }
 
     [Benchmark]
     public void LinqGen()
     {
         var seq = array.Gen()
-            .Select(x => x * 3)
-            .Where(x => x % 2 == 0);
+            .Where(x => x % 2 == 0)
+            .Select(x => x * 3);
 
         foreach (var item in seq)
         {
@@ -69,8 +72,8 @@ public class IterateBenchmark
     public void LinqAf()
     {
         var seq = LinqAF.ArrayExtensionMethods
-            .Select(array, x => x * 3)
-            .Where(x => x % 2 == 0);
+            .Where(array, x => x % 2 == 0)
+            .Select(x => x * 3);
 
         foreach (var item in seq)
         {
@@ -95,8 +98,8 @@ public class IterateBenchmark
     public void SpanLinq()
     {
         var seq = array.AsSpan()
-            .Select(x => x * 3)
-            .Where(x => x % 2 == 0);
+            .Where(x => x % 2 == 0)
+            .Select(x => x * 3);
 
         foreach (var item in seq)
         {

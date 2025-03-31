@@ -224,7 +224,8 @@ namespace ZLinq.Linq
         {
             if (index < source.Length)
             {
-                current = source[index++];
+                current = source[index];
+                index++;
                 return true;
             }
 
@@ -288,10 +289,11 @@ namespace ZLinq.Linq
             if (index < source.Length)
             {
 #if NET9_0_OR_GREATER
-                current = source[index++];
+                current = source[index];
 #else
-                current = source.Span[index++];
+                current = source.Span[index];
 #endif
+                index++;
                 return true;
             }
 
@@ -785,7 +787,8 @@ namespace ZLinq.Linq
         {
             if (index < source.Length)
             {
-                current = source[index++];
+                current = source[index];
+                index++;
                 return true;
             }
 

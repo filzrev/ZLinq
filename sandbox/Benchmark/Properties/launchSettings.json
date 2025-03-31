@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.CastOfType.* -- Default",
+      "commandLineArgs": "--filter Benchmark.ReadMeBenchmark.* -- Default",
 
       // Available config
       // 1. Default

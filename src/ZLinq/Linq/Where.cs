@@ -227,7 +227,8 @@ namespace ZLinq.Linq
         {
             while (index < source.Length)
             {
-                var value = source[index++];
+                var value = source[index];
+                index++;
                 if (predicate(value))
                 {
                     current = value;
@@ -282,7 +283,8 @@ namespace ZLinq.Linq
         {
             while (index < source.Length)
             {
-                var value = source[index++];
+                var value = source[index];
+                index++;
                 if (predicate(value))
                 {
                     current = selector(value);
