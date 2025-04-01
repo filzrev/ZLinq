@@ -24,7 +24,8 @@
                     var i = 0;
                     while (enumerator.TryGetNext(out var current))
                     {
-                        span[i++] = current;
+                        span[i] = current;
+                        i++;
                     }
                 }
                 return list;
@@ -53,7 +54,8 @@
                         i = 0;
                     }
 
-                    span[i++] = item;
+                    span[i] = item;
+                    i++;
                 }
                 arrayBuilder.Advance(i);
 

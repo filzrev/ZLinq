@@ -27,7 +27,8 @@ partial class ValueEnumerableExtensions
             var i = 0;
             while (enumerator.TryGetNext(out var item))
             {
-                array[i++] = item;
+                array[i] = item;
+                i++;
             }
 
             return array;
@@ -55,7 +56,8 @@ partial class ValueEnumerableExtensions
                     i = 0;
                 }
 
-                span[i++] = item;
+                span[i] = item;
+                i++;
             }
             arrayBuilder.Advance(i);
 
@@ -109,7 +111,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = item;
+                    span[i] = item;
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);
@@ -127,7 +130,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = item;
+                    span[i] = item;
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);
@@ -173,7 +177,8 @@ partial class ValueEnumerableExtensions
                     i = 0;
                 }
 
-                span[i++] = item;
+                span[i] = item;
+                i++;
             }
         }
         arrayBuilder.Advance(i);
@@ -226,7 +231,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = selector(item);
+                    span[i] = selector(item);
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);
@@ -244,7 +250,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = selector(item);
+                    span[i] = selector(item);
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);
@@ -292,7 +299,8 @@ partial class ValueEnumerableExtensions
                     i = 0;
                 }
 
-                span[i++] = selector(item);
+                span[i] = selector(item);
+                i++;
             }
         }
         arrayBuilder.Advance(i);
@@ -343,7 +351,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = item;
+                    span[i] = item;
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);
@@ -361,7 +370,8 @@ partial class ValueEnumerableExtensions
                         i = 0;
                     }
 
-                    span[i++] = item;
+                    span[i] = item;
+                    i++;
                 }
             }
             arrayBuilder.Advance(i);

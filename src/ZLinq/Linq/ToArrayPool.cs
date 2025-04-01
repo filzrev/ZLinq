@@ -30,7 +30,8 @@ partial class ValueEnumerableExtensions
             var i = 0;
             while (enumerator.TryGetNext(out var item))
             {
-                array[i++] = item;
+                array[i] = item;
+                i++;
             }
 
             return (array, i);
@@ -58,7 +59,8 @@ partial class ValueEnumerableExtensions
                     i = 0;
                 }
 
-                span[i++] = item;
+                span[i] = item;
+                i++;
             }
             arrayBuilder.Advance(i);
 
