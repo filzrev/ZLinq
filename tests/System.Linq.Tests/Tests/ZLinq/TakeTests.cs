@@ -1079,9 +1079,7 @@ namespace ZLinq.Tests
             Assert.Equal(taken5, taken5);
         }
 
-        [ConditionalTheory(
-            typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized),
-            Skip = SkipReason.Issue0090)]
+        [Theory(Skip = SkipReason.Issue0090)]
         [InlineData(1000)]
         [InlineData(1000000)]
         [InlineData(int.MaxValue)]
@@ -2038,7 +2036,7 @@ namespace ZLinq.Tests
             Assert.Empty(EnumerablePartitionOrEmpty(source).Take(^6..^7));
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [Fact]
         public void SkipTakeOnIListIsIList()
         {
             IList<int> list = new ReadOnlyCollection<int>(Enumerable.Range(0, 100).ToList());

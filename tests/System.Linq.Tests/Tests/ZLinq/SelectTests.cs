@@ -73,9 +73,7 @@ namespace ZLinq.Tests
             Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<string>().Select((s, i) => s.Length + i));
         }
 
-        [ConditionalFact(
-            typeof(PlatformDetection), nameof(PlatformDetection.IsThreadingSupported),
-            Skip = SkipReason.NotCompatibile_Verified)]
+        [Fact(Skip = SkipReason.NotCompatibile_Verified)]
         public void EnumerateFromDifferentThread()
         {
             var selected = Enumerable.Range(0, 100).Where(i => i > 3).Select(i => i.ToString());

@@ -328,8 +328,7 @@ namespace ZLinq.Tests
         }
 
         // No exception thrown when running test with ZLinq.
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized),
-            Skip = SkipReason.NotCompatibile)]
+        [Fact(Skip = SkipReason.NotCompatibile)]
         public void CountOfConcatIteratorShouldThrowExceptionOnIntegerOverflow()
         {
             var supposedlyLargeCollection = new DelegateBasedCollection<int> { CountWorker = () => int.MaxValue };

@@ -475,7 +475,7 @@ namespace ZLinq.Tests
             return lengths.SelectMany(l => lengths, (l1, l2) => new object[] { l1, l2 }).ToArray();
         }
 
-        [ConditionalTheory(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized), Skip = SkipReason.RequiresTooMuchResource)]
+        [Theory(Skip = SkipReason.RequiresTooMuchResource)]
         [InlineData(new[] { int.MaxValue, 1 })]
         [InlineData(new[] { 2, int.MaxValue - 1 })]
         [InlineData(new[] { 123, 456, int.MaxValue - 100000, 123456 })]
