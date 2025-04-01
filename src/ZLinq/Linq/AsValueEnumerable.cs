@@ -310,8 +310,7 @@ namespace ZLinq.Linq
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromList<T>(List<T> source) : IValueEnumerator<T>
     {
-        bool isInit = false;
-        List<T>.Enumerator enumerator;
+        int index;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -338,15 +337,10 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out T current)
         {
-            if (!isInit)
+            if (index < source.Count)
             {
-                isInit = true;
-                enumerator = source.GetEnumerator();
-            }
-
-            if (enumerator.MoveNext())
-            {
-                current = enumerator.Current;
+                current = source[index];
+                index++;
                 return true;
             }
 
@@ -356,10 +350,6 @@ namespace ZLinq.Linq
 
         public void Dispose()
         {
-            if (isInit)
-            {
-                enumerator.Dispose();
-            }
         }
     }
 
@@ -702,8 +692,7 @@ namespace ZLinq.Linq
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>
     {
-        bool isInit = false;
-        ImmutableArray<T>.Enumerator enumerator;
+        int index;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -729,15 +718,10 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out T current)
         {
-            if (!isInit)
+            if (index < source.Length)
             {
-                isInit = true;
-                enumerator = source.GetEnumerator();
-            }
-
-            if (enumerator.MoveNext())
-            {
-                current = enumerator.Current;
+                current = source[index];
+                index++;
                 return true;
             }
 
