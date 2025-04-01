@@ -31,18 +31,15 @@ using ZLinq.Traversables;
 
 
 var array1 = Enumerable.Range(1, 100).ToArray();
-var array2 = Enumerable.Range(1000, 150).ToArray();
-
-var hoge = array1.AsVectorizable().Zip(array2, (x, y) => x + y, (x, y) => x + y).ToArray();
 
 
 
-//array.AsVectorizable().Update(x => x * 2, x => x * 2);
+var foo = array1.AsVectorizable().Aggregate((x, y) => x + y, (x, y) => x + y);
+var bar = array1.Aggregate((x, y) => x + y);
+var baz = array1.Sum();
+Console.WriteLine(new { foo, bar, baz });
 
-foreach (var item in hoge)
-{
-    Console.WriteLine(item);
-}
+
 
 
 static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)

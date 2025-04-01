@@ -7,7 +7,7 @@ namespace ZLinq.Simd;
 
 partial struct Vectorizable<T>
 {
-    public T Aggregate<TResult>(Func<Vector<T>, Vector<T>, Vector<T>> vectorFunc, Func<T, T, T> func)
+    public T Aggregate(Func<Vector<T>, Vector<T>, Vector<T>> vectorFunc, Func<T, T, T> func)
     {
         var src = source;
 

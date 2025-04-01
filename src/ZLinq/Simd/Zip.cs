@@ -13,8 +13,6 @@ partial struct Vectorizable<T>
     }
 }
 
-// TODO: ToArray, CopyTo
-
 public readonly ref struct ZipVectorizable<T, TResult>(ReadOnlySpan<T> first, ReadOnlySpan<T> second, Func<Vector<T>, Vector<T>, Vector<TResult>> vectorSelector, Func<T, T, TResult> selector)
     where T : unmanaged
 {
@@ -23,12 +21,18 @@ public readonly ref struct ZipVectorizable<T, TResult>(ReadOnlySpan<T> first, Re
 
     public TResult[] ToArray()
     {
+        var result = GC.AllocateUninitializedArray<TResult>(Math.Min(first.Length, second.Length));
+        CopyTo(result);
+        return result;
+    }
+
+    public void CopyTo(Span<TResult> destination)
+    {
         var firstSrc = first;
         var secondSrc = second;
 
         var smallerLength = Math.Min(firstSrc.Length, secondSrc.Length);
-        var result = GC.AllocateUninitializedArray<TResult>(smallerLength);
-        var destination = result.AsSpan();
+        // TODO: throw destination is too small.
 
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && smallerLength >= Vector<T>.Count)
         {
@@ -52,8 +56,6 @@ public readonly ref struct ZipVectorizable<T, TResult>(ReadOnlySpan<T> first, Re
         {
             destination[i] = selector(firstSrc[i], secondSrc[i]);
         }
-
-        return result;
     }
 }
 

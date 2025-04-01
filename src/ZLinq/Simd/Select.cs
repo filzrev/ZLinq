@@ -13,8 +13,6 @@ partial struct Vectorizable<T>
     }
 }
 
-// TODO: ToArray, CopyTo
-
 public readonly ref struct SelectVectorizable<T, TResult>(ReadOnlySpan<T> source, Func<Vector<T>, Vector<TResult>> vectorSelector, Func<T, TResult> selector)
     where T : unmanaged
 {
@@ -22,10 +20,15 @@ public readonly ref struct SelectVectorizable<T, TResult>(ReadOnlySpan<T> source
 
     public TResult[] ToArray()
     {
-        var src = source;
+        var result = GC.AllocateUninitializedArray<TResult>(source.Length);
+        CopyTo(result);
+        return result;
+    }
 
-        var result = GC.AllocateUninitializedArray<TResult>(src.Length);
-        var destination = result.AsSpan();
+    public void CopyTo(Span<TResult> destination)
+    {
+        // TODO: throw destination is too small.
+        var src = source;
 
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && src.Length >= Vector<T>.Count)
         {
@@ -43,8 +46,6 @@ public readonly ref struct SelectVectorizable<T, TResult>(ReadOnlySpan<T> source
         {
             destination[i] = selector(src[i]);
         }
-
-        return result;
     }
 }
 
