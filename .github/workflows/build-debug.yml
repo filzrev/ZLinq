@@ -20,6 +20,8 @@ jobs:
       - uses: Cysharp/Actions/.github/actions/setup-dotnet@main
       - run: dotnet build -c Release
       - run: dotnet test -c Release --no-build
+      - run: dotnet build -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx
+      - run: dotnet test  -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx --no-build
 
   check-codecov-token:
     runs-on: ubuntu-latest
@@ -48,7 +50,9 @@ jobs:
     steps:
       - uses: Cysharp/Actions/.github/actions/checkout@main
       - uses: Cysharp/Actions/.github/actions/setup-dotnet@main
-      - run: dotnet build -c Release
+      - run: |
+          dotnet build -c Release
+          dotnet build -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx
 
       - name: Enable diagnostics (It's disabled by `Cysharp/Actions/.github/actions/setup-dotnet`)
         run: echo "COMPlus_EnableDiagnostics=1" >> $GITHUB_ENV
@@ -68,7 +72,7 @@ jobs:
           {
             dotnet coverage connect $sessionId --nologo "dotnet test ../ -c Release --framework net9.0 --no-build"
             
-            # TODO: Add System.Linq.Tests coverage collection.
+            dotnet coverage connect $sessionId --nologo "dotnet test -c Release System.Linq.Tests/System.Linq.Tests.slnx --framework net9.0 --no-build"
           }
           finally 
           {
