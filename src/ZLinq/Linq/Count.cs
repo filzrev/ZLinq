@@ -28,7 +28,7 @@ namespace ZLinq
             }
         }
 
-        public static Int32 Count<TEnumerator, TSource>(in this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
+        public static Int32 Count<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
             , allows ref struct
@@ -36,7 +36,7 @@ namespace ZLinq
         {
             ArgumentNullException.ThrowIfNull(predicate);
 
-            var enumerator = source.Enumerator;
+            using (var enumerator = source.Enumerator)
             {
                 if (enumerator.TryGetSpan(out var span))
                 {
