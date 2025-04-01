@@ -256,7 +256,7 @@ see: [unity](#unity) section.
 
 LINQ to SIMD
 ---
-WIP
+`.AsVectorizable()` from `T[]` or `Span<T>` or `ReadOnlySpan<T>`.
 
 Unity
 ---
