@@ -144,8 +144,10 @@ namespace ZLinq.Tests
 
             Assert.True(e.MoveNext());
             IList<int> odds = (IList<int>)e.Current;
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => odds[-1]);
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("index", () => odds[23]);
+
+            // ZLinq throw IndexOutOfRangeException instead of ArgumentOutOfRangeException
+            AssertExtensions.Throws<IndexOutOfRangeException>(() => _ = odds[-1]);
+            AssertExtensions.Throws<IndexOutOfRangeException>(() => _ = odds[23]);
         }
 
         [Fact]
@@ -903,7 +905,9 @@ namespace ZLinq.Tests
 
             var values = new HashSet<int>();
 
-            for (int trial = 0; trial < 3; trial++)
+            // ZLinq's grouping enumerator don't support Reset() API.
+
+            // for (int trial = 0; trial < 3; trial++)
             {
                 values.Clear();
 
@@ -915,7 +919,7 @@ namespace ZLinq.Tests
                 Assert.Equal(42, values.Count);
                 Assert.Equal(Enumerable.Range(0, 42), values.Order());
 
-                e.Reset();
+                // e.Reset();
             }
         }
     }
