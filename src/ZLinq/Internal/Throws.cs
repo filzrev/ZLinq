@@ -8,6 +8,9 @@ internal static class Throws
     public static T Argument<T>(string paramName) => throw new ArgumentException(paramName);
 
     [DoesNotReturn]
+    public static void Argument(string paramName, string message) => throw new ArgumentException(message, paramName);
+
+    [DoesNotReturn]
     public static void ArgumentOutOfRange(string paramName) => throw new ArgumentOutOfRangeException(paramName);
 
     [DoesNotReturn]

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -23,25 +24,41 @@ using ZLinq.Traversables;
 //byte.MaxValue
 // 2147483647
 
-[assembly: ZLinq.ZLinqDropInAttribute("MyLinq", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
+[assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
 
 // Enumerable.Range(1, 10).ToDictionary();
 //var tako = ValueEnumerable.Range(1, 10).Select(x => x.ToString());
 //var ok = string.Join(',', tako);
 
 
-var array1 = Enumerable.Range(1, 100).ToArray();
+
+var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };
 
 
-// array1.AsVectorizable().Count(x => Vector.GreaterThan(x, new(5)), x => x >= 5);
+var count1 = items.AsVectorizable().Count(x => Vector.Equals(x, new(5)), x => x == 5);
+var count2 = items.Count(x => x == 5);
+Console.WriteLine(count1);
+Console.WriteLine(count2);
 
 
-var foo = array1.AsVectorizable().Aggregate((x, y) => x + y, (x, y) => x + y);
-var bar = array1.Aggregate((x, y) => x + y);
-var baz = array1.Sum();
-Console.WriteLine(new { foo, bar, baz });
+return;
 
 
+var tuples = items.Select(x => (x, x)).ToArray();
+
+var foo = items.AsValueEnumerable().Where(x => x % 2 == 0).Select(x => x.ToString()).ToArray();
+
+
+
+// System.Linq
+var a = tuples.ToDictionary();
+
+// ZLinq
+var b = tuples.AsValueEnumerable().ToDictionary(); // No Build error.
+
+
+Console.WriteLine(a);
+Console.WriteLine(b);
 
 
 static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)

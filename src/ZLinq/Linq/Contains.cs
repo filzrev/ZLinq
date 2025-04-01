@@ -118,7 +118,7 @@ namespace ZLinq
 
         // Hack to avoid where constraints of MemoryExtensions.Contains.
         // .NET 10 removed it so no needs this hack. https://github.com/dotnet/runtime/pull/110197
-        static unsafe bool InvokeSpanContains<T>(ReadOnlySpan<T> source, T value)
+        internal static unsafe bool InvokeSpanContains<T>(ReadOnlySpan<T> source, T value)
         {
             // Generate code from FileGen.TypeOfContains
             // float, double, decimal and string are `IsBitwiseEquatable<T> == false` so don't use SIMD(but uses unroll search, it slightly faster than handwritten).

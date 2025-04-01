@@ -32,7 +32,10 @@ public readonly ref struct ZipVectorizable<T, TResult>(ReadOnlySpan<T> first, Re
         var secondSrc = second;
 
         var smallerLength = Math.Min(firstSrc.Length, secondSrc.Length);
-        // TODO: throw destination is too small.
+        if (destination.Length < smallerLength)
+        {
+            Throws.Argument(nameof(destination), $"Destination span is too small. Required at least {smallerLength} elements but has {destination.Length} elements.");
+        }
 
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && smallerLength >= Vector<T>.Count)
         {

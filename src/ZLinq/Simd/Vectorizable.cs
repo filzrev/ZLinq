@@ -1,5 +1,7 @@
 ﻿#if NET8_0_OR_GREATER
+using System;
 using System.Numerics;
+using static ZLinq.ValueEnumerableExtensions; // use some SIMD methods from ValueEnumerableExtensions
 
 namespace ZLinq.Simd;
 
@@ -25,6 +27,16 @@ public static class VectorizableExtensions
     public static Vectorizable<T> AsVectorizable<T>(this T[] source) where T : struct, INumber<T> => new(source);
     public static Vectorizable<T> AsVectorizable<T>(this Span<T> source) where T : struct, INumber<T> => new(source);
     public static Vectorizable<T> AsVectorizable<T>(this ReadOnlySpan<T> source) where T : struct, INumber<T> => new(source);
+
+    public static void VectorizedFillRange(this int[] source, int start)
+    {
+        FromRange.FillIncremental(source.AsSpan(), start);
+    }
+
+    public static void VectorizedFillRange(this Span<int> source, int start)
+    {
+        FromRange.FillIncremental(source, start);
+    }
 
     public static void VectorizedUpdate<T>(this T[] source, Func<Vector<T>, Vector<T>> vectorFunc, Func<T, T> func)
         where T : struct, INumber<T> => Update(source, vectorFunc, func);
@@ -60,50 +72,48 @@ public readonly ref partial struct Vectorizable<T>(ReadOnlySpan<T> source)
 
     // LINQ Methods
 
-#if NET9_0_OR_GREATER
-
     public T Sum()
     {
-        return source.AsValueEnumerable().Sum();
+        return SumSpan(source);
     }
 
     public T SumUnchecked()
     {
-        return source.AsValueEnumerable().SumUnchecked();
+        return SimdSumNumberUnchecked(source);
     }
 
     public double Average()
     {
-        return source.AsValueEnumerable().Average();
+        if (typeof(T) == typeof(int))
+        {
+            return AverageIntSimd(UnsafeSpanBitCast<T, int>(source));
+        }
+        else
+        {
+            var sum = SumSpan(source);
+            return double.CreateChecked(sum) / (double)source.Length;
+        }
     }
 
     public T Max()
     {
-        return source.AsValueEnumerable().Max();
+        return MaxSpan(source, Comparer<T>.Default);
     }
 
     public T Min()
     {
-        return source.AsValueEnumerable().Min();
+        return MinSpan(source, Comparer<T>.Default);
     }
 
     public bool Contains(T value)
     {
-        return source.AsValueEnumerable().Contains(value);
+        return InvokeSpanContains(source, value);
     }
 
-    public bool SequenceEqual(IEnumerable<T> second)
+    public bool SequenceEqual(ReadOnlySpan<T> second)
     {
-        return source.AsValueEnumerable().SequenceEqual(second);
+        return source.SequenceEqual(second);
     }
-
-    public bool SequenceEqual<TEnumerator>(ValueEnumerable<TEnumerator, T> second)
-        where TEnumerator : struct, IValueEnumerator<T>, allows ref struct
-    {
-        return source.AsValueEnumerable().SequenceEqual(second);
-    }
-
-#endif
 }
 
 #endif

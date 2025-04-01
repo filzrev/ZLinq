@@ -70,7 +70,7 @@ namespace ZLinq.Linq
         }
 
         // borrowed from .NET Enumerable.Range vectorized fill, originally implemented by @neon-sunset.
-        static void FillIncremental(Span<int> span, int start)
+        internal static void FillIncremental(Span<int> span, int start)
         {
             ref var current = ref MemoryMarshal.GetReference(span);
             ref var end = ref Unsafe.Add(ref current, span.Length);

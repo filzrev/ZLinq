@@ -384,7 +384,7 @@ partial class ValueEnumerableExtensions
     }
 
     // TFrom == TTo
-    static ReadOnlySpan<TTo> UnsafeSpanBitCast<TFrom, TTo>(ReadOnlySpan<TFrom> span)
+    internal static ReadOnlySpan<TTo> UnsafeSpanBitCast<TFrom, TTo>(ReadOnlySpan<TFrom> span)
     {
 #if NET9_0_OR_GREATER
         return Unsafe.BitCast<ReadOnlySpan<TFrom>, ReadOnlySpan<TTo>>(span);
@@ -492,7 +492,7 @@ partial class ValueEnumerableExtensions
         return result;
     }
 
-    static T SimdSumNumberUnchecked<T>(ReadOnlySpan<T> span)
+    internal static T SimdSumNumberUnchecked<T>(ReadOnlySpan<T> span)
        where T : struct, INumberBase<T>
     {
         ref var current = ref MemoryMarshal.GetReference(span);

@@ -20,22 +20,20 @@ internal static class Program
 {
     public static int Main(string[] args)
     {
-//#if DEBUG
-//        // BenchmarkRunner.Run<IterateBenchmark>(DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond)), args);
+#if DEBUG
 
-   
+        var bench = new SimdCount();
+        bench.Setup();
+        var a = bench.LinqCount();
+        var b = bench.VectorizableCount();
+        var c = bench.SimdInline();
 
+        Console.WriteLine(a);
+        Console.WriteLine(b);
+        Console.WriteLine(c);
 
-
-//        var i = 0;
-//        foreach (var item in typeof(Enumerable).GetMethods().GroupBy(x => x.Name))
-//        {
-//            Console.WriteLine($"- [ ] {item.Key}");
-//            i++;
-//        }
-//        Console.WriteLine(i);
-//        return 0;
-//#endif
+        return 0;
+#endif
 
 
 

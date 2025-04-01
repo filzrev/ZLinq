@@ -27,7 +27,11 @@ public readonly ref struct SelectVectorizable<T, TResult>(ReadOnlySpan<T> source
 
     public void CopyTo(Span<TResult> destination)
     {
-        // TODO: throw destination is too small.
+        if (destination.Length < source.Length)
+        {
+            Throws.Argument(nameof(destination), "Destination span is too small to contain the result of the transformation.");
+        }
+
         var src = source;
 
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && src.Length >= Vector<T>.Count)

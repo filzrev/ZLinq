@@ -2,8 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.VectorizableUpdate.*",
-      // "commandLineArgs": "--filter Benchmark.LinqAf.Crazy+Giant.* -- Default",
+      "commandLineArgs": "--filter Benchmark.SimdCount.* -- Default",
 
       // Available config
       // 1. Default
@@ -44,7 +43,8 @@
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_Comparer.*",
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector.*",
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
-      // "commandLineArgs": "--filter Benchmark.VectorizableUpdate.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
+      // "commandLineArgs": "--filter Benchmark.SimdCount.*",
 
       "workingDirectory": "."
     },
@@ -54,19 +54,19 @@
     },
     "Run All Benchmarks": {
       "commandName": "Project",
-      "commandLineArgs": "--filter *",
+      "commandLineArgs": "--filter *"
     },
     "Run All Benchmarks with --join": {
       "commandName": "Project",
-      "commandLineArgs": "--filter * --join",
+      "commandLineArgs": "--filter * --join"
     },
     "List Benchmark": {
       "commandName": "Project",
-      "commandLineArgs": "--list tree",
+      "commandLineArgs": "--list tree"
     },
     "Help": {
       "commandName": "Project",
-      "commandLineArgs": "--help",
+      "commandLineArgs": "--help"
     }
   }
 }

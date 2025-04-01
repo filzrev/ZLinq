@@ -111,7 +111,7 @@ partial class ValueEnumerableExtensions
 
 #if NET8_0_OR_GREATER
 
-    static TSource? MaxSpan<TSource>(ReadOnlySpan<TSource> span, IComparer<TSource> comparer)
+    internal static TSource? MaxSpan<TSource>(ReadOnlySpan<TSource> span, IComparer<TSource> comparer)
     {
         #region generate from FileGen.Commands.Max
         if (typeof(TSource) == typeof(byte))
