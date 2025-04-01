@@ -2,7 +2,8 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.LinqAf.Crazy+Giant.* -- Default",
+      "commandLineArgs": "--filter Benchmark.VectorizableUpdate.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.Crazy+Giant.* -- Default",
 
       // Available config
       // 1. Default
@@ -43,6 +44,7 @@
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_Comparer.*",
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector.*",
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
+      // "commandLineArgs": "--filter Benchmark.VectorizableUpdate.*",
 
       "workingDirectory": "."
     },

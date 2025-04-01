@@ -20,27 +20,29 @@ internal static class Program
 {
     public static int Main(string[] args)
     {
-#if DEBUG
-        // BenchmarkRunner.Run<IterateBenchmark>(DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond)), args);
+//#if DEBUG
+//        // BenchmarkRunner.Run<IterateBenchmark>(DefaultConfig.Instance.WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond)), args);
 
    
 
 
 
-        var i = 0;
-        foreach (var item in typeof(Enumerable).GetMethods().GroupBy(x => x.Name))
-        {
-            Console.WriteLine($"- [ ] {item.Key}");
-            i++;
-        }
-        Console.WriteLine(i);
-        return 0;
-#endif
-   
+//        var i = 0;
+//        foreach (var item in typeof(Enumerable).GetMethods().GroupBy(x => x.Name))
+//        {
+//            Console.WriteLine($"- [ ] {item.Key}");
+//            i++;
+//        }
+//        Console.WriteLine(i);
+//        return 0;
+//#endif
+
 
 
         if (args.Length != 0)
+        {
             Console.WriteLine($"Start ZLinq benchmarks with args: {string.Join(' ', args)}");
+        }
 
         try
         {

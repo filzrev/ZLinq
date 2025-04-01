@@ -30,20 +30,19 @@ using ZLinq.Traversables;
 //var ok = string.Join(',', tako);
 
 
-var items = new int[] { 1, 2, 3, 4, 5 };
-var tuples = items.Select(x => (x, x)).ToArray();
+var array1 = Enumerable.Range(1, 100).ToArray();
+var array2 = Enumerable.Range(1000, 150).ToArray();
 
-var foo = items.AsValueEnumerable().Where(x => x % 2 == 0).Select(x => x.ToString()).ToArray();
-
-// System.Linq
-var a = tuples.ToDictionary();
-
-// ZLinq
-var b = tuples.AsValueEnumerable().ToDictionary(); // No Build error.
+var hoge = array1.AsVectorizable().Zip(array2, (x, y) => x + y, (x, y) => x + y).ToArray();
 
 
-Console.WriteLine(a);
-Console.WriteLine(b);
+
+//array.AsVectorizable().Update(x => x * 2, x => x * 2);
+
+foreach (var item in hoge)
+{
+    Console.WriteLine(item);
+}
 
 
 static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)

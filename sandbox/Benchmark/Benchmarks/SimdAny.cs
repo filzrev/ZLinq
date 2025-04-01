@@ -54,26 +54,26 @@ public class SimdAny
     //    return src.AsValueEnumerable().Any(x => x > 9800);
     //}
 
-    [Benchmark]
-    public bool ZLinqAsVectorizable()
-    {
-        return src.AsVectorizable()
-            .Any(x => Vector.GreaterThanAny(x, new(9800)), x => x > 9800);
-    }
+    //[Benchmark]
+    //public bool ZLinqAsVectorizable()
+    //{
+    //    return src.AsVectorizable()
+    //        .Any(x => Vector.GreaterThanAny(x, new(9800)), x => x > 9800);
+    //}
 
-    [Benchmark]
-    public bool ZLinqAsVectorizableX()
-    {
-        return src.AsVectorizable()
-            .Any(x => Vector.GreaterThanAny(x, new(9800)), VectorBoundaryMode.ZeroPadding);
-    }
+    //[Benchmark]
+    //public bool ZLinqAsVectorizableX()
+    //{
+    //    return src.AsVectorizable()
+    //        .Any(x => Vector.GreaterThanAny(x, new(9800)), VectorBoundaryMode.ZeroPadding);
+    //}
 
-    [Benchmark]
-    public bool ZLinqAsVectorizableOp()
-    {
-        return src.AsVectorizable()
-            .Any(VectorComparer.GreaterThan(9800));
-    }
+    //[Benchmark]
+    //public bool ZLinqAsVectorizableOp()
+    //{
+    //    return src.AsVectorizable()
+    //        .Any(VectorComparer.GreaterThan(9800));
+    //}
 
     //[Benchmark]
     //public bool ZLinqAsVectorizable2()
