@@ -33,6 +33,8 @@ using ZLinq.Traversables;
 var array1 = Enumerable.Range(1, 100).ToArray();
 
 
+// array1.AsVectorizable().Count(x => Vector.GreaterThan(x, new(5)), x => x >= 5);
+
 
 var foo = array1.AsVectorizable().Aggregate((x, y) => x + y, (x, y) => x + y);
 var bar = array1.Aggregate((x, y) => x + y);

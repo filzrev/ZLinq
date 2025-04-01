@@ -14,7 +14,7 @@ partial struct Vectorizable<T>
 }
 
 public readonly ref struct ZipVectorizable<T, TResult>(ReadOnlySpan<T> first, ReadOnlySpan<T> second, Func<Vector<T>, Vector<T>, Vector<TResult>> vectorSelector, Func<T, T, TResult> selector)
-    where T : unmanaged
+    where T : struct, INumber<T>
 {
     readonly ReadOnlySpan<T> first = first;
     readonly ReadOnlySpan<T> second = second;

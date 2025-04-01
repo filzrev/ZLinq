@@ -14,7 +14,7 @@ partial struct Vectorizable<T>
         if (src.Length == 0) Throws.NoElements<T>();
 
         T result;
-
+        
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && src.Length >= Vector<T>.Count)
         {
             var vectors = MemoryMarshal.Cast<T, Vector<T>>(src);

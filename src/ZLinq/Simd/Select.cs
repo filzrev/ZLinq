@@ -14,7 +14,7 @@ partial struct Vectorizable<T>
 }
 
 public readonly ref struct SelectVectorizable<T, TResult>(ReadOnlySpan<T> source, Func<Vector<T>, Vector<TResult>> vectorSelector, Func<T, TResult> selector)
-    where T : unmanaged
+    where T : struct, INumber<T>
 {
     readonly ReadOnlySpan<T> source = source;
 
