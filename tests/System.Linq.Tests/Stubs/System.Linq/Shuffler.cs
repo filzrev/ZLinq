@@ -5,8 +5,15 @@ namespace System.Linq.Tests
 {
     public static class Shuffler
     {
+#if NET10_0_OR_GREATER
+        public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
+            => ZLinq.Tests.Shuffler.Shuffle(source);
+#else
+        // Need to expose as extension methods.
+        // Because Shuffle extension methods are used by order related tests.
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source)
             => ZLinq.Tests.Shuffler.Shuffle(source);
+#endif
     }
 }
 
@@ -14,13 +21,13 @@ namespace ZLinq.Tests
 {
     public static class Shuffler
     {
-        public static T[] Shuffle<T>(T[] array)
+        public static IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
         {
             var r = new Random(42);
+
+            var array = source.ToArray();
             r.Shuffle(array);
             return array;
         }
-
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> source) => Shuffle(source.ToArray());
     }
 }
