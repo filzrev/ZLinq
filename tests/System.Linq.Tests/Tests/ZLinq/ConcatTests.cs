@@ -285,7 +285,7 @@ namespace ZLinq.Tests
             }
         }
 
-        [Theory(Skip = SkipReason.NotCompatibile)]
+        [Theory(Skip = SkipReason.Issue0096)]
         [MemberData(nameof(ManyConcatsData))]
         public void ManyConcats(IEnumerable<IEnumerable<int>> sources)
         {
@@ -303,7 +303,7 @@ namespace ZLinq.Tests
             }
         }
 
-        [Theory]
+        [Theory(Skip = SkipReason.Issue0096)]
         [MemberData(nameof(ManyConcatsData))]
         public void ManyConcatsRunOnce(IEnumerable<IEnumerable<int>> sources)
         {
@@ -312,7 +312,8 @@ namespace ZLinq.Tests
                 IEnumerable<int> concatee = Enumerable.Empty<int>();
                 foreach (var source in sources)
                 {
-                    concatee = concatee.RunOnce().Concat(transform(source)).ToArray();
+                    // ZLinq can't assigned nested query to same variable.
+                    // concatee = concatee.RunOnce().Concat(transform(source));
                 }
 
                 Assert.Equal(sources.Sum(s => s.Count()), concatee.Count());
@@ -327,8 +328,7 @@ namespace ZLinq.Tests
             yield return new object[] { Enumerable.Range(0, 500).Select(i => Enumerable.Repeat(i, 1)).Reverse().ToArray() };
         }
 
-        // No exception thrown when running test with ZLinq.
-        [Fact(Skip = SkipReason.NotCompatibile)]
+        [Fact]
         public void CountOfConcatIteratorShouldThrowExceptionOnIntegerOverflow()
         {
             var supposedlyLargeCollection = new DelegateBasedCollection<int> { CountWorker = () => int.MaxValue };

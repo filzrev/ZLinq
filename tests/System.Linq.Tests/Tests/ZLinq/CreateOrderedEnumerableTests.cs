@@ -7,7 +7,7 @@ namespace ZLinq.Tests
 {
     public sealed class CreateOrderedEnumerableTests
     {
-        [Fact(Skip = SkipReason.NotCompatibile_Verified)]
+        [Fact(Skip = SkipReason.CreateOrderedEnumerable)]
         public void ThrowsNullKeySelector()
         {
             Assert.Throws<ArgumentNullException>(() =>

@@ -474,7 +474,7 @@ namespace ZLinq.Tests
             Assert.Empty(skipped.ToList());
         }
 
-        [Fact(Skip = SkipReason.NotCompatibile)]
+        [Fact(Skip = SkipReason.NotCompatible)]
         public void IteratorStateShouldNotChangeIfNumberOfElementsIsUnbounded()
         {
             // With https://github.com/dotnet/corefx/pull/13628, Skip and Take return

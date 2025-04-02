@@ -73,7 +73,7 @@ namespace ZLinq.Tests
             Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<string>().Select((s, i) => s.Length + i));
         }
 
-        [Fact(Skip = SkipReason.NotCompatibile_Verified)]
+        [Fact(Skip = SkipReason.RefStruct)]
         public void EnumerateFromDifferentThread()
         {
             var selected = Enumerable.Range(0, 100).Where(i => i > 3).Select(i => i.ToString());
@@ -81,7 +81,7 @@ namespace ZLinq.Tests
 
             //for (int i = 0; i != 4; ++i)
             //    tasks[i] = Task.Run(() => selected.ToList()); // CS8175: Cannot use ref local 'selected' inside an anonymous method, lambda expression, or query expression
-            Task.WaitAll(tasks);
+            //Task.WaitAll(tasks);
         }
 
         [Fact]
@@ -772,7 +772,7 @@ namespace ZLinq.Tests
             enumerator2.Dispose();
         }
 
-        [Fact(Skip = SkipReason.NotCompatibile_Verified)]
+        [Fact(Skip = SkipReason.EnumeratorReset)]
         public void Select_ResetCalledOnEnumerator_ThrowsException()
         {
             int[] source = new[] { 1, 2, 3, 4, 5 };
@@ -1227,7 +1227,7 @@ namespace ZLinq.Tests
             yield return new object[] { Enumerable.Range(1, 30) };
         }
 
-        [Theory(Skip = SkipReason.NotCompatibile_Verified)]
+        [Theory(Skip = SkipReason.Issue0082)]
         [MemberData(nameof(RunSelectorDuringCountData))]
         public void RunSelectorDuringCount(IEnumerable<int> source)
         {
