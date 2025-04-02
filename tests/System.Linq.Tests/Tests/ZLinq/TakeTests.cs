@@ -1079,16 +1079,25 @@ namespace ZLinq.Tests
             Assert.Equal(taken5, taken5);
         }
 
-        [Theory(Skip = SkipReason.Issue0090)]
+
+        [Theory]
         [InlineData(1000)]
         [InlineData(1000000)]
         [InlineData(int.MaxValue)]
-        public void LazySkipAllTakenForLargeNumbers(int largeNumber)
+        public void LazySkipAllTakenForLargeNumbers_TakeNumberSkip(int largeNumber)
         {
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber));
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber).Skip(42));
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(largeNumber).Skip(largeNumber / 2).Skip(largeNumber / 2 + 1));
+        }
 
+        // ZLinq don't support `.Take(range).Skip` optimization. See: https://github.com/Cysharp/ZLinq/issues/90
+        [Theory(Skip = SkipReason.Issue0090)]
+        [InlineData(1000)]
+        [InlineData(1000000)]
+        [InlineData(int.MaxValue)]
+        public void LazySkipAllTakenForLargeNumbers_TakeRangeSkip(int largeNumber)
+        {
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber));
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber).Skip(42));
             Assert.Empty(new FastInfiniteEnumerator<int>().Take(0..largeNumber).Skip(largeNumber / 2).Skip(largeNumber / 2 + 1));
