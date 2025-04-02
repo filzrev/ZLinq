@@ -8,6 +8,9 @@ indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+# Visual Studio Spell checker configs (https://learn.microsoft.com/en-us/visualstudio/ide/text-spell-checker?view=vs-2022#how-to-customize-the-spell-checker)
+spelling_exclusion_path  = ./exclusion.dic
+
 # Solution files
 [*.{sln,slnx}]
 indent_size = 2

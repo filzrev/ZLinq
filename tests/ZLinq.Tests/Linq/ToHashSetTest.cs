@@ -4,7 +4,7 @@ public class ToHashSetTest
 {
     // pattern
     // Span = Array
-    // EnumeatedCount Only = Select
+    // EnumeratedCount Only = Select
     // Iterator
 
     [Fact]

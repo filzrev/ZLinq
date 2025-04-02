@@ -252,7 +252,7 @@ public class MaxTest
     }
 
     [Fact]
-    public void CustomComaprer2()
+    public void CustomComparer2()
     {
         var source = new int[] { 1, 2, 4, 3 }.AsValueEnumerable();
         var expected = 4;

@@ -7,7 +7,7 @@ public class ToListTest
     // 4 pattern,
     // Span = Array
     // EnumeratedCount + TryCopyTo = Range
-    // EnumeatedCount Only = Select
+    // EnumeratedCount Only = Select
     // Iterator
 
     [Fact]

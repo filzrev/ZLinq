@@ -46,7 +46,7 @@
 #endif
             => new(new(source.Enumerator, Throws.IfNull(collectionSelector), Throws.IfNull(resultSelector)));
 
-        // IEnumerable<T> valiation
+        // IEnumerable<T> validation
 
         public static ValueEnumerable<SelectMany<TEnumerator, TSource, TResult>, TResult> SelectMany<TEnumerator, TSource, TResult>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, IEnumerable<TResult>> selector)
             where TEnumerator : struct, IValueEnumerator<TSource>
