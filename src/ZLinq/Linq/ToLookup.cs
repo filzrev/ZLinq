@@ -313,6 +313,8 @@ namespace ZLinq.Linq
     }
 
     // .NET ILookup implements ICollection and it is public
+    [DebuggerDisplay("Count = {Count}")]
+    [DebuggerTypeProxy(typeof(LookupDebugView<,>))]
     public sealed class Lookup<TKey, TElement> : ILookup<TKey, TElement>, ICollection<IGrouping<TKey, TElement>>, IReadOnlyCollection<IGrouping<TKey, TElement>>
     {
         internal static readonly Lookup<TKey, TElement> Empty = new Lookup<TKey, TElement>();
@@ -482,7 +484,8 @@ namespace ZLinq.Linq
         }
     }
 
-    [DebuggerDisplay("Key = {Key}, ({Count})")]
+    [DebuggerDisplay("Key = {Key}")]
+    [DebuggerTypeProxy(typeof(GroupingDebugView<,>))]
     internal sealed class Grouping<TKey, TElement> : IGrouping<TKey, TElement>, IList<TElement>, IReadOnlyList<TElement>
     {
         TKey key;
@@ -578,5 +581,35 @@ namespace ZLinq.Linq
         {
             throw new NotSupportedException();
         }
+    }
+   
+    internal sealed class GroupingDebugView<TKey, TElement>
+    {
+        readonly Grouping<TKey, TElement> _grouping;
+        TElement[]? _cachedValues;
+
+        public GroupingDebugView(Grouping<TKey, TElement> grouping)
+        {
+            _grouping = grouping;
+        }
+
+        public TKey Key => _grouping.Key;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public TElement[] Values => _cachedValues ??= _grouping.ToArray();
+    }
+
+    internal sealed class LookupDebugView<TKey, TElement>
+    {
+        readonly ILookup<TKey, TElement> _lookup;
+        IGrouping<TKey, TElement>[]? _cachedGroupings;
+
+        public LookupDebugView(ILookup<TKey, TElement> lookup)
+        {
+            _lookup = lookup;
+        }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+        public IGrouping<TKey, TElement>[] Groupings => _cachedGroupings ??= _lookup.ToArray();
     }
 }
