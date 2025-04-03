@@ -870,7 +870,7 @@ namespace ZLinq.Tests
             Assert.Equal(1, enumerator.Current);
         }
 
-        [Fact(Skip = SkipReason.NotCompatibile)]
+        [Fact(Skip = SkipReason.EnumeratorReset)]
         public void Select_ResetEnumerator_ThrowsException()
         {
             int[] source = new[] { 1, 2, 3, 4, 5 };

@@ -117,11 +117,13 @@ namespace ZLinq.Tests
             AssertExtensions.Throws<ArgumentNullException>("source", () => source.Contains(42, EqualityComparer<int>.Default));
         }
 
-        [Fact(Skip = SkipReason.FailedByDefault)]
+        [Fact]
         public void ExplicitNullComparerDoesNotDeferToCollection()
         {
             IEnumerable<string> source = new HashSet<string>(new AnagramEqualityComparer()) { "ABC" };
-            Assert.DoesNotContain("BAC", source, null);
+
+            var hasValue = source.Contains("BAC", null);
+            Assert.False(hasValue);
         }
 
         [Fact]

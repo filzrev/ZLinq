@@ -857,7 +857,7 @@ namespace ZLinq.Tests
             Assert.Empty(Enumerable.Empty<int>().GroupBy(i => i, (x, y) => x + y.Count()));
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsNotBuiltWithAggressiveTrimming))]
+        [Fact]
         public static void GroupingKeyIsPublic()
         {
             // Grouping.Key needs to be public (not explicitly implemented) for the sake of WPF.

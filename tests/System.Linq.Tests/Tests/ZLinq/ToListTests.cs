@@ -90,7 +90,7 @@ namespace ZLinq.Tests
         }
 
         // Generally the optimal approach. Anything that breaks this should be confirmed as not harming performance.
-        [Fact(Skip = SkipReason.NotCompatibile)]
+        [Fact(Skip = SkipReason.ICollectionCopyTo)]
         public void ToList_UseCopyToWithICollection()
         {
             TestCollection<int> source = new TestCollection<int>(new int[] { 1, 2, 3, 4 });
