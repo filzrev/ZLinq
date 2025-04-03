@@ -30,7 +30,7 @@ internal ref struct DefaultInterpolatedStringHandler
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void AppendLiteral(ReadOnlySpan<char> value)
+    public void AppendFormatted(ReadOnlySpan<char> value)
     {
         if (value.TryCopyTo(_chars.Slice(_pos)))
         {
@@ -46,7 +46,7 @@ internal ref struct DefaultInterpolatedStringHandler
     {
         if (typeof(T) == typeof(string))
         {
-            AppendLiteral(Unsafe.As<T, string>(ref value).AsSpan());
+            AppendFormatted(Unsafe.As<T, string>(ref value).AsSpan());
         }
 #if NETSTANDARD2_1
         else if (typeof(T) == typeof(byte))
@@ -187,7 +187,7 @@ internal ref struct DefaultInterpolatedStringHandler
 
             if (s is not null)
             {
-                AppendLiteral(s.AsSpan());
+                AppendFormatted(s.AsSpan());
             }
         }
     }

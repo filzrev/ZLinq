@@ -12,6 +12,25 @@ partial class ValueEnumerableExtensions
         , allows ref struct
 #endif
     {
+        return JoinToString(source, separator.AsSpan());
+    }
+
+    public static string JoinToString<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, char separator)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        ReadOnlySpan<char> span = stackalloc char[] { separator };
+        return JoinToString(source, span);
+    }
+
+    public static string JoinToString<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, ReadOnlySpan<char> separator)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
         using var e = source.Enumerator;
 
         if (separator.Length == 0)
@@ -58,12 +77,6 @@ partial class ValueEnumerableExtensions
         }
         else
         {
-#if NET8_0_OR_GREATER
-            var separatorLiteral = separator;
-#else
-            var separatorLiteral = separator.AsSpan();
-#endif
-
             if (e.TryGetSpan(out var span))
             {
                 if (span.Length == 0) return "";
@@ -71,12 +84,12 @@ partial class ValueEnumerableExtensions
 
                 var result = new DefaultInterpolatedStringHandler(0, 0, CultureInfo.CurrentCulture, stackalloc char[StackallocCharBufferSizeLimit]);
                 result.AppendFormatted(span[0]);
-                result.AppendLiteral(separatorLiteral);
+                result.AppendFormatted(separator);
                 result.AppendFormatted(span[1]);
 
                 for (int i = 2; i < span.Length; i++)
                 {
-                    result.AppendLiteral(separatorLiteral);
+                    result.AppendFormatted(separator);
                     result.AppendFormatted(span[i]);
                 }
 
@@ -96,12 +109,12 @@ partial class ValueEnumerableExtensions
 
                 var result = new DefaultInterpolatedStringHandler(0, 0, CultureInfo.CurrentCulture, stackalloc char[StackallocCharBufferSizeLimit]);
                 result.AppendFormatted(first);
-                result.AppendLiteral(separatorLiteral);
+                result.AppendFormatted(separator);
                 result.AppendFormatted(second);
 
                 while (e.TryGetNext(out var value))
                 {
-                    result.AppendLiteral(separatorLiteral);
+                    result.AppendFormatted(separator);
                     result.AppendFormatted(value);
                 }
 
