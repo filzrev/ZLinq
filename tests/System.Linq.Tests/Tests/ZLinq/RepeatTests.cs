@@ -239,7 +239,7 @@ namespace ZLinq.Tests
             Assert.Equal(42, Enumerable.Repeat("Test", 42).Count());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [Fact]
         public void ICollectionImplementationIsValid()
         {
             Validate(Enumerable.Repeat(42, 10), new[] { 42, 42, 42, 42, 42, 42, 42, 42, 42, 42 });

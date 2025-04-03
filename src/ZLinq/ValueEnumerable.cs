@@ -1,8 +1,11 @@
-﻿namespace ZLinq;
+﻿using System.Diagnostics;
+
+namespace ZLinq;
 
 // This struct is wrapper for enumerator(enumerable) to improve type inference in C# compiler.
 // C# constraint inference issue: https://github.com/dotnet/csharplang/discussions/6930
 [StructLayout(LayoutKind.Auto)]
+[DebuggerTypeProxy(typeof(ValueEnumerableDebugView<,>))]
 #if NET9_0_OR_GREATER
 public readonly ref
 #else
@@ -91,6 +94,24 @@ struct ValueEnumerator<TEnumerator, T>(TEnumerator enumerator) : IDisposable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose() => enumerator.Dispose();
+}
+
+// same approach as SpanDebugView<T> 
+internal sealed class ValueEnumerableDebugView<TEnumerator, T>
+    where TEnumerator : struct, IValueEnumerator<T>
+#if NET9_0_OR_GREATER
+    , allows ref struct
+#endif
+{
+    readonly T[] array;
+
+    public ValueEnumerableDebugView(ValueEnumerable<TEnumerator, T> source)
+    {
+        array = source.ToArray();
+    }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    public T[] Items => array;
 }
 
 public static partial class ValueEnumerableExtensions // keep `public static` partial class

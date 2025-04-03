@@ -21,6 +21,7 @@ internal static class ConditionalUtils
             {
                 case "IsThreadingSupported" when PlatformDetection.IsThreadingSupported:
                 case "IsDebuggerTypeProxyAttributeSupported" when PlatformDetection.IsDebuggerTypeProxyAttributeSupported:
+                case "IsNotBuiltWithAggressiveTrimming" when PlatformDetection.IsNotBuiltWithAggressiveTrimming:
 
 #if NET10_0_OR_GREATER
                 case "IsLinqSpeedOptimized" when PlatformDetection.IsLinqSpeedOptimized:

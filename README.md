@@ -62,7 +62,7 @@ public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnume
     where TEnumerator : struct, IValueEnumerator<TSource>, allows ref struct
 ````
 
-Operators have this method signature. C# cannot infer types from generic constraints([dotnet/csharplang#6930](https://github.com/dotnet/csharplang/discussions/6930)). Therefore, the traditional Struct LINQ approach required implementing all operator combinations as instance methods, resulting in [100,000+ methods and massive assembly sizes](https://kevinmontrose.com/2018/01/17/linqaf-replacing-linq-and-not-allocating/). However, in ZLinq, we've successfully avoided all the boilerplate method implementations by devising an approach that properly conveys types to C# compiler. There are approaches focusing on instance methods to aim for local maximum performance, or generating everything with Source Generator, but ZLinq style has been chosen to balance usability with assembly size and other factors. Also, as the struct grows larger with each method chain, too many chains may cause performance degradation.
+Operators have this method signature. C# cannot infer types from generic constraints([dotnet/csharplang#6930](https://github.com/dotnet/csharplang/discussions/6930)). Therefore, the traditional Struct LINQ approach required implementing all operator combinations as instance methods, resulting in [100,000+ methods and massive assembly sizes](https://kevinmontrose.com/2018/01/17/linqaf-replacing-linq-and-not-allocating/). However, in ZLinq, we've successfully avoided all the boilerplate method implementations by devising an approach that properly conveys types to C# compiler.
 
 Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnlySpan<T> span)`, and `TryCopyTo(Span<T> destination)` defined in the interface itself enable flexible optimizations. For example, Take+Skip can be expressed entirely as Span slices, so if the original source can be converted to a Span, Span slices are passed through TryGetSpan chains. For ToArray, if the sequence length can be calculated, a fixed-length array is prepared in advance, and operators that can write directly to the final array via TryCopyTo will do so. Some methods automatically use SIMD-based optimization if a Span can be obtained.
 
@@ -123,7 +123,7 @@ This is the most aggressive configuration, causing all LINQ methods to be proces
 While ZLinq offers superior performance, there are some differences from System.Linq. 
 For instance, be aware that you cannot store it in fields or pass it as method arguments. 
 For example, you cannot pass LINQ operations to `string.Join`. 
-In such cases, you need to use `ToArray` (if you want to minimize allocations, you can use `ToArrayPool` and return it to the Pool after the Join operation).
+In such cases, you need to use `ToArray` (if you want to minimize allocations, you can use `ToArrayPool` and return it to the Pool after the Join operation). However case of `string.Join`, ZLinq has `JoinToString` operator so you can use it instead.
 
 > I recommend considering `Everything` to have too strong of side effects, so it would be better to try using namespaces and `DropInGenerateTypes.Collection`.
 

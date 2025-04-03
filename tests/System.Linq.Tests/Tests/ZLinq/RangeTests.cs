@@ -216,19 +216,34 @@ namespace ZLinq.Tests
             Assert.Equal(-100, Enumerable.Range(-100, int.MaxValue).FirstOrDefault());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+
+        // ZLinq don't support Last() optimization for Enumerable.Range. Use ValueEnumerable.Range instead.
+        [Fact(Skip = SkipReason.Issue0094)]
         public void Last()
         {
             Assert.Equal(1000000056, Enumerable.Range(57, 1000000000).Last());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [Fact(Skip = SkipReason.Issue0094)]
         public void LastOrDefault()
         {
             Assert.Equal(int.MaxValue - 101, Enumerable.Range(-100, int.MaxValue).LastOrDefault());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        // When using ValueEnumrable. ZLinq use optimized path for Last() operation.
+        [Fact]
+        public void Last_ValueEnumerableRange()
+        {
+            Assert.Equal(1000000056, ValueEnumerable.Range(57, 1000000000).Last());
+        }
+
+        [Fact]
+        public void LastOrDefault_ValueEnumerableRange()
+        {
+            Assert.Equal(int.MaxValue - 101, ValueEnumerable.Range(-100, int.MaxValue).LastOrDefault());
+        }
+
+        [Fact]
         public void IListImplementationIsValid()
         {
             Validate(Enumerable.Range(42, 10), new[] { 42, 43, 44, 45, 46, 47, 48, 49, 50, 51 });

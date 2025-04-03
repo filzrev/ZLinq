@@ -252,7 +252,7 @@ public class MaxTest
     }
 
     [Fact]
-    public void CustomComparer2()
+    public void CustomComaprer2()
     {
         var source = new int[] { 1, 2, 4, 3 }.AsValueEnumerable();
         var expected = 4;
@@ -264,7 +264,6 @@ public class MaxTest
         Assert.Equal(1, source.Max(Comparer<int>.Create((x, y) => 0)));
     }
 
-    // Non-comparable class for testing
     private class Person
     {
         public string Name { get; }
