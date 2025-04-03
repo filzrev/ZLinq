@@ -157,4 +157,28 @@ public partial class Commands
 
         Console.WriteLine(sb.ToString());
     }
+
+    public void InterpolatedStringHandlerAppendFormatted()
+    {
+        var sb = new StringBuilder();
+        foreach (var type in PrimitiveTypes)
+        {
+            var code = $$"""
+        else if (typeof(T) == typeof({{type}}))
+        {
+            int charsWritten;
+            while (!(Unsafe.As<T, {{type}}>(ref value)).TryFormat(_chars.Slice(_pos), out charsWritten, default, _provider))
+            {
+                Grow();
+            }
+
+            _pos += charsWritten;
+            return;
+        }
+""";
+            sb.AppendLine(code);
+        }
+
+        Console.WriteLine(sb.ToString());
+    }
 }

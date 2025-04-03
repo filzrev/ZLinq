@@ -123,7 +123,7 @@ This is the most aggressive configuration, causing all LINQ methods to be proces
 While ZLinq offers superior performance, there are some differences from System.Linq. 
 For instance, be aware that you cannot store it in fields or pass it as method arguments. 
 For example, you cannot pass LINQ operations to `string.Join`. 
-In such cases, you need to use `ToArray` (if you want to minimize allocations, you can use `ToArrayPool` and return it to the Pool after the Join operation).
+In such cases, you need to use `ToArray` (if you want to minimize allocations, you can use `ToArrayPool` and return it to the Pool after the Join operation). However case of `string.Join`, ZLinq has `JoinToString` operator so you can use it instead.
 
 > I recommend considering `Everything` to have too strong of side effects, so it would be better to try using namespaces and `DropInGenerateTypes.Collection`.
 

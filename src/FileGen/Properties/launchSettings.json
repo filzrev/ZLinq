@@ -5,6 +5,11 @@
       "commandLineArgs": "dropin",
       "workingDirectory": "."
     },
+    "AppendFormatted": {
+      "commandName": "Project",
+      "commandLineArgs": "interpolated-string-handler-append-formatted",
+      "workingDirectory": "."
+    },
     "Help": {
       "commandName": "Project",
       "commandLineArgs": "--help"

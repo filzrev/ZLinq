@@ -34,11 +34,9 @@ using ZLinq.Traversables;
 
 var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };
 
+var foobar = items.AsValueEnumerable().JoinToString(",");
+Console.WriteLine(foobar);
 
-var count1 = items.AsVectorizable().Count(x => Vector.Equals(x, new(5)), x => x == 5);
-var count2 = items.Count(x => x == 5);
-Console.WriteLine(count1);
-Console.WriteLine(count2);
 
 
 return;
