@@ -31,11 +31,14 @@ using ZLinq.Traversables;
 //var ok = string.Join(',', tako);
 
 
-
+var hag = Enumerable.Range(1, 10).Where(x => x % 2 == 0);
+var tako = ValueEnumerable.Range(1, 100);
 var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };
 
-var foobar = items.AsValueEnumerable().JoinToString(",");
-Console.WriteLine(foobar);
+var foobar = items.AsValueEnumerable().Select(x => x * 10);
+var barbaz = items.AsValueEnumerable().TakeWhile(x => x < 5);
+//var z = barbaz.ToArray();
+//Console.WriteLine(foobar.JoinToString(","));
 
 
 
