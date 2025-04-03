@@ -26,6 +26,9 @@ public static partial class Assert
     public static void Equal<T>(IEnumerable<T> expected, IEnumerable<T> actual, IEqualityComparer<T> comparer)
         => Xunit.Assert.Equal(expected, actual, comparer);
 
+    public static void NotEqual<T>(IEnumerable<T> expected, IEnumerable<T> actual)
+        => Xunit.Assert.NotEqual(expected, actual);
+
     public static void All<T>(IEnumerable<T> collection, Action<T> action)
         => Xunit.Assert.All(collection, action);
 
