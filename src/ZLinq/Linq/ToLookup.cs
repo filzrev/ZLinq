@@ -490,7 +490,7 @@ namespace ZLinq.Linq
         TElement[] elements; // don't use ArrayPool. initial elements is 1.
         int count; // elements count(index)
 
-        public Grouping<TKey, TElement>? NextGroupInAddOrder;  // to gurantees add order
+        public Grouping<TKey, TElement>? NextGroupInAddOrder;  // to guarantees add order
         public Grouping<TKey, TElement>? NextGroupInSameHashCode; // linked-list node for chaining
 
         public Grouping(TKey key, uint hashCode, TElement value)
@@ -519,7 +519,7 @@ namespace ZLinq.Linq
             count++;
         }
 
-        // we needs IList implementation for Sytem.Linq internal optimization usage
+        // we needs IList implementation for System.Linq internal optimization usage
 
         public bool IsReadOnly => true;
 

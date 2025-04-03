@@ -4,7 +4,7 @@ public class ToDictionaryTest
 {
     // pattern
     // Span = Array
-    // EnumeatedCount Only = Select
+    // EnumeratedCount Only = Select
     // Iterator
 
     [Fact]

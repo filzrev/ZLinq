@@ -427,7 +427,7 @@ public class SelectManyTest
             current: () => subState[subIndex],
             dispose: () => subCollectionDisposed[subIndex++] = true); // Record that Dispose was called, and move on to the next index.
 
-        var iterator = source.AsValueEnumerable().SelectMany(_ => subCollection); // AsValueEunmerable
+        var iterator = source.AsValueEnumerable().SelectMany(_ => subCollection); // AsValueEnumerable
 
         int index = 0; // How much have we gone into the iterator?
         //var e = iterator.GetEnumerator();
@@ -443,7 +443,7 @@ public class SelectManyTest
 
                 Assert.False(sourceDisposed); // Not yet.
 
-                // This represents whehter the sub-collection we're iterating thru right now
+                // This represents whether the sub-collection we're iterating thru right now
                 // has been disposed. Also not yet.
                 Assert.False(subCollectionDisposed[subIndex]);
 

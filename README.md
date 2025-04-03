@@ -55,7 +55,7 @@ public interface IValueEnumerator<T> : IDisposable
 }
 ```
 
-Besides changing to a struct-based approach, we've integrated MoveNext and Current to reduce the number of iterator calls. Also, since structs automatically copy internal state, we've simplified the type complexity by unifying Enumerable and Enumerator(almostly types only implements custom enumerator).
+Besides changing to a struct-based approach, we've integrated MoveNext and Current to reduce the number of iterator calls. Also, since structs automatically copy internal state, we've simplified the type complexity by unifying Enumerable and Enumerator(almost types only implements custom enumerator).
 
 ```csharp
 public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnumerator, TSource>(in this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
@@ -66,7 +66,7 @@ Operators have this method signature. C# cannot infer types from generic constra
 
 Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnlySpan<T> span)`, and `TryCopyTo(Span<T> destination)` defined in the interface itself enable flexible optimizations. For example, Take+Skip can be expressed entirely as Span slices, so if the original source can be converted to a Span, Span slices are passed through TryGetSpan chains. For ToArray, if the sequence length can be calculated, a fixed-length array is prepared in advance, and operators that can write directly to the final array via TryCopyTo will do so. Some methods automatically use SIMD-based optimization if a Span can be obtained.
 
-Gettting Started
+Getting Started
 ---
 Use `using ZLinq;` and call `AsValueEnumerable()` on any iterable type to use ZLinq's zero-allocation LINQ. Also, `Range`, `Repeat`, and `Empty` are defined in `ValueEnumerable`.
 
@@ -250,7 +250,7 @@ foreach (var item in origin.Descendants().Select(x => x.Node).OfType<JsoArray>()
 }
 ```
 
-### GameObject/Transfrom(Unity)
+### GameObject/Transform(Unity)
 
 see: [unity](#unity) section.
 

@@ -264,7 +264,6 @@ public class MaxTest
         Assert.Equal(1, source.Max(Comparer<int>.Create((x, y) => 0)));
     }
 
-    // Non-comparable class for testing
     private class Person
     {
         public string Name { get; }

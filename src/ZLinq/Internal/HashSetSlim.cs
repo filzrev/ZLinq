@@ -77,7 +77,7 @@ internal sealed class HashSetSlim<T> : IDisposable
         var newSize = System.Numerics.BitOperations.RoundUpToPowerOf2((uint)entries.Length * 2);
         var newEntries = ArrayPool<Entry>.Shared.Rent((int)newSize);
         var newBuckets = ArrayPool<int>.Shared.Rent((int)newSize);
-        bucketsLength = (int)newSize; // gurantees PowerOf2
+        bucketsLength = (int)newSize; // guarantees PowerOf2
         resizeThreshold = (int)(bucketsLength * LoadFactor);
         newBuckets.AsSpan().Clear(); // 0-clear.
 

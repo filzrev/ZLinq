@@ -97,7 +97,7 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
-        // ignore some optimzie chain
+        // ignore some optimize chain
 
         if (methodInfo.Name is "Where" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("SelectWhere") || x.Name.Contains("WhereArray")))
         {

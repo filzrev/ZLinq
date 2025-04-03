@@ -32,7 +32,7 @@ public class HashSetSlimTest
         set.Add(1).ShouldBeFalse();
         set.Add(2).ShouldBeTrue();
         set.Add(3).ShouldBeTrue();
-        set.Add(4).ShouldBeTrue(); // reach threashold, start resize
+        set.Add(4).ShouldBeTrue(); // reach threshold, start resize
         set.Add(5).ShouldBeTrue();
         set.Add(6).ShouldBeTrue();
         set.Add(7).ShouldBeTrue();
