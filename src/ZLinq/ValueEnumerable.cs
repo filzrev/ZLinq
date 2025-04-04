@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ZLinq;
 
 // This struct is wrapper for enumerator(enumerable) to improve type inference in C# compiler.
 // C# constraint inference issue: https://github.com/dotnet/csharplang/discussions/6930
 [StructLayout(LayoutKind.Auto)]
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
 [DebuggerTypeProxy(typeof(ValueEnumerableDebugView<,>))]
 #if NET9_0_OR_GREATER
 public readonly ref
@@ -24,6 +27,8 @@ struct ValueEnumerable<TEnumerator, T>(TEnumerator enumerator)
     // Cast and OfType are implemented as instance methods rather than extension methods to simplify type specification.
     public ValueEnumerable<Cast<TEnumerator, T, TResult>, TResult> Cast<TResult>() => new(new(Enumerator));
     public ValueEnumerable<OfType<TEnumerator, T, TResult>, TResult> OfType<TResult>() => new(new(Enumerator));
+
+    string DebuggerDisplay => ValueEnumerableDebuggerDisplayHelper.BuildDisplayText(typeof(TEnumerator));
 }
 
 // all implement types must be struct
@@ -96,6 +101,51 @@ struct ValueEnumerator<TEnumerator, T>(TEnumerator enumerator) : IDisposable
     public void Dispose() => enumerator.Dispose();
 }
 
+public static partial class ValueEnumerableExtensions // keep `public static` partial class
+{
+    // for foreach
+    public static ValueEnumerator<TEnumerator, T> GetEnumerator<TEnumerator, T>(in this ValueEnumerable<TEnumerator, T> valueEnumerable)
+        where TEnumerator : struct, IValueEnumerator<T>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+        => new(valueEnumerable.Enumerator);
+}
+
+internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size
+{
+    public static string BuildDisplayText(Type type) // root is typeof(TEnumerator)
+    {
+        var sb = new StringBuilder();
+        BuildCore(sb, type);
+        return sb.ToString();
+    }
+
+    static void BuildCore(StringBuilder sb, Type type)
+    {
+        if (type.IsGenericType)
+        {
+            BuildCore(sb, type.GenericTypeArguments[0]);
+            sb.Append(".");
+            var genericsStart = type.Name.IndexOf('`');
+            if (genericsStart != -1) // always come here
+            {
+                var name = type.Name.Substring(0, genericsStart);
+                sb.Append(name);
+            }
+            else
+            {
+                sb.Append(type.Name);
+            }
+            return;
+        }
+
+        sb.Append("<");
+        sb.Append(type.Name);
+        sb.Append(">");
+    }
+}
+
 // same approach as SpanDebugView<T> 
 internal sealed class ValueEnumerableDebugView<TEnumerator, T>
     where TEnumerator : struct, IValueEnumerator<T>
@@ -107,20 +157,10 @@ internal sealed class ValueEnumerableDebugView<TEnumerator, T>
 
     public ValueEnumerableDebugView(ValueEnumerable<TEnumerator, T> source)
     {
-        array = source.ToArray();
+        // to avoid materialize infinite source
+        array = source.Take(100000).ToArray();
     }
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     public T[] Items => array;
-}
-
-public static partial class ValueEnumerableExtensions // keep `public static` partial class
-{
-    // for foreach
-    public static ValueEnumerator<TEnumerator, T> GetEnumerator<TEnumerator, T>(in this ValueEnumerable<TEnumerator, T> valueEnumerable)
-        where TEnumerator : struct, IValueEnumerator<T>
-#if NET9_0_OR_GREATER
-        , allows ref struct
-#endif
-        => new(valueEnumerable.Enumerator);
 }
