@@ -158,7 +158,6 @@ internal ref struct ValueEnumerableDebugView<TEnumerator, T>
 #endif
 {
     readonly ValueEnumerable<TEnumerator, T> source;
-    T[]? items;
 
     public ValueEnumerableDebugView(ValueEnumerable<TEnumerator, T> source)
     {
@@ -171,12 +170,7 @@ internal ref struct ValueEnumerableDebugView<TEnumerator, T>
     {
         get
         {
-            if (items == null)
-            {
-                items = source.Take(100000).ToArray(); // max 100000 to avoid infinite call
-            }
-
-            return items;
+            return source.Take(100000).ToArray(); // max 100000 to avoid infinite call
         }
     }
 }
