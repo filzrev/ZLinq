@@ -31,7 +31,7 @@ public class Net80OptimizedBenchmark
     public void RepeatToList_SystemLinq()
     {
         _ = Enumerable.Repeat((byte)'a', 1024)
-                     .ToList();
+                      .ToList();
     }
 
     [Benchmark]
@@ -47,8 +47,8 @@ public class Net80OptimizedBenchmark
     [BenchmarkCategory(Categories.ZLinq)]
     public void SelectToList_ZLinq()
     {
-        _ = source.Select(i => i * 2)
-                  .AsValueEnumerable()
+        _ = source.AsValueEnumerable()
+                  .Select(i => i * 2)
                   .ToList();
     }
 
