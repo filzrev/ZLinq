@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 #if NET8_0_OR_GREATER
 using System.Collections.Immutable;
@@ -197,8 +197,8 @@ namespace ZLinq.Linq
     {
         int index;
 
-        public ReadOnlySpan<T> GetSpan() => source;
-        internal T[] GetSource() => source; // for some optimization, expose raw array
+        // becareful, don't call AsSpan
+        internal T[] GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
