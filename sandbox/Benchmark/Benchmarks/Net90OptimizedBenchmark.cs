@@ -132,15 +132,6 @@ public class Net90OptimizedBenchmark
     public int ZRangeUnionFirst_ZLinq()
     {
         return source.AsValueEnumerable()
-                     .Union(Enumerable.Range(500, 1000))
-                     .First();
-    }
-
-    [Benchmark]
-    [BenchmarkCategory(Categories.ZLinq)]
-    public int ZRangeUnionFirst_ZLinqOptimized()
-    {
-        return source.AsValueEnumerable()
                      .Union(ValueEnumerable.Range(500, 1000))
                      .First();
     }
@@ -152,6 +143,7 @@ public class Net90OptimizedBenchmark
         return source.AsValueEnumerable()
                      .Select(i => i * 2)
                      .Where(i => i % 2 == 0)
-                     .Select(i => i * 2).Sum();
+                     .Select(i => i * 2)
+                     .Sum();
     }
 }

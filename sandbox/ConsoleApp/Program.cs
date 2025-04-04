@@ -26,84 +26,17 @@ using ZLinq.Traversables;
 
 [assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
 
-// Enumerable.Range(1, 10).ToDictionary();
-//var tako = ValueEnumerable.Range(1, 10).Select(x => x.ToString());
-//var ok = string.Join(',', tako);
+
+B[] arrayOfB = new[] { new B(), new B() };
+A[] arrayOfA = arrayOfB;
 
 
-var hag = Enumerable.Range(1, 10).Where(x => x % 2 == 0);
-var tako = ValueEnumerable.Range(1, 100);
+var z = arrayOfA.AsValueEnumerable()
+    .Select(x => x)
+    .ToArray();
 
+Console.WriteLine(z.Length);
 
-var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };
-
-
-var standardLinq = items.Skip(1).Where(x => x % 2 == 0).Take(100).Select(x => x * x);
-var zlinq = items.AsValueEnumerable().Skip(1).Where(x => x % 2 == 0).Take(100).Select(x => x * x);
-
-
-
-var zzzz = 10;
-
-var foobar = items.AsValueEnumerable().Select(x => zzzz++ * x * 10);
-var barbaz = items.AsValueEnumerable().TakeWhile(x => x < 5);
-//var z = barbaz.ToArray();
-//Console.WriteLine(foobar.JoinToString(","));
-
-
-var inf = Inf().AsValueEnumerable().Select(x => x * 1000);
-
-// LINQ
-var source1 = Enumerable.Range(1, 500);
-var enumerable = source1.Where(x => x % 2 == 0);
-var group1 = source1.GroupBy(x => x % 10);
-var lookup1 = source1.ToLookup(x => x % 10);
-
-// ZLINQ
-var source2 = ValueEnumerable.Range(1, 500);
-var valuEnumerable = source2.Where(x => x % 2 == 0);
-var group2 = source2.GroupBy(x => x % 10);
-var lookup2 = source2.ToLookup(x => x % 10);
-
-foreach (var item in inf)
-{
-
-}
-
-return;
-
-
-var tuples = items.Select(x => (x, x)).ToArray();
-
-var foo = items.AsValueEnumerable().Where(x => x % 2 == 0).Select(x => x.ToString()).ToArray();
-
-
-
-// System.Linq
-var a = tuples.ToDictionary();
-
-// ZLinq
-var b = tuples.AsValueEnumerable().ToDictionary(); // No Build error.
-
-
-Console.WriteLine(a);
-Console.WriteLine(b);
-
-
-static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)
-{
-    foreach (T item in source)
-        yield return item;
-}
-
-static IEnumerable<int> Inf()
-{
-    var i = 0;
-    while (true)
-    {
-        yield return i++;
-    }
-}
 
 //var srcFiles = new DirectoryInfo("../../../../../src/ZLinq/Linq/").GetFiles();
 //var tstFiles = new DirectoryInfo("../../../../../tests/ZLinq.Tests/Linq/").GetFiles();
@@ -239,6 +172,11 @@ class Person
 //Console.WriteLine(hoge.Length);
 
 
+
+
+
+class A;
+class B : A;
 
 
 

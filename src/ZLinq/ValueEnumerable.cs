@@ -111,6 +111,12 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
         => new(valueEnumerable.Enumerator);
 }
 
+// TODO: remove this optimize interface
+public interface ISourceSpanValueEnumerator<T> : IValueEnumerator<T>
+{
+    ReadOnlySpan<T> GetSpan();
+}
+
 internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size
 {
     public static string BuildDisplayText(Type type) // root is typeof(TEnumerator) : IValueEnumerator<T>

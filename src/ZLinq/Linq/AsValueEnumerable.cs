@@ -106,6 +106,7 @@ namespace ZLinq.Linq
     {
         IEnumerator<T>? enumerator = null;
 
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
         internal IEnumerable<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -192,11 +193,12 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromArray<T>(T[] source) : IValueEnumerator<T>
+    public struct FromArray<T>(T[] source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
     {
         int index;
 
-        internal T[] GetSource() => source;
+        public ReadOnlySpan<T> GetSpan() => source;
+        internal T[] GetSource() => source; // for some optimization, expose raw array
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -206,6 +208,13 @@ namespace ZLinq.Linq
 
         public bool TryGetSpan(out ReadOnlySpan<T> span)
         {
+            // AsSpan is failed by array variance
+            if (!typeof(T).IsValueType && source.GetType() != typeof(T[]))
+            {
+                span = default;
+                return false;
+            }
+
             span = source.AsSpan();
             return true;
         }
@@ -245,13 +254,19 @@ namespace ZLinq.Linq
 #else
     public
 #endif
-    struct FromMemory<T>(ReadOnlyMemory<T> source) : IValueEnumerator<T>
+    struct FromMemory<T>(ReadOnlyMemory<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
     {
 #if NET9_0_OR_GREATER
         ReadOnlySpan<T> source = source.Span;
 #endif
 
         int index;
+
+#if NET9_0_OR_GREATER
+        public ReadOnlySpan<T> GetSpan() => source;
+#else
+        public ReadOnlySpan<T> GetSpan() => source.Span;
+#endif
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -308,9 +323,11 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromList<T>(List<T> source) : IValueEnumerator<T>
+    public struct FromList<T>(List<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
     {
         int index;
+
+        public ReadOnlySpan<T> GetSpan() => CollectionsMarshal.AsSpan(source);
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -643,6 +660,7 @@ namespace ZLinq.Linq
         bool isInit;
         HashSet<T>.Enumerator enumerator;
 
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
         internal HashSet<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -690,9 +708,11 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>
+    public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
     {
         int index;
+
+        public ReadOnlySpan<T> GetSpan() => source.AsSpan();
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -740,10 +760,12 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct FromSpan<T>(ReadOnlySpan<T> source) : IValueEnumerator<T>
+    public ref struct FromSpan<T>(ReadOnlySpan<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
     {
         ReadOnlySpan<T> source = source;
         int index;
+
+        public ReadOnlySpan<T> GetSpan() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {

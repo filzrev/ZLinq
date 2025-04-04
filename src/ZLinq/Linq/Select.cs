@@ -19,6 +19,10 @@ namespace ZLinq
 #endif
             => new(new(source.Enumerator, Throws.IfNull(selector)));
 
+        // TODO: WIP
+        //public static ValueEnumerable<RangeSelect<TResult>, TResult> Select<TResult>(this ValueEnumerable<FromRange, int> source, Func<int, TResult> selector)
+        //    => new(new(source.Enumerator, Throws.IfNull(selector)));
+
         public static ValueEnumerable<SelectWhere<TEnumerator, TSource, TResult>, TResult> Where<TEnumerator, TSource, TResult>(this ValueEnumerable<Select<TEnumerator, TSource, TResult>, TResult> source, Func<TResult, bool> predicate)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
@@ -43,8 +47,8 @@ namespace ZLinq.Linq
         , allows ref struct
 #endif
     {
-        TEnumerator source = source;
-        readonly Func<TSource, TResult> selector = selector;
+        internal TEnumerator source = source;
+        internal readonly Func<TSource, TResult> selector = selector;
 
         public bool TryGetNonEnumeratedCount(out int count) => source.TryGetNonEnumeratedCount(out count);
 
@@ -147,6 +151,75 @@ namespace ZLinq.Linq
             source.Dispose();
         }
     }
+
+    //    [StructLayout(LayoutKind.Auto)]
+    //    [EditorBrowsable(EditorBrowsableState.Never)]
+    //#if NET9_0_OR_GREATER
+    //    public ref
+    //#else
+    //    public
+    //#endif
+    //    struct RangeSelect<TResult>(FromRange source, Func<int, TResult> selector) : IValueEnumerator<TResult>
+    //    {
+    //        internal TEnumerator source = source;
+    //        internal readonly Func<TSource, TResult> selector = selector;
+
+    //        public bool TryGetNonEnumeratedCount(out int count) => source.TryGetNonEnumeratedCount(out count);
+
+    //        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+    //        {
+    //            span = default;
+    //            return false;
+    //        }
+
+    //        public bool TryCopyTo(Span<TResult> destination, Index offset)
+    //        {
+    //            // Iterate inlining
+    //            if (source.TryGetSpan(out var span))
+    //            {
+    //                if (EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
+    //                {
+    //                    for (var i = 0; i < slice.Length; i++)
+    //                    {
+    //                        destination[i] = selector(slice[i]);
+    //                    }
+    //                    return true;
+    //                }
+    //            }
+
+    //            //  First/ElementAt/Last
+    //            if (destination.Length == 1)
+    //            {
+    //                if (EnumeratorHelper.TryConsumeGetAt(ref source, offset, out TSource value))
+    //                {
+    //                    destination[0] = selector(value);
+    //                    return true;
+    //                }
+    //            }
+
+    //            return false;
+    //        }
+
+    //        public bool TryGetNext(out TResult current)
+    //        {
+    //            if (source.TryGetNext(out var value))
+    //            {
+    //                current = selector(value);
+    //                return true;
+    //            }
+
+    //            Unsafe.SkipInit(out current);
+    //            return false;
+    //        }
+
+    //        public void Dispose()
+    //        {
+    //            source.Dispose();
+    //        }
+
+    //        internal SelectWhere<TEnumerator, TSource, TResult> Where(Func<TResult, bool> predicate)
+    //            => new(source, selector, predicate);
+    //    }
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
