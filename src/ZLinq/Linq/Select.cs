@@ -152,74 +152,77 @@ namespace ZLinq.Linq
         }
     }
 
-    //    [StructLayout(LayoutKind.Auto)]
-    //    [EditorBrowsable(EditorBrowsableState.Never)]
-    //#if NET9_0_OR_GREATER
-    //    public ref
-    //#else
-    //    public
-    //#endif
-    //    struct RangeSelect<TResult>(FromRange source, Func<int, TResult> selector) : IValueEnumerator<TResult>
-    //    {
-    //        internal TEnumerator source = source;
-    //        internal readonly Func<TSource, TResult> selector = selector;
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+        public ref
+#else
+    public
+#endif
+    struct RangeSelect<TResult>(FromRange source, Func<int, TResult> selector) : IValueEnumerator<TResult>
+    {
+        // Range
+        readonly int count = source.count;
+        readonly int start = source.start;
+        readonly int to = source.to;
+        int value = source.start;
 
-    //        public bool TryGetNonEnumeratedCount(out int count) => source.TryGetNonEnumeratedCount(out count);
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
 
-    //        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
-    //        {
-    //            span = default;
-    //            return false;
-    //        }
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
 
-    //        public bool TryCopyTo(Span<TResult> destination, Index offset)
-    //        {
-    //            // Iterate inlining
-    //            if (source.TryGetSpan(out var span))
-    //            {
-    //                if (EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
-    //                {
-    //                    for (var i = 0; i < slice.Length; i++)
-    //                    {
-    //                        destination[i] = selector(slice[i]);
-    //                    }
-    //                    return true;
-    //                }
-    //            }
+        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        {
+            // Iterate inlining
+            if (source.TryGetSpan(out var span))
+            {
+                if (EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
+                {
+                    for (var i = 0; i < slice.Length; i++)
+                    {
+                        destination[i] = selector(slice[i]);
+                    }
+                    return true;
+                }
+            }
 
-    //            //  First/ElementAt/Last
-    //            if (destination.Length == 1)
-    //            {
-    //                if (EnumeratorHelper.TryConsumeGetAt(ref source, offset, out TSource value))
-    //                {
-    //                    destination[0] = selector(value);
-    //                    return true;
-    //                }
-    //            }
+            //  First/ElementAt/Last
+            if (destination.Length == 1)
+            {
+                if (EnumeratorHelper.TryConsumeGetAt(ref source, offset, out TSource value))
+                {
+                    destination[0] = selector(value);
+                    return true;
+                }
+            }
 
-    //            return false;
-    //        }
+            return false;
+        }
 
-    //        public bool TryGetNext(out TResult current)
-    //        {
-    //            if (source.TryGetNext(out var value))
-    //            {
-    //                current = selector(value);
-    //                return true;
-    //            }
+        public bool TryGetNext(out TResult current)
+        {
+            if (source.TryGetNext(out var value))
+            {
+                current = selector(value);
+                return true;
+            }
 
-    //            Unsafe.SkipInit(out current);
-    //            return false;
-    //        }
+            Unsafe.SkipInit(out current);
+            return false;
+        }
 
-    //        public void Dispose()
-    //        {
-    //            source.Dispose();
-    //        }
-
-    //        internal SelectWhere<TEnumerator, TSource, TResult> Where(Func<TResult, bool> predicate)
-    //            => new(source, selector, predicate);
-    //    }
+        public void Dispose()
+        {
+        }
+    }
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]

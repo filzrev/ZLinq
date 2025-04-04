@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Buffers;
 #if NET8_0_OR_GREATER
 using System.Collections.Immutable;
@@ -193,7 +193,7 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromArray<T>(T[] source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
+    public struct FromArray<T>(T[] source) : IValueEnumerator<T>
     {
         int index;
 
@@ -254,19 +254,13 @@ namespace ZLinq.Linq
 #else
     public
 #endif
-    struct FromMemory<T>(ReadOnlyMemory<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
+    struct FromMemory<T>(ReadOnlyMemory<T> source) : IValueEnumerator<T>
     {
 #if NET9_0_OR_GREATER
         ReadOnlySpan<T> source = source.Span;
 #endif
 
         int index;
-
-#if NET9_0_OR_GREATER
-        public ReadOnlySpan<T> GetSpan() => source;
-#else
-        public ReadOnlySpan<T> GetSpan() => source.Span;
-#endif
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -323,11 +317,9 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromList<T>(List<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
+    public struct FromList<T>(List<T> source) : IValueEnumerator<T>
     {
         int index;
-
-        public ReadOnlySpan<T> GetSpan() => CollectionsMarshal.AsSpan(source);
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -708,11 +700,9 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
+    public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>
     {
         int index;
-
-        public ReadOnlySpan<T> GetSpan() => source.AsSpan();
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -760,12 +750,10 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public ref struct FromSpan<T>(ReadOnlySpan<T> source) : IValueEnumerator<T>, ISourceSpanValueEnumerator<T>
+    public ref struct FromSpan<T>(ReadOnlySpan<T> source) : IValueEnumerator<T>
     {
         ReadOnlySpan<T> source = source;
         int index;
-
-        public ReadOnlySpan<T> GetSpan() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {

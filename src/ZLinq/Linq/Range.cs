@@ -25,9 +25,9 @@ namespace ZLinq.Linq
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRange(int start, int count) : IValueEnumerator<int>
     {
-        readonly int count = count;
-        readonly int start = start;
-        readonly int to = start + count;
+        internal readonly int count = count;
+        internal readonly int start = start;
+        internal readonly int to = start + count;
         int value = start;
 
         public bool TryGetNonEnumeratedCount(out int count)
