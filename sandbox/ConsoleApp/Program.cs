@@ -41,6 +41,17 @@ var barbaz = items.AsValueEnumerable().TakeWhile(x => x < 5);
 //Console.WriteLine(foobar.JoinToString(","));
 
 
+// LINQ
+var source1 = Enumerable.Range(1, 500);
+var enumerable = source1.Where(x => x % 2 == 0);
+var group1 = source1.GroupBy(x => x % 10);
+var lookup1 = source1.ToLookup(x => x % 10);
+
+// ZLINQ
+var source2 = ValueEnumerable.Range(1, 500);
+var valuEnumerable = source2.Where(x => x % 2 == 0);
+var group2 = source2.GroupBy(x => x % 10);
+var lookup2 = source2.ToLookup(x => x % 10);
 
 return;
 
