@@ -18,13 +18,14 @@
 
   <!-- Add .NET 10 support when running build inside Visual Studio Preview-->
   <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != '' AND $(VisualStudioDir.Contains('Preview'))">
-    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
+    <!-- TODO: Temporary comment out, because BenchmarkDotNet 0.14.0 don't support .NET 10 -->
+    <!--<TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>-->
   </PropertyGroup>
 
   <!-- Settings for NuGetVersionsBenchmarkConfig -->
   <PropertyGroup>
     <!-- Define benchmark target versions.First element is selected as baseline version. -->
-    <TargetZLinqVersions>0.4.5;0.5.2</TargetZLinqVersions>
+    <TargetZLinqVersions>0.9.3</TargetZLinqVersions>
   </PropertyGroup>
 
   <ItemGroup>

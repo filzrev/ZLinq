@@ -57,8 +57,6 @@ public class SimdSum
     }
 }
 
-[ShortRunJob]
-[MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.Method)]
 [GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByParams)]
 public class SimdSumUnsigned
