@@ -420,7 +420,19 @@ namespace ZLinq.Tests.Linq
             // Assert
             actual.ShouldBe(expected);
         }
-        
+
+        [Fact]
+        public void ArrayVariance()
+        {
+            B[] arrayOfB = new[] { new B(), new B() };
+            A[] arrayOfA = arrayOfB;
+
+            var z = arrayOfA.AsValueEnumerable()
+                .Select(x => x)
+                .ToArray();
+
+            z.Length.ShouldBe(2);
+        }
         
         // Helper class for testing disposal
         private class DisposableTestEnumerable<T> : IEnumerable<T>
@@ -465,5 +477,9 @@ namespace ZLinq.Tests.Linq
             
             public void Dispose() => _onDispose();
         }
+
+
+        class A;
+        class B : A;
     }
 }

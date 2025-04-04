@@ -196,6 +196,7 @@ namespace ZLinq.Linq
     {
         int index;
 
+        // becareful, don't call AsSpan
         internal T[] GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -206,6 +207,13 @@ namespace ZLinq.Linq
 
         public bool TryGetSpan(out ReadOnlySpan<T> span)
         {
+            // AsSpan is failed by array variance
+            if (!typeof(T).IsValueType && source.GetType() != typeof(T[]))
+            {
+                span = default;
+                return false;
+            }
+
             span = source.AsSpan();
             return true;
         }
