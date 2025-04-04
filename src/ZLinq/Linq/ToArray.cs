@@ -152,7 +152,7 @@ partial class ValueEnumerableExtensions
     {
         var whereEnumerator = source.Enumerator; // no needs dispose(using)
         var predicate = whereEnumerator.Predicate;
-        var sourceSpan = whereEnumerator.GetSource().AsSpan();
+        var sourceArray = whereEnumerator.GetSource();
 
 #if NETSTANDARD2_0
         Span<TSource> initialBufferSpan = default;
@@ -166,7 +166,7 @@ partial class ValueEnumerableExtensions
         var arrayBuilder = new SegmentedArrayProvider<TSource>(initialBufferSpan);
         var span = arrayBuilder.GetSpan();
         var i = 0;
-        foreach (ref var item in sourceSpan)
+        foreach (var item in sourceArray)
         {
             if (predicate(item))
             {
@@ -273,7 +273,7 @@ partial class ValueEnumerableExtensions
         var whereEnumerator = source.Enumerator; // no needs dispose(using)
         var predicate = whereEnumerator.Predicate;
         var selector = whereEnumerator.Selector;
-        var sourceSpan = whereEnumerator.GetSource().AsSpan();
+        var sourceArray = whereEnumerator.GetSource();
 
 #if NETSTANDARD2_0
         Span<TResult> initialBufferSpan = default;
@@ -288,7 +288,7 @@ partial class ValueEnumerableExtensions
         var span = arrayBuilder.GetSpan();
         var i = 0;
 
-        foreach (ref var item in sourceSpan)
+        foreach (var item in sourceArray)
         {
             if (predicate(item))
             {
