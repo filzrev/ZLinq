@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace ZLinq;
 
@@ -114,10 +113,16 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
 
 internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size
 {
-    public static string BuildDisplayText(Type type) // root is typeof(TEnumerator)
+    public static string BuildDisplayText(Type type) // root is typeof(TEnumerator) : IValueEnumerator<T>
     {
         var sb = new StringBuilder();
         BuildCore(sb, type);
+        var returnType = type.GetInterface("IValueEnumerator`1")?.GetGenericArguments()[0];
+        if (returnType != null)
+        {
+            sb.Append(" -> ");
+            sb.Append(returnType.Name);
+        }
         return sb.ToString();
     }
 

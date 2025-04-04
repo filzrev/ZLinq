@@ -33,7 +33,17 @@ using ZLinq.Traversables;
 
 var hag = Enumerable.Range(1, 10).Where(x => x % 2 == 0);
 var tako = ValueEnumerable.Range(1, 100);
+
+
 var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };
+
+
+var standardLinq = items.Skip(1).Where(x => x % 2 == 0).Take(100).Select(x => x * x);
+var zlinq = items.AsValueEnumerable().Skip(1).Where(x => x % 2 == 0).Take(100).Select(x => x * x);
+
+
+
+
 
 var foobar = items.AsValueEnumerable().Select(x => x * 10);
 var barbaz = items.AsValueEnumerable().TakeWhile(x => x < 5);
@@ -52,6 +62,11 @@ var source2 = ValueEnumerable.Range(1, 500);
 var valuEnumerable = source2.Where(x => x % 2 == 0);
 var group2 = source2.GroupBy(x => x % 10);
 var lookup2 = source2.ToLookup(x => x % 10);
+
+foreach (var item in zlinq)
+{
+
+}
 
 return;
 
