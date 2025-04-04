@@ -120,7 +120,7 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
         var returnType = type.GetInterface("IValueEnumerator`1")?.GetGenericArguments()[0];
         if (returnType != null)
         {
-            sb.Append(" -> ");
+            sb.Append(" => "); // like TypeScript definition
             sb.Append(returnType.Name);
         }
         return sb.ToString();
