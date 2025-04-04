@@ -43,13 +43,15 @@ var zlinq = items.AsValueEnumerable().Skip(1).Where(x => x % 2 == 0).Take(100).S
 
 
 
+var zzzz = 10;
 
-
-var foobar = items.AsValueEnumerable().Select(x => x * 10);
+var foobar = items.AsValueEnumerable().Select(x => zzzz++ * x * 10);
 var barbaz = items.AsValueEnumerable().TakeWhile(x => x < 5);
 //var z = barbaz.ToArray();
 //Console.WriteLine(foobar.JoinToString(","));
 
+
+var inf = Inf().AsValueEnumerable().Select(x => x * 1000);
 
 // LINQ
 var source1 = Enumerable.Range(1, 500);
@@ -63,7 +65,7 @@ var valuEnumerable = source2.Where(x => x % 2 == 0);
 var group2 = source2.GroupBy(x => x % 10);
 var lookup2 = source2.ToLookup(x => x % 10);
 
-foreach (var item in zlinq)
+foreach (var item in inf)
 {
 
 }
@@ -92,6 +94,15 @@ static IEnumerable<T> ForceNotCollection<T>(IEnumerable<T> source)
 {
     foreach (T item in source)
         yield return item;
+}
+
+static IEnumerable<int> Inf()
+{
+    var i = 0;
+    while (true)
+    {
+        yield return i++;
+    }
 }
 
 //var srcFiles = new DirectoryInfo("../../../../../src/ZLinq/Linq/").GetFiles();

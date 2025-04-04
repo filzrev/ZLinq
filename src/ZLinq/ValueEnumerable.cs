@@ -151,21 +151,32 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
     }
 }
 
-// same approach as SpanDebugView<T> 
-internal sealed class ValueEnumerableDebugView<TEnumerator, T>
+internal ref struct ValueEnumerableDebugView<TEnumerator, T>
     where TEnumerator : struct, IValueEnumerator<T>
 #if NET9_0_OR_GREATER
     , allows ref struct
 #endif
 {
-    readonly T[] array;
+    readonly ValueEnumerable<TEnumerator, T> source;
+    T[]? items;
 
     public ValueEnumerableDebugView(ValueEnumerable<TEnumerator, T> source)
     {
-        // to avoid materialize infinite source
-        array = source.Take(100000).ToArray();
+        this.source = source;
     }
 
+    // avoiding side-effects so only run when opened.
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    public T[] Items => array;
+    public T[] Items
+    {
+        get
+        {
+            if (items == null)
+            {
+                items = source.Take(100000).ToArray(); // max 100000 to avoid infinite call
+            }
+
+            return items;
+        }
+    }
 }
