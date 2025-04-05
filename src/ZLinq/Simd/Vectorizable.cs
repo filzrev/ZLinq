@@ -107,7 +107,11 @@ public readonly ref partial struct Vectorizable<T>(ReadOnlySpan<T> source)
 
     public bool Contains(T value)
     {
+#if NET10_0_OR_GREATER
+        return source.Contains(value);
+#else
         return InvokeSpanContains(source, value);
+#endif
     }
 
     public bool SequenceEqual(ReadOnlySpan<T> second)
