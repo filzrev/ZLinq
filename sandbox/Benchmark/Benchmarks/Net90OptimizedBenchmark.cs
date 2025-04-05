@@ -81,7 +81,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZDistinctFirst_ZLinq()
+    public int DistinctFirst_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Distinct()
@@ -90,7 +90,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZAppendSelectLast_ZLinq()
+    public int AppendSelectLast_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Append(42)
@@ -100,7 +100,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZRangeReverseCount_ZLinq()
+    public int RangeReverseCount_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Reverse()
@@ -109,7 +109,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZDefaultIfEmptySelectElementAt_ZLinq()
+    public int DefaultIfEmptySelectElementAt_ZLinq()
     {
         return source.AsValueEnumerable()
                      .DefaultIfEmpty()
@@ -119,7 +119,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZListSkipTakeElementAt_ZLinq()
+    public int ListSkipTakeElementAt_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Skip(500)
@@ -129,7 +129,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZRangeUnionFirst_ZLinq()
+    public int RangeUnionFirst_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Union(ValueEnumerable.Range(500, 1000))
@@ -138,7 +138,7 @@ public class Net90OptimizedBenchmark
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public int ZSelectWhereSelectSum_ZLinq()
+    public int SelectWhereSelectSum_ZLinq()
     {
         return source.AsValueEnumerable()
                      .Select(i => i * 2)

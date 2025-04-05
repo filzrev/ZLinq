@@ -22,10 +22,10 @@ internal static class Program
     {
 #if DEBUG
 
-        var bench = new Net80OptimizedBenchmark();
+        var bench = new Net90OptimizedBenchmark();
         bench.Setup();
-        bench.RangeSelectToList_SystemLinq();
-        bench.RangeSelectToList_ZLinq();
+        // bench.AppendSelectLast_SystemLinq();
+        bench.DistinctFirst_ZLinq();
 
         return 0;
 #endif

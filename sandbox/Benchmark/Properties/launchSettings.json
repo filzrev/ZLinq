@@ -46,6 +46,7 @@
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
       // "commandLineArgs": "--filter Benchmark.SimdCount.*",
       // "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.*",
+      // "commandLineArgs": "--filter Benchmark.Net90OptimizedBenchmark.*",
 
       "workingDirectory": "."
     },

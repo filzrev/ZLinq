@@ -57,7 +57,8 @@ namespace ZLinq.Linq
         {
             if (value < to)
             {
-                current = value++;
+                current = value;
+                value++;
                 return true;
             }
 

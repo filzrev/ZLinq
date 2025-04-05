@@ -136,6 +136,22 @@ partial class ValueEnumerableExtensions
         }
     }
 
+    public static TResult[] ToArray<TResult>(this ValueEnumerable<RangeSelect<TResult>, TResult> source)
+    {
+        var value = source.Enumerator.start;
+        var count = source.Enumerator.count;
+        var selector = source.Enumerator.selector;
+
+        var array = GC.AllocateUninitializedArray<TResult>(count);
+        for (int i = 0; i < array.Length; i++)
+        {
+            array[i] = selector(value);
+            value++;
+        }
+
+        return array;
+    }
+
     // filtering(Where/OfType) -> ToArray is frequently case so optimize it.
 
     public static TSource[] ToArray<TEnumerator, TSource>(this ValueEnumerable<Where<TEnumerator, TSource>, TSource> source)

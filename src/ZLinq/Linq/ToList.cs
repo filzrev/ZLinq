@@ -83,7 +83,7 @@
 #endif
         {
             using var enumerator = source.Enumerator.source; // use select-source enumerator
-            
+
             var selector = source.Enumerator.selector;
 
             if (enumerator.TryGetSpan(out var sourceSpan))
@@ -92,7 +92,7 @@
 #if NET8_0_OR_GREATER
                 CollectionsMarshal.SetCount(list, sourceSpan.Length);
 #else
-            CollectionsMarshal.UnsafeSetCount(list, sourceSpan.Length);
+                CollectionsMarshal.UnsafeSetCount(list, sourceSpan.Length);
 #endif
                 var span = CollectionsMarshal.AsSpan(list);
 
@@ -125,7 +125,7 @@
                         span = arrayBuilder.GetSpan();
                         i = 0;
                     }
-                    
+
                     span[i] = selector(item);
                     i++;
                 }
@@ -144,6 +144,29 @@
                 arrayBuilder.CopyToAndClear(listSpan);
                 return list;
             }
+        }
+
+        public static List<TResult> ToList<TResult>(this ValueEnumerable<RangeSelect<TResult>, TResult> source)
+        {
+            var value = source.Enumerator.start;
+            var count = source.Enumerator.count;
+            var selector = source.Enumerator.selector;
+
+            var list = new List<TResult>(count);
+#if NET8_0_OR_GREATER
+            CollectionsMarshal.SetCount(list, count);
+#else
+            CollectionsMarshal.UnsafeSetCount(list, count);
+#endif
+            var span = CollectionsMarshal.AsSpan(list);
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                span[i] = selector(value);
+                value++;
+            }
+
+            return list;
         }
     }
 }

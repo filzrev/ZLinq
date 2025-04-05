@@ -19,9 +19,8 @@ namespace ZLinq
 #endif
             => new(new(source.Enumerator, Throws.IfNull(selector)));
 
-        // TODO: WIP
-        //public static ValueEnumerable<RangeSelect<TResult>, TResult> Select<TResult>(this ValueEnumerable<FromRange, int> source, Func<int, TResult> selector)
-        //    => new(new(source.Enumerator, Throws.IfNull(selector)));
+        public static ValueEnumerable<RangeSelect<TResult>, TResult> Select<TResult>(this ValueEnumerable<FromRange, int> source, Func<int, TResult> selector)
+            => new(new(source.Enumerator, Throws.IfNull(selector)));
 
         public static ValueEnumerable<SelectWhere<TEnumerator, TSource, TResult>, TResult> Where<TEnumerator, TSource, TResult>(this ValueEnumerable<Select<TEnumerator, TSource, TResult>, TResult> source, Func<TResult, bool> predicate)
             where TEnumerator : struct, IValueEnumerator<TSource>
@@ -76,6 +75,29 @@ namespace ZLinq.Linq
             //  First/ElementAt/Last
             if (destination.Length == 1)
             {
+#if NETSTANDARD2_0
+                var singleSpan = SingleSpan.Create<TSource>();
+                if (source.TryCopyTo(singleSpan, offset))
+                {
+                    try
+                    {
+                        destination[0] = selector(singleSpan[0]);
+                    }
+                    finally
+                    {
+                        singleSpan.Clear();
+                    }
+                    return true;
+                }
+#else
+                var current = default(TSource)!;
+                if (source.TryCopyTo(SingleSpan.Create(ref current), offset))
+                {
+                    destination[0] = selector(current);
+                    return true;
+                }
+#endif
+
                 if (EnumeratorHelper.TryConsumeGetAt(ref source, offset, out TSource value))
                 {
                     destination[0] = selector(value);
@@ -155,17 +177,20 @@ namespace ZLinq.Linq
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
 #if NET9_0_OR_GREATER
-        public ref
+    public ref
 #else
     public
 #endif
     struct RangeSelect<TResult>(FromRange source, Func<int, TResult> selector) : IValueEnumerator<TResult>
     {
         // Range
-        readonly int count = source.count;
-        readonly int start = source.start;
-        readonly int to = source.to;
+        internal readonly int count = source.count;
+        internal readonly int start = source.start;
+        internal readonly int to = source.to;
         int value = source.start;
+
+        // Select
+        internal readonly Func<int, TResult> selector = selector;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -181,27 +206,15 @@ namespace ZLinq.Linq
 
         public bool TryCopyTo(Span<TResult> destination, Index offset)
         {
-            // Iterate inlining
-            if (source.TryGetSpan(out var span))
+            if (EnumeratorHelper.TryGetSliceRange(count, offset, destination.Length, out var fillStart, out var fillCount))
             {
-                if (EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
+                var value = start + fillStart;
+                for (int i = 0; i < fillCount; i++)
                 {
-                    for (var i = 0; i < slice.Length; i++)
-                    {
-                        destination[i] = selector(slice[i]);
-                    }
-                    return true;
+                    destination[i] = selector(value);
+                    value++;
                 }
-            }
-
-            //  First/ElementAt/Last
-            if (destination.Length == 1)
-            {
-                if (EnumeratorHelper.TryConsumeGetAt(ref source, offset, out TSource value))
-                {
-                    destination[0] = selector(value);
-                    return true;
-                }
+                return true;
             }
 
             return false;
@@ -209,13 +222,14 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out TResult current)
         {
-            if (source.TryGetNext(out var value))
+            if (value < to)
             {
                 current = selector(value);
+                value++;
                 return true;
             }
 
-            Unsafe.SkipInit(out current);
+            current = default!;
             return false;
         }
 
