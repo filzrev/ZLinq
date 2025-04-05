@@ -87,6 +87,11 @@ partial class ValueEnumerableExtensions
 
         if (enumerator.TryGetSpan(out var sourceSpan))
         {
+            if(sourceSpan.Length == 0)
+            {
+                return Array.Empty<TResult>();
+            }
+
             var array = GC.AllocateUninitializedArray<TResult>(sourceSpan.Length);
 
             for (int i = 0; i < sourceSpan.Length; i++)
@@ -141,6 +146,11 @@ partial class ValueEnumerableExtensions
         var value = source.Enumerator.start;
         var count = source.Enumerator.count;
         var selector = source.Enumerator.selector;
+
+        if(count == 0)
+        {
+            return Array.Empty<TResult>();
+        }
 
         var array = GC.AllocateUninitializedArray<TResult>(count);
         for (int i = 0; i < array.Length; i++)

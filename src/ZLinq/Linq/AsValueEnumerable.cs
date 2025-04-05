@@ -341,7 +341,7 @@ namespace ZLinq.Linq
                 slice.CopyTo(destination);
                 return true;
             }
-            return true;
+            return false;
         }
 
         public bool TryGetNext(out T current)

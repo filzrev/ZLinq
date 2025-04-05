@@ -27,6 +27,9 @@ using ZLinq.Traversables;
 [assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
 
 
+var foo = new List<int> { 1, 2, 3, 4 }.AsValueEnumerable().Select(i => i * 2);
+var zzz = foo.ElementAt(4);
+
 B[] arrayOfB = new[] { new B(), new B() };
 A[] arrayOfA = arrayOfB;
 
