@@ -106,6 +106,7 @@ namespace ZLinq.Linq
     {
         IEnumerator<T>? enumerator = null;
 
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
         internal IEnumerable<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -651,6 +652,7 @@ namespace ZLinq.Linq
         bool isInit;
         HashSet<T>.Enumerator enumerator;
 
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
         internal HashSet<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)

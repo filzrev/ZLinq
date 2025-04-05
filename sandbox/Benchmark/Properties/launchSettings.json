@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.SandboxBenchmark.* -- Default",
+      "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.* -- Default",
 
       // Available config
       // 1. Default
@@ -49,7 +49,19 @@
       // "commandLineArgs": "--filter Benchmark.SimdSumUnsigned.*",
       // "commandLineArgs": "--filter Benchmark.StringJoinBenchmark.*",
       // "commandLineArgs": "--filter Benchmark.VectorizableUpdate.*",
-
+      // "commandLineArgs": "--filter Benchmark.CastOfType.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.Crazy+Giant.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.Join+FourParams.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.Join+FiveParams.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelectorWithoutIterate.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_Comparer.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
+      // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
+      // "commandLineArgs": "--filter Benchmark.SimdCount.*",
+      // "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.*",
+      // "commandLineArgs": "--filter Benchmark.Net90OptimizedBenchmark.*",
       "workingDirectory": "."
     },
     "Select Benchmark": {

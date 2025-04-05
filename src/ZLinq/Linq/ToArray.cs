@@ -73,7 +73,86 @@ partial class ValueEnumerableExtensions
         }
     }
 
-    // filtering(Where/ToArray) -> ToArray is frequently case so optimize it.
+    // Select -> ToArray is common pattern so optimize it.
+
+    public static TResult[] ToArray<TEnumerator, TSource, TResult>(this ValueEnumerable<Select<TEnumerator, TSource, TResult>, TResult> source)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var enumerator = source.Enumerator.source; // use select-source enumerator
+
+        var selector = source.Enumerator.selector;
+
+        if (enumerator.TryGetSpan(out var sourceSpan))
+        {
+            var array = GC.AllocateUninitializedArray<TResult>(sourceSpan.Length);
+
+            for (int i = 0; i < sourceSpan.Length; i++)
+            {
+                array[i] = selector(sourceSpan[i]);
+            }
+
+            return array;
+        }
+        else
+        {
+#if NETSTANDARD2_0
+            Span<TResult> initialBufferSpan = default;
+#elif NET8_0_OR_GREATER
+            var initialBuffer = default(InlineArray16<TResult>);
+            Span<TResult> initialBufferSpan = initialBuffer;
+#else
+            var initialBuffer = default(InlineArray16<TResult>);
+            Span<TResult> initialBufferSpan = initialBuffer.AsSpan();
+#endif
+            var arrayBuilder = new SegmentedArrayProvider<TResult>(initialBufferSpan);
+            var span = arrayBuilder.GetSpan();
+            var i = 0;
+            while (enumerator.TryGetNext(out var item))
+            {
+                if (i == span.Length)
+                {
+                    arrayBuilder.Advance(i);
+                    span = arrayBuilder.GetSpan();
+                    i = 0;
+                }
+
+                span[i] = selector(item);
+                i++;
+            }
+            arrayBuilder.Advance(i);
+
+            var count = arrayBuilder.Count;
+            if (count == 0)
+            {
+                return Array.Empty<TResult>();
+            }
+
+            var array = GC.AllocateUninitializedArray<TResult>(count);
+            arrayBuilder.CopyToAndClear(array);
+            return array;
+        }
+    }
+
+    public static TResult[] ToArray<TResult>(this ValueEnumerable<RangeSelect<TResult>, TResult> source)
+    {
+        var value = source.Enumerator.start;
+        var count = source.Enumerator.count;
+        var selector = source.Enumerator.selector;
+
+        var array = GC.AllocateUninitializedArray<TResult>(count);
+        for (int i = 0; i < array.Length; i++)
+        {
+            array[i] = selector(value);
+            value++;
+        }
+
+        return array;
+    }
+
+    // filtering(Where/OfType) -> ToArray is frequently case so optimize it.
 
     public static TSource[] ToArray<TEnumerator, TSource>(this ValueEnumerable<Where<TEnumerator, TSource>, TSource> source)
        where TEnumerator : struct, IValueEnumerator<TSource>

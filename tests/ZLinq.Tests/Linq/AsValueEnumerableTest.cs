@@ -461,6 +461,19 @@ namespace ZLinq.Tests.Linq
             z.Length.ShouldBe(2);
         }
 
+        [Fact]
+        public void ArrayVariance4()
+        {
+            B[] arrayOfB = new[] { new B(), new B() };
+            IEnumerable<A> arrayOfA = arrayOfB;
+
+            var z = arrayOfA.AsValueEnumerable()
+                .Select(x => x)
+                .ToArray();
+
+            z.Length.ShouldBe(2);
+        }
+
         // Helper class for testing disposal
         private class DisposableTestEnumerable<T> : IEnumerable<T>
         {
