@@ -28,7 +28,8 @@
     <!-- NuGet Missing Compiler Flags -->
     <Features>strict</Features>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
+    <!-- CS9074: The 'scoped' modifier of parameter 'span' doesn't match overridden or implemented member.-->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS9074</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
