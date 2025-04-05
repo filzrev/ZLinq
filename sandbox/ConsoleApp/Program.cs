@@ -28,12 +28,14 @@ using ZLinq.Traversables;
 
 
 var foo = new List<int> { 1, 2, 3, 4 }.AsValueEnumerable().Select(i => i * 2);
-var zzz = foo.ElementAt(4);
 
 B[] arrayOfB = new[] { new B(), new B() };
 A[] arrayOfA = arrayOfB;
 
+foreach (var item in foo)
+{
 
+}
 var z = arrayOfA.AsValueEnumerable()
     .Select(x => x)
     .ToArray();

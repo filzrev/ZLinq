@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace ZLinq;
@@ -113,6 +114,9 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
 
 internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size
 {
+#if NET8_0_OR_GREATER
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "Only call from debugger.")]
+#endif
     public static string BuildDisplayText(Type type) // root is typeof(TEnumerator) : IValueEnumerator<T>
     {
         var sb = new StringBuilder();

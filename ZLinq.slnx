@@ -2,6 +2,7 @@
   <Folder Name="/sandbox/">
     <Project Path="sandbox/Benchmark/Benchmark.csproj" />
     <Project Path="sandbox/ConsoleApp/ConsoleApp.csproj" />
+    <Project Path="sandbox/ConsoleAppNativeAOT/ConsoleAppNativeAOT.csproj" Id="ab0e7494-1bbf-4d47-868b-a7240a291926" />
     <Project Path="sandbox/ConsoleAppNet6/ConsoleAppNet6.csproj" />
   </Folder>
   <Folder Name="/src/">
