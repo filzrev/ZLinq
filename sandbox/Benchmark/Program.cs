@@ -2,6 +2,7 @@
 
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Cathei.LinqGen;
@@ -30,11 +31,10 @@ internal static class Program
         return 0;
 #endif
 
-
-
         if (args.Length != 0)
         {
             Console.WriteLine($"Start ZLinq benchmarks with args: {string.Join(' ', args)}");
+            Console.WriteLine();
         }
 
         try
@@ -48,11 +48,17 @@ internal static class Program
 
             if (summaries.Length == 0)
             {
+                if (IsShowInfoMode(args))
+                    return 0;
+
+                // Benchmark is not found by specified filter. or failed on benchmark validation/build phase.
                 Console.WriteLine();
-                Console.WriteLine(Chalk.Yellow["Benchmark is not executed."]);
+                Console.WriteLine(Chalk.Red["Benchmark is not executed. Verify benchmark log file."]);
                 return 1;
             }
 
+            // Render benchmark results to console
+            summaries.RenderToConsole();
             return 0;
         }
         catch (Exception ex)
@@ -67,11 +73,14 @@ internal static class Program
     /// </summary>
     private static IConfig GetCustomBenchmakConfig(string[] args)
     {
+        // Gets BenchmarkDotNet arguments.
+        var benchmarkArgs = args.TakeWhile(x => x != "--").ToArray();
+
         // Gets extra arguments.
         var extraArgs = args.SkipWhile(x => x != "--").Skip(1).ToArray();
 
         var key = extraArgs.FirstOrDefault() ?? "Default";
-        IConfig config = key switch
+        ManualConfig config = key switch
         {
             "Default" => new DefaultBenchmarkConfig(),
             "InProcess" => new InProcessBenchmarkConfig(),
@@ -82,7 +91,26 @@ internal static class Program
             _ => throw new ArgumentException($"Specified benchmark config key is not supported: {key}"),
         };
 
+        if (IsBenchmarkSelectMode(benchmarkArgs) || IsShowInfoMode(benchmarkArgs))
+            config.AddLogger(ConsoleLogger.Default);
+
         Console.WriteLine($"Run Benchmarks with config: {config.GetType().Name}");
         return config;
+    }
+
+    private static bool IsBenchmarkSelectMode(string[] args)
+    {
+        // If filter parameter is not specified.
+        // Select benchmark by using BenchmarkSwitcher
+        return !args.AsSpan().Contains("--filter");
+    }
+
+    private static bool IsShowInfoMode(string[] args)
+    {
+        // Check parameter that show information only.
+        if (args.AsSpan().ContainsAny(["--help", "--list", "--info", "--version"]))
+            return true;
+
+        return false;
     }
 }

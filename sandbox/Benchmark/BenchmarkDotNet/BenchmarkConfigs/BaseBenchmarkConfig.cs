@@ -1,4 +1,4 @@
-using BenchmarkDotNet.Columns;
+﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Engines;
@@ -65,15 +65,14 @@ public abstract class BaseBenchmarkConfig : ManualConfig
 
     protected virtual void AddLoggers()
     {
-        // TODO: Use NullLogger to suppress verbose progress logs. Instead, use custom EventProcessor for progress logs
-        AddLogger(ConsoleLogger.Default);
+        // Set NullLogger to suppress verbose benchmark progress logs. Benchmark progress is reported by custom EventProcessor instead.
+        AddLogger(NullLogger.Instance);
     }
 
     protected virtual void AddAnalyzers()
     {
         AddAnalyser(DefaultConfig.Instance.GetAnalysers().ToArray());
     }
-
 
     protected virtual void AddColumnProviders()
     {
@@ -100,8 +99,8 @@ public abstract class BaseBenchmarkConfig : ManualConfig
 
     protected virtual void AddEventProcessors()
     {
-        // TODO: Add custom EventProcessor to report benchmark progress
-        // AddEventProcessor(BenchmarkProgressEventProcessor.Instance);
+        // Use custom event processor to report benchmark progress.
+        AddEventProcessor(BenchmarkEventProcessor.Instance);
     }
 
     protected virtual void AddHardwareCounters()
