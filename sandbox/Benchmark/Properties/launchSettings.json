@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.* -- Default",
+      "commandLineArgs": "--filter Benchmark.StringJoinBenchmark.* -- Default",
 
       // Available config
       // 1. Default

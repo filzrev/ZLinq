@@ -21,7 +21,11 @@ partial class ValueEnumerableExtensions
         , allows ref struct
 #endif
     {
+#if NET8_0_OR_GREATER
+        var span = new ReadOnlySpan<char>(ref separator);
+#else
         ReadOnlySpan<char> span = stackalloc char[] { separator };
+#endif
         return JoinToString(source, span);
     }
 

@@ -23,10 +23,10 @@ internal static class Program
     {
 #if DEBUG
 
-        var bench = new Net90OptimizedBenchmark();
+        var bench = new StringJoinBenchmark();
         bench.Setup();
-        // bench.AppendSelectLast_SystemLinq();
-        bench.DistinctFirst_ZLinq();
+        bench.SystemLinq();
+        bench.ZLinq();
 
         return 0;
 #endif
