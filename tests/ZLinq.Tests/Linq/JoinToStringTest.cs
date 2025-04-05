@@ -29,6 +29,32 @@ public class JoinToStringTest
     }
 
     [Fact]
+    public void JoinToString_EmptySequence_EmptySeparator()
+    {
+        // Arrange
+        var empty = Array.Empty<int>();
+
+        // Act
+        var result = empty.AsValueEnumerable().JoinToString("");
+
+        // Assert
+        result.ShouldBe("");
+    }
+
+    [Fact]
+    public void JoinToString_SingleItem_EmptySeparator()
+    {
+        // Arrange
+        var singleItem = new[] { 42 };
+
+        // Act
+        var result = singleItem.AsValueEnumerable().JoinToString("");
+
+        // Assert
+        result.ShouldBe("42");
+    }
+
+    [Fact]
     public void JoinToString_MultipleItems_WithNonEmptySeparator()
     {
         // Arrange
@@ -93,7 +119,7 @@ public class JoinToStringTest
 
         // Act - ZLinq
         var actual = items.AsValueEnumerable().JoinToString(separator);
-        
+
         // Act - Standard approach for comparison
         var expected = string.Join(separator, items.AsEnumerable());
 
@@ -163,6 +189,88 @@ public class JoinToStringTest
 
         // Assert
         actual.ShouldBe(expected);
+    }
+
+    [Fact]
+    public void JoinToString_Enumerable_MultipleItem()
+    {
+        // Arrange
+        var valueEnumerable = GetSource().AsValueEnumerable();
+
+        // Char separator
+        {
+            // Act
+            var actual = valueEnumerable.JoinToString(',');
+
+            // Assert
+            var expected = string.Join(",", GetSource());
+            actual.ShouldBe(expected);
+        }
+
+        // Empty separator
+        {
+            // Act
+            var actual = valueEnumerable.JoinToString("");
+
+            // Assert
+            var expected = string.Join("", GetSource());
+            actual.ShouldBe(expected);
+        }
+
+        static IEnumerable<int> GetSource()
+        {
+            yield return 1;
+            yield return 2;
+            yield return 3;
+        }
+    }
+
+    [Fact]
+    public void JoinToString_Enumerable_SingleItem()
+    {
+        var valueEnumerable = GetSource().AsValueEnumerable();
+
+        // Char separator
+        {
+            // Act
+            var actual = valueEnumerable.JoinToString(',');
+
+            // Assert
+            var expected = string.Join(",", GetSource());
+            actual.ShouldBe("1");
+        }
+        // Empty Separator
+        {
+            // Act
+            var actual = valueEnumerable.JoinToString("");
+
+            // Assert
+            var expected = string.Join("", GetSource());
+            actual.ShouldBe("1");
+        }
+
+        static IEnumerable<int> GetSource()
+        {
+            yield return 1;
+        }
+    }
+
+    [Fact]
+    public void JoinToString_Enumerable_EmptySource()
+    {
+        // Arrange
+        var valueEnumerable = GetEmptySource().AsValueEnumerable();
+
+        // Act
+        var actual = valueEnumerable.JoinToString(',');
+
+        // Assert
+        actual.ShouldBe("");
+
+        static IEnumerable<int> GetEmptySource()
+        {
+            yield break;
+        }
     }
 
     private class Person
