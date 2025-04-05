@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using ZLinq;
+using ZLinq.Linq;
 
 namespace Benchmark;
 
@@ -47,17 +48,16 @@ public class Net80OptimizedBenchmark
     [BenchmarkCategory(Categories.ZLinq)]
     public void SelectToList_ZLinq()
     {
-        _ = source.Select(i => i * 2)
-                  .AsValueEnumerable()
-                  .ToList();
+        _ = source.AsValueEnumerable()
+            .Select(i => i * 2)
+            .ToList();
     }
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
     public void RepeatToList_ZLinq()
     {
-        _ = Enumerable.Repeat((byte)'a', 1024)
-                      .AsValueEnumerable()
+        _ = ValueEnumerable.Repeat((byte)'a', 1024)
                       .ToList();
     }
 
@@ -65,18 +65,8 @@ public class Net80OptimizedBenchmark
     [BenchmarkCategory(Categories.ZLinq)]
     public void RangeSelectToList_ZLinq()
     {
-        _ = Enumerable.Range(0, 1024)
-                      .AsValueEnumerable()
+        _ = ValueEnumerable.Range(0, 1024)
                       .Select(i => i * 2)
                       .ToList();
-    }
-
-    [Benchmark]
-    [BenchmarkCategory(Categories.ZLinq)]
-    public void RangeSelectToList_ZLinqOptimized()
-    {
-        _ = ValueEnumerable.Range(0, 1024)
-                           .Select(i => i * 2)
-                           .ToList();
     }
 }

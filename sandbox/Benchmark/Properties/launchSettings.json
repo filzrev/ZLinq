@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.HugeChain.* -- Default",
+      "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.* -- Default",
 
       // Available config
       // 1. Default
@@ -45,6 +45,8 @@
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
       // "commandLineArgs": "--filter Benchmark.LinqAf.ToLookup+KeySelector_ElementSelector_Comparer.*",
       // "commandLineArgs": "--filter Benchmark.SimdCount.*",
+      // "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.*",
+      // "commandLineArgs": "--filter Benchmark.Net90OptimizedBenchmark.*",
 
       "workingDirectory": "."
     },

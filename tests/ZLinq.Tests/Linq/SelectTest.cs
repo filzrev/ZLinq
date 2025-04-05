@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using Shouldly;
@@ -80,7 +81,7 @@ public class SelectTest
     public void Select_WithCustomObject_ShouldTransformCorrectly()
     {
         // Arrange
-        var source = new[] 
+        var source = new[]
         {
             new { Id = 1, Name = "Item1" },
             new { Id = 2, Name = "Item2" },
@@ -290,10 +291,10 @@ public class SelectTest
         // Arrange
         var source = new[] { 1, 2, 3, 4, 5 };
         var enumerable = source.AsValueEnumerable().Select(x => x * 2);
-        
+
         // Act
         var result = enumerable.TryGetNonEnumeratedCount(out var count);
-        
+
         // Assert
         result.ShouldBeTrue();
         count.ShouldBe(5);
@@ -305,10 +306,10 @@ public class SelectTest
         // Arrange
         var source = new[] { 1, 2, 3, 4, 5 };
         var enumerable = source.AsValueEnumerable().Select(x => x * 2);
-        
+
         // Act
         var result = enumerable.TryGetSpan(out var span);
-        
+
         // Assert
         result.ShouldBeFalse();
     }
@@ -320,10 +321,10 @@ public class SelectTest
         var source = new[] { 42 };
         var destination = new int[1];
         var enumerable = source.AsValueEnumerable().Select(x => x * 2);
-        
+
         // Act
         var result = enumerable.TryCopyTo(destination, 0);
-        
+
         // Assert
         result.ShouldBeTrue();
         destination[0].ShouldBe(84);
@@ -336,10 +337,10 @@ public class SelectTest
         var source = new[] { 1, 2, 3, 4, 5 };
         var destination = new int[5];
         var enumerable = source.AsValueEnumerable().Select(x => x * 2);
-        
+
         // Act
         var result = enumerable.TryCopyTo(destination, 0);
-        
+
         // Assert
         result.ShouldBeTrue();
         destination.ShouldBe(new[] { 2, 4, 6, 8, 10 });
@@ -354,7 +355,7 @@ public class SelectTest
     {
         // Arrange
         var disposed = false;
-        
+
         // Create a sequence that tracks disposal
         IEnumerable<int> GetTrackingSequence()
         {
@@ -371,7 +372,7 @@ public class SelectTest
 
         // Act
         var enumerable = GetTrackingSequence().AsValueEnumerable().Select(x => x * 2);
-        
+
         // Use the enumerable and then dispose it
         using (var enumerator = enumerable.GetEnumerator())
         {
@@ -392,7 +393,7 @@ public class SelectTest
         // Arrange
         var source = new[] { 1, 2, 3 };
         Func<int, int> selector = null!;
-        
+
         // Act & Assert
         Should.Throw<ArgumentNullException>(() =>
         {
@@ -406,7 +407,7 @@ public class SelectTest
         // Arrange
         var source = new[] { 1, 2, 3 };
         Func<int, int, int> selector = null!;
-        
+
         // Act & Assert
         Should.Throw<ArgumentNullException>(() =>
         {
@@ -420,7 +421,7 @@ public class SelectTest
         // Arrange
         var source = new[] { 1, 2, 3 };
         Func<int, bool> predicate = null!;
-        
+
         // Act & Assert
         Should.Throw<ArgumentNullException>(() =>
         {
@@ -437,14 +438,14 @@ public class SelectTest
     {
         // Arrange
         var source = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        
+
         // Act - Standard LINQ as reference
         var expected = source
             .Select(x => x * 3)
             .Where(x => x % 2 == 0)
             .Take(3)
             .ToArray();
-            
+
         // Act - ZLinq
         var actual = source
             .AsValueEnumerable()
@@ -452,10 +453,30 @@ public class SelectTest
             .Where(x => x % 2 == 0)
             .Take(3)
             .ToArray();
-            
+
         // Assert
         actual.ShouldBe(expected);
     }
 
     #endregion
+
+    [Fact]
+    public void RangeSelect()
+    {
+        var expected = Enumerable.Range(99, 84).Select(x => x * 2).ToArray();
+
+        var actual1 = ValueEnumerable.Range(99, 84).Select(x => x * 2).ToArray();
+        var actual2 = ValueEnumerable.Range(99, 84).Select(x => x * 2).ToList();
+        var (actual3, c) = ValueEnumerable.Range(99, 84).Select(x => x * 2).ToArrayPool();
+
+        actual1.ShouldBe(expected);
+        actual2.ShouldBe(expected);
+        actual3.AsSpan(0, c).ToArray().ShouldBe(expected);
+
+        ArrayPool<int>.Shared.Return(actual3);
+    }
+
 }
+
+
+

@@ -78,7 +78,15 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset) => false;
+        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        {
+            if (destination.Length == 1 && offset.Value == 0) // as TryGetFirst
+            {
+                return source.TryCopyTo(destination, offset);
+            }
+
+            return false;
+        }
 
         public bool TryGetNext(out TSource current)
         {

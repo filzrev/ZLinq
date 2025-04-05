@@ -22,15 +22,10 @@ internal static class Program
     {
 #if DEBUG
 
-        var bench = new SimdCount();
+        var bench = new Net90OptimizedBenchmark();
         bench.Setup();
-        var a = bench.LinqCount();
-        var b = bench.VectorizableCount();
-        var c = bench.SimdInline();
-
-        Console.WriteLine(a);
-        Console.WriteLine(b);
-        Console.WriteLine(c);
+        // bench.AppendSelectLast_SystemLinq();
+        bench.DistinctFirst_ZLinq();
 
         return 0;
 #endif
