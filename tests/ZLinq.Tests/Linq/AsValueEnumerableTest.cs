@@ -334,17 +334,57 @@ namespace ZLinq.Tests.Linq
         {
             // Arrange
             var source = ImmutableArray.Create(1, 2, 3, 4, 5);
-            
+
             // Act
             var result = source.AsValueEnumerable();
-            
+
             // Assert
             result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
             count.ShouldBe(source.Length);
-            
+
             result.TryGetSpan(out var span).ShouldBeTrue();
             span.ToArray().ShouldBe(source.ToArray());
-            
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(source.ToArray());
+        }
+#endif
+
+#if NET9_0_OR_GREATER
+        [Fact]
+        public void FromSpan_BasicFunctionality()
+        {
+            // Arrange
+            Span<int> source = [1, 2, 3, 4, 5];
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Length);
+
+            result.TryGetSpan(out var span).ShouldBeTrue();
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(source.ToArray());
+        }
+
+        [Fact]
+        public void FromReadOnlySpan_BasicFunctionality()
+        {
+            // Arrange
+            ReadOnlySpan<int> source = [1, 2, 3, 4, 5];
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Length);
+
+            result.TryGetSpan(out var span).ShouldBeTrue();
+
             var resultArray = result.ToArray();
             resultArray.ShouldBe(source.ToArray());
         }
