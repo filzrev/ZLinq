@@ -48,8 +48,10 @@ namespace ZLinq
             {
                 if (enumerator.TryGetSpan(out var span))
                 {
-                    // NOTE: .NET 10 can call span.Contains with comparer so no needs this hack.
-#if NET8_0_OR_GREATER
+
+#if NET10_0_OR_GREATER
+                    return span.Contains(value);
+#elif NET8_0_OR_GREATER
                     return InvokeSpanContains(span, value);
 #else
                     foreach (var item in span)
@@ -114,7 +116,7 @@ namespace ZLinq
             }
         }
 
-#if NET8_0_OR_GREATER
+#if NET8_0_OR_GREATER && (NET8_0 || NET9_0)
 
         // Hack to avoid where constraints of MemoryExtensions.Contains.
         // .NET 10 removed it so no needs this hack. https://github.com/dotnet/runtime/pull/110197
