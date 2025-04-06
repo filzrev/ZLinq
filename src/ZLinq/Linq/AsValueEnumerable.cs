@@ -427,7 +427,7 @@ namespace ZLinq.Linq
         public bool TryGetNonEnumeratedCount(out int count)
         {
             const int ArrayMaxLength = 0X7FFFFFC7;
-            if (source.Length < ArrayMaxLength)
+            if (source.Length <= ArrayMaxLength)
             {
                 count = checked((int)source.Length);
                 return true;
