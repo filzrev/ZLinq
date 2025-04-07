@@ -102,15 +102,15 @@ In ZLinq, we prioritize compatibility, so we try to minimize adding custom opera
 
 Converts existing collections to a type that can be chained with ZLinq. Any `IEnumerable<T>` can be converted, but for the following types, conversion is done with zero allocation without `IEnumerable<T>.GetEnumerator()` allocation. Standard supported types are `T[]`, `List<T>`, `ArraySegment<T>`, `Memory<T>`, `ReadOnlyMemory<T>`, `ReadOnlySequence<T>`, `Dictionary<TKey, TValue>`, `Queue<T>`, `Stack<T>`, `LinkedList<T>`, `HashSet<T>`, `ImmutableArray<T>`, `Span<T>`, `ReadOnlySpan<T>`. However, conversion from `ImmutableArray<T>` requires `.NET 8` or higher, and conversion from `Span<T>`, `ReadOnlySpan<T>` requires `.NET 9` or higher.
 
-### `ValueEnumerable.Range`, `ValueEnumerable.Repeat`, `ValueEnumerable.Empty`
+### `ValueEnumerable.Range()`, `ValueEnumerable.Repeat()`, `ValueEnumerable.Empty()`
 
 `ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`.
 
-### `Average : where INumber<T>`, `Sum : where INumber<T>`
+### `Average() : where INumber<T>`, `Sum() : where INumber<T>`
 
 System.Linq's `Average` and `Sum` are limited to certain primitive types, but ZLinq extends them to all `INumber<T>` types. In `.NET 8` or higher, where constraints are included, but for others (netstandard2.0, 2.1), runtime errors will occur when called with non-primitive target types.
 
-### `SumUnchecked`
+### `SumUnchecked()`
 
 `Sum` is `checked`, but checking for overflow during SIMD execution creates performance overhead. `SumUnchecked` skips overflow checking to achieve maximum SIMD aggregation performance. Note that this requires `.NET 8` or higher, and SIMD-supported types are `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`, and the source must be able to get a Span (`TryGetSpan` returns true).
 
