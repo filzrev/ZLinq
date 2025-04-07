@@ -3,10 +3,10 @@
 namespace ZLinq.Internal;
 
 // storing struct enumerator, with pooling(stack itself is node)
-internal sealed class RefStack<T> where T : IDisposable
+public sealed class RefStack<T> where T : IDisposable
 {
     internal static readonly RefStack<T> DisposeSentinel = new(0);
-    static object gate = new object(); // TODO:change lock-free
+    static int gate = 0;
 
     static RefStack<T>? Last = null;
 
@@ -14,25 +14,32 @@ internal sealed class RefStack<T> where T : IDisposable
 
     public static RefStack<T> Rent()
     {
-        lock (gate)
+        if (Interlocked.CompareExchange(ref gate, 1, 0) == 0)
         {
             if (Last == null)
             {
+                Volatile.Write(ref gate, 0);
                 return new RefStack<T>(4);
             }
+
             var rent = Last;
             Last = Last.Prev;
+
+            Volatile.Write(ref gate, 0);
             return rent;
         }
+
+        return new RefStack<T>(4);
     }
 
     public static void Return(RefStack<T> stack)
     {
         stack.Reset();
-        lock (gate)
+        if (Interlocked.CompareExchange(ref gate, 1, 0) == 0)
         {
             stack.Prev = Last;
             Last = stack;
+            Volatile.Write(ref gate, 0);
         }
     }
 
