@@ -32,7 +32,7 @@ namespace System.Linq.Tests
         {
             foreach (Func<IEnumerable<int>, IEnumerable<int>> transform in IdentityTransforms<int>())
             {
-                yield return [transform(new int[0]), 6, false];
+                yield return [transform([]), 6, false];
                 yield return [transform([8, 10, 3, 0, -8]), 6, false];
                 yield return [transform([8, 10, 3, 0, -8]), 8, true];
                 yield return [transform([8, 10, 3, 0, -8]), -8, true];
@@ -120,29 +120,29 @@ namespace System.Linq.Tests
         [Fact]
         public void ExplicitNullComparerDoesNotDeferToCollection()
         {
-            IEnumerable<string> source = new HashSet<string>(new AnagramEqualityComparer()) {"ABC"};
-            Assert.False(source.Contains("BAC", null));
+            IEnumerable<string> source = new HashSet<string>(new AnagramEqualityComparer()) { "ABC" };
+            Assert.DoesNotContain("BAC", source);
         }
 
         [Fact]
         public void ExplicitComparerDoesNotDeferToCollection()
         {
-            IEnumerable<string> source = new HashSet<string> {"ABC"};
-            Assert.True(source.Contains("abc", StringComparer.OrdinalIgnoreCase));
+            IEnumerable<string> source = new HashSet<string> { "ABC" };
+            Assert.Contains("abc", source, StringComparer.OrdinalIgnoreCase);
         }
 
         [Fact]
         public void ExplicitComparerDoestNotDeferToCollectionWithComparer()
         {
-            IEnumerable<string> source = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {"ABC"};
-            Assert.True(source.Contains("BAC", new AnagramEqualityComparer()));
+            IEnumerable<string> source = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ABC" };
+            Assert.Contains("BAC", source, new AnagramEqualityComparer());
         }
 
         [Fact]
         public void NoComparerDoesDeferToCollection()
         {
-            IEnumerable<string> source = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {"ABC"};
-            Assert.True(source.Contains("abc"));
+            IEnumerable<string> source = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "ABC" };
+            Assert.Contains("abc", source);
         }
     }
 }
