@@ -64,9 +64,9 @@ namespace System.Linq.Tests
             var integers = new[]
             {
                 Array.Empty<int>(), // No elements.
-                new[] { 1 }, // One element.
-                new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }, // Distinct elements.
-                new[] { -10, 0, 5, 0, 9, 100, 9 }, // Some repeating elements.
+                [1], // One element.
+                [9999, 0, 888, -1, 66, -777, 1, 2, -12345], // Distinct elements.
+                [-10, 0, 5, 0, 9, 100, 9], // Some repeating elements.
             };
 
             return integers

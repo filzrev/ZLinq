@@ -32,11 +32,11 @@ namespace System.Linq.Tests
         {
             foreach (Func<IEnumerable<int>, IEnumerable<int>> transform in IdentityTransforms<int>())
             {
-                yield return new object[] { transform(new int[0]), 6, false };
-                yield return new object[] { transform(new int[] { 8, 10, 3, 0, -8 }), 6, false };
-                yield return new object[] { transform(new int[] { 8, 10, 3, 0, -8 }), 8, true };
-                yield return new object[] { transform(new int[] { 8, 10, 3, 0, -8 }), -8, true };
-                yield return new object[] { transform(new int[] { 8, 0, 10, 3, 0, -8, 0 }), 0, true };
+                yield return new object[] { transform([]), 6, false };
+                yield return new object[] { transform([8, 10, 3, 0, -8]), 6, false };
+                yield return new object[] { transform([8, 10, 3, 0, -8]), 8, true };
+                yield return new object[] { transform([8, 10, 3, 0, -8]), -8, true };
+                yield return new object[] { transform([8, 0, 10, 3, 0, -8, 0]), 0, true };
 
                 yield return new object[] { transform(Enumerable.Range(0, 0)), 0, false };
                 yield return new object[] { transform(Enumerable.Range(4, 5)), 3, false };

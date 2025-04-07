@@ -20,7 +20,7 @@ namespace System.Linq.Tests
         [Fact]
         public void CountBy_KeySelectorNull_ThrowsArgumentNullException()
         {
-            string[] source = { "Bob", "Tim", "Robert", "Chris" };
+            string[] source = ["Bob", "Tim", "Robert", "Chris"];
             Func<string, string> keySelector = null;
 
             AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.CountBy(keySelector));
@@ -91,7 +91,7 @@ namespace System.Linq.Tests
                 expected: Enumerable.Repeat(5, 1).Select(x => new KeyValuePair<int, int>(x, 20)));
 
             Validate(
-                source: new string[] { "Bob", "bob", "tim", "Bob", "Tim" },
+                source: ["Bob", "bob", "tim", "Bob", "Tim"],
                 keySelector: x => x,
                 null,
                 expected:
@@ -103,7 +103,7 @@ namespace System.Linq.Tests
                 ]);
 
             Validate(
-                source: new string[] { "Bob", "bob", "tim", "Bob", "Tim" },
+                source: ["Bob", "bob", "tim", "Bob", "Tim"],
                 keySelector: x => x,
                 StringComparer.OrdinalIgnoreCase,
                 expected:

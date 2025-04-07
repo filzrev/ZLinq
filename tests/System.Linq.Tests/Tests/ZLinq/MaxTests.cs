@@ -68,17 +68,17 @@ namespace ZLinq.Tests
         {
             foreach ((int[] array, long expected) in new[]
             {
-                (new[] { 42 }, 42),
+                ([42], 42),
                 (Enumerable.Range(1, 10).ToArray(), 10),
-                (new int[] { -100, -15, -50, -10 }, -10),
-                (new int[] { -16, 0, 50, 100, 1000 }, 1000),
+                ([-100, -15, -50, -10], -10),
+                ([-16, 0, 50, 100, 1000], 1000),
                 (new int[] { -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat(int.MaxValue, 1)).ToArray(), int.MaxValue),
 
-                (new[] { 20 }, 20),
+                ([20], 20),
                 (Enumerable.Repeat(-2, 5).ToArray(), -2),
-                (new int[] { 16, 9, 10, 7, 8 }, 16),
-                (new int[] { 6, 9, 10, 0, 50 }, 50),
-                (new int[] { -6, 0, -9, 0, -10, 0 }, 0),
+                ([16, 9, 10, 7, 8], 16),
+                ([6, 9, 10, 0, 50], 50),
+                ([-6, 0, -9, 0, -10, 0], 0),
             })
             {
                 yield return new object[] { new TestEnumerable<int>(array), expected };
@@ -98,17 +98,17 @@ namespace ZLinq.Tests
         {
             foreach ((long[] array, long expected) in new[]
             {
-                (new[] { 42L }, 42L),
+                ([42L], 42L),
                 (Enumerable.Range(1, 10).Select(i => (long)i).ToArray(), 10L),
-                (new long[] { -100, -15, -50, -10 }, -10L),
-                (new long[] { -16, 0, 50, 100, 1000 }, 1000L),
+                ([-100, -15, -50, -10], -10L),
+                ([-16, 0, 50, 100, 1000], 1000L),
                 (new long[] { -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat(long.MaxValue, 1)).ToArray(), long.MaxValue),
 
-                (new[] { int.MaxValue + 10L }, int.MaxValue + 10L),
+                ([int.MaxValue + 10L], int.MaxValue + 10L),
                 (Enumerable.Repeat(500L, 5).ToArray(), 500L),
-                (new long[] { 250, 49, 130, 47, 28 }, 250L),
-                (new long[] { 6, 9, 10, 0, int.MaxValue + 50L }, int.MaxValue + 50L),
-                (new long[] { 6, 50, 9, 50, 10, 50 }, 50L),
+                ([250, 49, 130, 47, 28], 250L),
+                ([6, 9, 10, 0, int.MaxValue + 50L], int.MaxValue + 50L),
+                ([6, 50, 9, 50, 10, 50], 50L),
             })
             {
                 yield return new object[] { new TestEnumerable<long>(array), expected };
@@ -144,20 +144,20 @@ namespace ZLinq.Tests
         {
             foreach ((float[] array, float expected) in new[]
             {
-                (new[] { 42f }, 42f),
+                ([42f], 42f),
                 (Enumerable.Range(1, 10).Select(i => (float)i).ToArray(), 10f),
-                (new float[] { -100, -15, -50, -10 }, -10f),
-                (new float[] { -16, 0, 50, 100, 1000 }, 1000f),
+                ([-100, -15, -50, -10], -10f),
+                ([-16, 0, 50, 100, 1000], 1000f),
                 (new float[] { -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat(float.MaxValue, 1)).ToArray(), float.MaxValue),
 
-                (new[] { 5.5f }, 5.5f),
-                (new float[] { 112.5f, 4.9f, 30f, 4.7f, 28f }, 112.5f),
-                (new float[] { 6.8f, 9.4f, -10f, 0f, float.NaN, 53.6f }, 53.6f),
+                ([5.5f], 5.5f),
+                ([112.5f, 4.9f, 30f, 4.7f, 28f], 112.5f),
+                ([6.8f, 9.4f, -10f, 0f, float.NaN, 53.6f], 53.6f),
                 (new float[] { -5.5f, float.PositiveInfinity, 9.9f, float.PositiveInfinity }, float.PositiveInfinity),
 
                 (Enumerable.Repeat(float.NaN, 5).ToArray(), float.NaN),
-                (new float[] { float.NaN, 6.8f, 9.4f, 10f, 0, -5.6f }, 10f),
-                (new float[] { 6.8f, 9.4f, 10f, 0, -5.6f, float.NaN }, 10f),
+                ([float.NaN, 6.8f, 9.4f, 10f, 0, -5.6f], 10f),
+                ([6.8f, 9.4f, 10f, 0, -5.6f, float.NaN], 10f),
                 (new float[] { float.NaN, float.NegativeInfinity }, float.NegativeInfinity),
                 (new float[] { float.NegativeInfinity, float.NaN }, float.NegativeInfinity),
                 
@@ -168,8 +168,8 @@ namespace ZLinq.Tests
                 // ordering where NaN is smaller than every value, including
                 // negative infinity.
                 (Enumerable.Range(1, 10).Select(i => (float)i).Concat(Enumerable.Repeat(float.NaN, 1)).ToArray(), 10f),
-                (new float[] { -1f, -10, float.NaN, 10, 200, 1000 }, 1000f),
-                (new float[] { float.MinValue, 3000f, 100, 200, float.NaN, 1000 }, 3000f),
+                ([-1f, -10, float.NaN, 10, 200, 1000], 1000f),
+                ([float.MinValue, 3000f, 100, 200, float.NaN, 1000], 3000f),
             })
             {
                 yield return new object[] { new TestEnumerable<float>(array), expected };
@@ -212,14 +212,14 @@ namespace ZLinq.Tests
         [Fact]
         public void Max_NullableFloat_SeveralNaNOrNullWithSelector()
         {
-            float?[] source = new float?[] { float.NaN, null, float.NaN, null };
+            float?[] source = [float.NaN, null, float.NaN, null];
             Assert.True(float.IsNaN(source.Max(i => i).Value));
         }
 
         [Fact]
         public void Max_Float_NaNAtStartWithSelector()
         {
-            float[] source = { float.NaN, 6.8f, 9.4f, 10f, 0, -5.6f };
+            float[] source = [float.NaN, 6.8f, 9.4f, 10f, 0, -5.6f];
             Assert.Equal(10f, source.Max(i => i));
         }
 
@@ -227,19 +227,19 @@ namespace ZLinq.Tests
         {
             foreach ((double[] array, double expected) in new[]
             {
-                (new[] { 42.0 }, 42.0),
+                ([42.0], 42.0),
                 (Enumerable.Range(1, 10).Select(i => (double)i).ToArray(), 10.0),
-                (new double[] { -100, -15, -50, -10 }, -10.0),
-                (new double[] { -16, 0, 50, 100, 1000 }, 1000.0),
+                ([-100, -15, -50, -10], -10.0),
+                ([-16, 0, 50, 100, 1000], 1000.0),
                 (new double[] { -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat(double.MaxValue, 1)).ToArray(), double.MaxValue),
 
                 (Enumerable.Repeat(5.5, 1).ToArray(), 5.5),
                 (Enumerable.Repeat(double.NaN, 5).ToArray(), double.NaN),
-                (new double[] { 112.5, 4.9, 30, 4.7, 28 }, 112.5),
-                (new double[] { 6.8, 9.4, -10, 0, double.NaN, 53.6 }, 53.6),
+                ([112.5, 4.9, 30, 4.7, 28], 112.5),
+                ([6.8, 9.4, -10, 0, double.NaN, 53.6], 53.6),
                 (new double[] { -5.5, double.PositiveInfinity, 9.9, double.PositiveInfinity }, double.PositiveInfinity),
-                (new double[] { double.NaN, 6.8, 9.4, 10.5, 0, -5.6 }, 10.5),
-                (new double[] { 6.8, 9.4, 10.5, 0, -5.6, double.NaN }, 10.5),
+                ([double.NaN, 6.8, 9.4, 10.5, 0, -5.6], 10.5),
+                ([6.8, 9.4, 10.5, 0, -5.6, double.NaN], 10.5),
                 (new double[] { double.NaN, double.NegativeInfinity }, double.NegativeInfinity),
                 (new double[] { double.NegativeInfinity, double.NaN }, double.NegativeInfinity),
 
@@ -250,8 +250,8 @@ namespace ZLinq.Tests
                 // ordering where NaN is smaller than every value, including
                 // negative infinity.
                 (Enumerable.Range(1, 10).Select(i => (double)i).Concat(Enumerable.Repeat(double.NaN, 1)).ToArray(), 10.0),
-                (new double[] { -1F, -10, double.NaN, 10, 200, 1000 }, 1000.0),
-                (new double[] { double.MinValue, 3000F, 100, 200, double.NaN, 1000 }, 3000.0),
+                ([-1F, -10, double.NaN, 10, 200, 1000], 1000.0),
+                ([double.MinValue, 3000F, 100, 200, double.NaN, 1000], 3000.0),
             })
             {
                 yield return new object[] { new TestEnumerable<double>(array), expected };
@@ -294,14 +294,14 @@ namespace ZLinq.Tests
         [Fact]
         public void Max_Double_SeveralNaNOrNullWithSelector()
         {
-            double?[] source = new double?[] { double.NaN, null, double.NaN, null };
+            double?[] source = [double.NaN, null, double.NaN, null];
             Assert.True(double.IsNaN(source.Max(i => i).Value));
         }
 
         [Fact]
         public void Max_Double_NaNThenNegativeInfinityWithSelector()
         {
-            double[] source = { double.NaN, double.NegativeInfinity };
+            double[] source = [double.NaN, double.NegativeInfinity];
             Assert.True(double.IsNegativeInfinity(source.Max(i => i)));
         }
 
@@ -309,17 +309,17 @@ namespace ZLinq.Tests
         {
             foreach ((decimal[] array, decimal expected) in new[]
             {
-                (new[] { 42m }, 42m),
+                ([42m], 42m),
                 (Enumerable.Range(1, 10).Select(i => (decimal)i).ToArray(), 10m),
-                (new decimal[] { -100, -15, -50, -10 }, -10m),
-                (new decimal[] { -16, 0, 50, 100, 1000 }, 1000m),
+                ([-100, -15, -50, -10], -10m),
+                ([-16, 0, 50, 100, 1000], 1000m),
                 (new decimal[] { -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat(decimal.MaxValue, 1)).ToArray(), decimal.MaxValue),
 
-                (new decimal[] { 5.5m }, 5.5m),
+                ([5.5m], 5.5m),
                 (Enumerable.Repeat(-3.4m, 5).ToArray(), -3.4m),
-                (new decimal[] { 122.5m, 4.9m, 10m, 4.7m, 28m }, 122.5m),
+                ([122.5m, 4.9m, 10m, 4.7m, 28m], 122.5m),
                 (new decimal[] { 6.8m, 9.4m, 10m, 0m, 0m, decimal.MaxValue }, decimal.MaxValue),
-                (new decimal[] { -5.5m, 0m, 9.9m, -5.5m, 9.9m }, 9.9m),
+                ([-5.5m, 0m, 9.9m, -5.5m, 9.9m], 9.9m),
             })
             {
                 yield return new object[] { new TestEnumerable<decimal>(array), expected };
@@ -543,13 +543,13 @@ namespace ZLinq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => new DateTime(2000, 1, i)).ToArray(), new DateTime(2000, 1, 10) };
             yield return new object[] { new DateTime[] { new DateTime(2000, 12, 1), new DateTime(2000, 12, 31), new DateTime(2000, 1, 12) }, new DateTime(2000, 12, 31) };
 
-            DateTime[] threeThousand = new DateTime[]
-            {
+            DateTime[] threeThousand =
+            [
                 new DateTime(3000, 1, 1),
                 new DateTime(100, 1, 1),
                 new DateTime(200, 1, 1),
                 new DateTime(1000, 1, 1)
-            };
+            ];
             yield return new object[] { threeThousand, new DateTime(3000, 1, 1) };
             yield return new object[] { threeThousand.Concat(Enumerable.Repeat(DateTime.MaxValue, 1)).ToArray(), DateTime.MaxValue };
         }
@@ -905,17 +905,17 @@ namespace ZLinq.Tests
                 expected: 0);
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 comparer: null,
                 expected: "Zyzzyva");
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 comparer: Comparer<string>.Create((x, y) => -x.CompareTo(y)),
                 expected: "Aardvark");
 
             object[] WrapArgs<TSource>(IEnumerable<TSource> source, IComparer<TSource>? comparer, TSource? expected)
-                => new object[] { source, comparer, expected };
+                => [source, comparer, expected];
         }
 
         [Fact]
@@ -1034,13 +1034,13 @@ namespace ZLinq.Tests
                 expected: 0);
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 keySelector: x => x,
                 comparer: null,
                 expected: "Zyzzyva");
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 keySelector: x => x,
                 comparer: Comparer<string>.Create((x, y) => -x.CompareTo(y)),
                 expected: "Aardvark");
@@ -1076,7 +1076,7 @@ namespace ZLinq.Tests
                 expected: (Name: "Harry", Age: 20));
 
             object[] WrapArgs<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer, TSource? expected)
-                => new object[] { source, keySelector, comparer, expected };
+                => [source, keySelector, comparer, expected];
         }
     }
 }

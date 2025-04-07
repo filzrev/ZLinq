@@ -94,7 +94,7 @@ namespace ZLinq.Tests
             list.RemoveAt(4);
             list.RemoveAt(3);
 
-            Assert.Equal(new[] { 1 }, e.ToArray());
+            Assert.Equal([1], e.ToArray());
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace ZLinq.Tests
 
             list.RemoveAt(4);
 
-            Assert.Equal(new[] { 2 }, e.ToArray());
+            Assert.Equal([2], e.ToArray());
         }
     }
 }

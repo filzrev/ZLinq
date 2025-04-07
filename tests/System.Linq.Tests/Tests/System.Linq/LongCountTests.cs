@@ -72,7 +72,7 @@ namespace System.Linq.Tests
         [Fact]
         public void NullableArray_IncludesNullValues()
         {
-            int?[] data = { -10, 4, 9, null, 11 };
+            int?[] data = [-10, 4, 9, null, 11];
             Assert.Equal(5, data.LongCount());
         }
 
