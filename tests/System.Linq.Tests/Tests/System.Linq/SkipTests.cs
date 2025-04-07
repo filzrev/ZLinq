@@ -49,13 +49,13 @@ namespace System.Linq.Tests
         [Fact]
         public void SkipExcessive()
         {
-            Assert.Equal(Enumerable.Empty<int>(), NumberRangeGuaranteedNotCollectionType(0, 20).Skip(42));
+            Assert.Equal([], NumberRangeGuaranteedNotCollectionType(0, 20).Skip(42));
         }
 
         [Fact]
         public void SkipExcessiveIList()
         {
-            Assert.Equal(Enumerable.Empty<int>(), NumberRangeGuaranteedNotCollectionType(0, 20).ToList().Skip(42));
+            Assert.Equal([], NumberRangeGuaranteedNotCollectionType(0, 20).ToList().Skip(42));
         }
 
         [Fact]
@@ -86,9 +86,9 @@ namespace System.Linq.Tests
         [Fact]
         public void SkipOnEmpty()
         {
-            Assert.Equal(Enumerable.Empty<int>(), GuaranteeNotIList(Enumerable.Empty<int>()).Skip(0));
-            Assert.Equal(Enumerable.Empty<string>(), GuaranteeNotIList(Enumerable.Empty<string>()).Skip(-1));
-            Assert.Equal(Enumerable.Empty<double>(), GuaranteeNotIList(Enumerable.Empty<double>()).Skip(1));
+            Assert.Equal([], GuaranteeNotIList(Enumerable.Empty<int>()).Skip(0));
+            Assert.Equal([], GuaranteeNotIList(Enumerable.Empty<string>()).Skip(-1));
+            Assert.Equal([], GuaranteeNotIList(Enumerable.Empty<double>()).Skip(1));
         }
 
         [Fact]
@@ -96,9 +96,9 @@ namespace System.Linq.Tests
         {
             // Enumerable.Empty does return an IList, but not guaranteed as such
             // by the spec.
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().ToList().Skip(0));
-            Assert.Equal(Enumerable.Empty<string>(), Enumerable.Empty<string>().ToList().Skip(-1));
-            Assert.Equal(Enumerable.Empty<double>(), Enumerable.Empty<double>().ToList().Skip(1));
+            Assert.Equal([], Enumerable.Empty<int>().ToList().Skip(0));
+            Assert.Equal([], Enumerable.Empty<string>().ToList().Skip(-1));
+            Assert.Equal([], Enumerable.Empty<double>().ToList().Skip(1));
         }
 
         [Fact]

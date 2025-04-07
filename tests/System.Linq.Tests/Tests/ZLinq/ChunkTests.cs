@@ -10,7 +10,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Empty()
         {
-            Assert.Equal(Enumerable.Empty<int[]>(), Enumerable.Empty<int>().Chunk(4));
+            Assert.Equal([], Enumerable.Empty<int>().Chunk(4));
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace ZLinq.Tests
             var chunks = list.Chunk(3);
             list.Remove(66);
 
-            Assert.Equal([new[] { 9999, 0, 888 }, [-1, -777, 1], [2, -12345]], chunks);
+            Assert.Equal([[9999, 0, 888], [-1, -777, 1], [2, -12345]], chunks);
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace ZLinq.Tests
             var chunks = list.Chunk(3);
             list.Add(10);
 
-            Assert.Equal([new[] { 9999, 0, 888 }, [-1, 66, -777], [1, 2, -12345], [10]], chunks);
+            Assert.Equal([[9999, 0, 888], [-1, 66, -777], [1, 2, -12345], [10]], chunks);
         }
 
         // reproduces https://github.com/dotnet/runtime/issues/67132

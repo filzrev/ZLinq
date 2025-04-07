@@ -70,7 +70,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EmptyWithIndexedSelector()
         {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<string>().Select((s, i) => s.Length + i));
+            Assert.Equal([], Enumerable.Empty<string>().Select((s, i) => s.Length + i));
         }
 
         [Fact(Skip = SkipReason.RefStruct)]
@@ -550,7 +550,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Select_SourceIsEmptyEnumerable_ReturnedCollectionHasNoElements()
         {
-            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> source = [];
             bool wasSelectorCalled = false;
 
             var result = source.Select(i => { wasSelectorCalled = true; return i + 1; });

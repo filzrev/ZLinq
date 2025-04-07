@@ -940,7 +940,7 @@ namespace System.Linq.Tests
                 expected: null);
 
             yield return WrapArgs(
-                source: Enumerable.Empty<int?>(),
+                source: [],
                 comparer: Comparer<int?>.Create((_, _) => 0),
                 expected: null);
 
@@ -986,7 +986,7 @@ namespace System.Linq.Tests
         [Fact]
         public static void MaxBy_Generic_NullKeySelector_ThrowsArgumentNullException()
         {
-            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> source = [];
             Func<int, int> keySelector = null;
 
             AssertExtensions.Throws<ArgumentNullException>("keySelector", () => source.MaxBy(keySelector));

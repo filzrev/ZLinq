@@ -131,12 +131,12 @@ namespace ZLinq.Tests
             Assert.Equal(["a"], input1.Except(input2));
             Assert.Equal(["a"], input1.Except(input2, null));
             Assert.Equal(["a"], input1.Except(input2, EqualityComparer<string>.Default));
-            Assert.Equal(Enumerable.Empty<string>(), input1.Except(input2, StringComparer.OrdinalIgnoreCase));
+            Assert.Equal([], input1.Except(input2, StringComparer.OrdinalIgnoreCase));
 
             Assert.Equal(["A"], input2.Except(input1));
             Assert.Equal(["A"], input2.Except(input1, null));
             Assert.Equal(["A"], input2.Except(input1, EqualityComparer<string>.Default));
-            Assert.Equal(Enumerable.Empty<string>(), input2.Except(input1, StringComparer.OrdinalIgnoreCase));
+            Assert.Equal([], input2.Except(input1, StringComparer.OrdinalIgnoreCase));
         }
 
         [Fact]
@@ -195,7 +195,7 @@ namespace ZLinq.Tests
 
             yield return WrapArgs(
                 first: Enumerable.Repeat(5, 20),
-                second: Enumerable.Empty<int>(),
+                second: [],
                 keySelector: x => x,
                 comparer: null,
                 expected: Enumerable.Repeat(5, 1));
@@ -205,7 +205,7 @@ namespace ZLinq.Tests
                 second: Enumerable.Repeat(5, 3),
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Empty<int>());
+                expected: []);
 
             yield return WrapArgs(
                 first: ["Bob", "Tim", "Robert", "Chris"],

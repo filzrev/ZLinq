@@ -89,8 +89,8 @@ namespace System.Linq.Tests
             {
                 Array.Empty<int>(),
                 new List<int>(),
-                Enumerable.Empty<int>(),
-                new TestEnumerable<int>(Array.Empty<int>())
+                [],
+                new TestEnumerable<int>([])
             })
             {
                 Assert.Throws<InvalidOperationException>(() => source.Average());
@@ -220,8 +220,8 @@ namespace System.Linq.Tests
             {
                 Array.Empty<long>(),
                 new List<long>(),
-                Enumerable.Empty<long>(),
-                new TestEnumerable<long>(Array.Empty<long>())
+                [],
+                new TestEnumerable<long>([])
             })
             {
                 Assert.Throws<InvalidOperationException>(() => source.Average());
@@ -349,8 +349,8 @@ namespace System.Linq.Tests
             {
                 Array.Empty<double>(),
                 new List<double>(),
-                Enumerable.Empty<double>(),
-                new TestEnumerable<double>(Array.Empty<double>())
+                [],
+                new TestEnumerable<double>([])
             })
             {
                 Assert.Throws<InvalidOperationException>(() => source.Average());
@@ -472,8 +472,8 @@ namespace System.Linq.Tests
             {
                 Array.Empty<decimal>(),
                 new List<decimal>(),
-                Enumerable.Empty<decimal>(),
-                new TestEnumerable<decimal>(Array.Empty<decimal>())
+                [],
+                new TestEnumerable<decimal>([])
             })
             {
                 Assert.Throws<InvalidOperationException>(() => source.Average());
@@ -601,8 +601,8 @@ namespace System.Linq.Tests
             {
                 Array.Empty<float>(),
                 new List<float>(),
-                Enumerable.Empty<float>(),
-                new TestEnumerable<float>(Array.Empty<float>())
+                [],
+                new TestEnumerable<float>([])
             })
             {
                 Assert.Throws<InvalidOperationException>(() => source.Average());

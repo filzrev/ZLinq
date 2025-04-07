@@ -11,15 +11,15 @@ namespace System.Linq.Tests
         [Fact]
         public void Empty()
         {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().SkipWhile(i => i < 40));
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().SkipWhile((i, index) => i < 40));
+            Assert.Equal([], Enumerable.Empty<int>().SkipWhile(i => i < 40));
+            Assert.Equal([], Enumerable.Empty<int>().SkipWhile((i, index) => i < 40));
         }
 
         [Fact]
         public void SkipWhileAllTrue()
         {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Range(0, 20).SkipWhile(i => i < 40));
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Range(0, 20).SkipWhile((i, idx) => i == idx));
+            Assert.Equal([], Enumerable.Range(0, 20).SkipWhile(i => i < 40));
+            Assert.Equal([], Enumerable.Range(0, 20).SkipWhile((i, idx) => i == idx));
         }
 
         [Fact]

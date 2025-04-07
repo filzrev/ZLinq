@@ -476,7 +476,7 @@ namespace ZLinq.Tests
                 expected: Enumerable.Range(0, 20));
 
             yield return WrapArgs(
-                first: Enumerable.Empty<int>(),
+                first: [],
                 second: Enumerable.Range(0, 5),
                 keySelector: x => x,
                 comparer: null,
@@ -484,7 +484,7 @@ namespace ZLinq.Tests
 
             yield return WrapArgs(
                 first: Enumerable.Repeat(5, 20),
-                second: Enumerable.Empty<int>(),
+                second: [],
                 keySelector: x => x,
                 comparer: null,
                 expected: Enumerable.Repeat(5, 1));

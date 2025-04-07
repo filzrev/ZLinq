@@ -11,8 +11,8 @@ namespace System.Linq.Tests
         [Fact]
         public void Empty()
         {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().TakeWhile(i => i < 40));
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().TakeWhile((i, index) => i < 40));
+            Assert.Equal([], Enumerable.Empty<int>().TakeWhile(i => i < 40));
+            Assert.Equal([], Enumerable.Empty<int>().TakeWhile((i, index) => i < 40));
         }
 
         [Fact]

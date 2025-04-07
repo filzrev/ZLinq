@@ -400,7 +400,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Where_EmptyEnumerable_ReturnsNoElements()
         {
-            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> source = [];
             bool wasSelectorCalled = false;
 
             var result = source.Where(value => { wasSelectorCalled = true; return true; });

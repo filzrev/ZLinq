@@ -73,7 +73,7 @@ namespace System.Linq.Tests
         [Fact]
         public void EmptyWithIndexedSelector()
         {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<string>().Select((s, i) => s.Length + i));
+            Assert.Equal([], Enumerable.Empty<string>().Select((s, i) => s.Length + i));
         }
 
         [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsThreadingSupported))]
@@ -553,7 +553,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Select_SourceIsEmptyEnumerable_ReturnedCollectionHasNoElements()
         {
-            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> source = [];
             bool wasSelectorCalled = false;
 
             IEnumerable<int> result = source.Select(i => { wasSelectorCalled = true; return i + 1; });
@@ -1110,7 +1110,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Select_SourceIsIPartitionToArray()
         {
-            Assert.Equal(Array.Empty<int>(), new List<int>().Order().Select(i => i * 2).ToArray());
+            Assert.Equal([], new List<int>().Order().Select(i => i * 2).ToArray());
             Assert.Equal([2, 4, 6, 8], new List<int> { 1, 2, 3, 4 }.Order().Select(i => i * 2).ToArray());
         }
 

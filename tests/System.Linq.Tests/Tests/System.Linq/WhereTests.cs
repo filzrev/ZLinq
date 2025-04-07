@@ -370,7 +370,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_EmptyEnumerable_ReturnsNoElements()
         {
-            IEnumerable<int> source = Enumerable.Empty<int>();
+            IEnumerable<int> source = [];
             bool wasSelectorCalled = false;
 
             IEnumerable<int> result = source.Where(value => { wasSelectorCalled = true; return true; });

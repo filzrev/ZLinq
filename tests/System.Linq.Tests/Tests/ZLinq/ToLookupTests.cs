@@ -52,7 +52,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Empty()
         {
-            AssertMatches(Enumerable.Empty<int>(), Enumerable.Empty<int>(), Enumerable.Empty<int>().ToLookup(i => i));
+            AssertMatches([], [], Enumerable.Empty<int>().ToLookup(i => i));
             Assert.False(Enumerable.Empty<int>().ToLookup(i => i).Contains(0));
             Assert.Empty(Enumerable.Empty<int>().ToLookup(i => i)[0]);
         }
@@ -344,7 +344,7 @@ namespace ZLinq.Tests
         private sealed class NopGrouping : IGrouping<string, int>
         {
             public string Key => "";
-            public IEnumerator<int> GetEnumerator() => ((IList<int>)Array.Empty<int>()).GetEnumerator();
+            public IEnumerator<int> GetEnumerator() => ((IList<int>)[]).GetEnumerator();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
