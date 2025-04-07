@@ -324,9 +324,9 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementEachAndMatches()
         {
-            CustomerRec[] outer = [new CustomerRec { name = "Tim", custID = 43434 }];
-            OrderRec[] inner = [new OrderRec { orderID = 97865, custID = 43434, total = 25 }];
-            JoinRec[] expected = [new JoinRec { name = "Tim", orderID = [97865], total = [25] }];
+            CustomerRec[] outer = [new CustomerRec{ name = "Tim", custID = 43434 }];
+            OrderRec[] inner = [new OrderRec{ orderID = 97865, custID = 43434, total = 25 }];
+            JoinRec[] expected = [new JoinRec{ name = "Tim", orderID = [97865], total = [25] }];
 
             Assert.Equal(expected, outer.GroupJoin(inner, e => e.custID, e => e.custID, createJoinRec));
         }
@@ -334,9 +334,9 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementEachAndDoesntMatch()
         {
-            CustomerRec[] outer = [new CustomerRec { name = "Tim", custID = 43434 }];
-            OrderRec[] inner = [new OrderRec { orderID = 97865, custID = 49434, total = 25 }];
-            JoinRec[] expected = [new JoinRec { name = "Tim", orderID = [], total = [] }];
+            CustomerRec[] outer = [new CustomerRec{ name = "Tim", custID = 43434 }];
+            OrderRec[] inner = [new OrderRec{ orderID = 97865, custID = 49434, total = 25 }];
+            JoinRec[] expected = [new JoinRec{ name = "Tim", orderID = [], total = [] }];
 
             Assert.Equal(expected, outer.GroupJoin(inner, e => e.custID, e => e.custID, createJoinRec));
         }

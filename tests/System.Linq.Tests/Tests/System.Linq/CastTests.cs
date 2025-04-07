@@ -238,7 +238,7 @@ namespace System.Linq.Tests
         [Fact]
         public void TargetTypeIsSourceType_Nop()
         {
-            object[] values = ["hello", "world"];
+            object[] values = new string[] { "hello", "world" };
             Assert.Same(values, values.Cast<string>());
         }
 

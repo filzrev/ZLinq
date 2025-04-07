@@ -30,14 +30,14 @@ namespace System.Linq.Tests
 
         public static IEnumerable<object[]> TestData()
         {
-            yield return new object[] { new int[0], 0, new int[] { 0 } };
-            yield return new object[] { new int[] { 3 }, 0, new int[] { 3 } };
-            yield return new object[] { new int[] { 3, -1, 0, 10, 15 }, 0, new int[] { 3, -1, 0, 10, 15 } };
+            yield return [new int[0], 0, new int[] { 0 }];
+            yield return [new int[] { 3 }, 0, new int[] { 3 }];
+            yield return [new int[] { 3, -1, 0, 10, 15 }, 0, new int[] { 3, -1, 0, 10, 15 }];
 
-            yield return new object[] { new int[0], -10, new int[] { -10 } };
-            yield return new object[] { new int[] { 3 }, 9, new int[] { 3 } };
-            yield return new object[] { new int[] { 3, -1, 0, 10, 15 }, 9, new int[] { 3, -1, 0, 10, 15 } };
-            yield return new object[] { Enumerable.Empty<int>(), 0, new int[] { 0 } };
+            yield return [new int[0], -10, new int[] { -10 }];
+            yield return [new int[] { 3 }, 9, new int[] { 3 }];
+            yield return [new int[] { 3, -1, 0, 10, 15 }, 9, new int[] { 3, -1, 0, 10, 15 }];
+            yield return [Enumerable.Empty<int>(), 0, new int[] { 0 }];
         }
 
         [Theory]

@@ -27,7 +27,7 @@ namespace System.Linq.Tests
             Assert.NotNull(keys);
 
             Dictionary<TKey, List<TElement>> dict = new Dictionary<TKey, List<TElement>>(keyComparer);
-            List<TElement> groupingForNullKeys = new List<TElement>();
+            List<TElement> groupingForNullKeys = [];
             using (IEnumerator<TElement> elEn = elements.GetEnumerator())
             using (IEnumerator<TKey> keyEn = keys.GetEnumerator())
             {
@@ -45,7 +45,7 @@ namespace System.Linq.Tests
                     {
                         List<TElement> list;
                         if (!dict.TryGetValue(key, out list))
-                            dict.Add(key, list = new List<TElement>());
+                            dict.Add(key, list = []);
                         list.Add(elEn.Current);
                     }
                 }
@@ -348,7 +348,8 @@ namespace System.Linq.Tests
         [Fact]
         public void ResultSelectorNull()
         {
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = "Chris", Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -365,7 +366,8 @@ namespace System.Linq.Tests
         [Fact]
         public void ResultSelectorNullNoComparer()
         {
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = "Chris", Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -382,7 +384,8 @@ namespace System.Linq.Tests
         [Fact]
         public void ResultSelectorNullNoElementSelector()
         {
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = "Chris", Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -422,7 +425,8 @@ namespace System.Linq.Tests
         {
             string[] key = ["Tim", "Tim", "Chris", "Chris", "Robert", "Prakash"];
             int[] element = [55, 25, 49, 24, -100, 9];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = "Chris", Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -440,7 +444,8 @@ namespace System.Linq.Tests
         {
             string[] key = ["Tim", "Tim", "Chris", "Chris", "Robert", "Prakash"];
             int[] element = [55, 25, 49, 24, -100, 9];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = "Chris", Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -458,7 +463,8 @@ namespace System.Linq.Tests
         {
             string[] key = ["Tim", null, null, "Robert", "Chris", "miT"];
             int[] element = [55, 49, 9, -100, 24, 25];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = null, Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -476,7 +482,8 @@ namespace System.Linq.Tests
         {
             string[] key = ["Tim", null, null, "Robert", "Chris", "miT"];
             int[] element = [55, 49, 9, -100, 24, 25];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = 55 },
                 new Record { Name = null, Score = 49 },
                 new Record { Name = "Robert", Score = -100 },
@@ -556,7 +563,7 @@ namespace System.Linq.Tests
 
             var result = elements.GroupBy(e => e, (e, f) => new { Key = e, Element = f });
 
-            Assert.Single(result);
+            Assert.Equal(1, result.Count());
 
             var grouping = result.First();
 
@@ -581,7 +588,8 @@ namespace System.Linq.Tests
         {
             int[] element = [60, -10, 40, 100];
             long[] expected = [570];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = element[0] },
                 new Record { Name = "Tim", Score = element[1] },
                 new Record { Name = "miT", Score = element[2] },
@@ -595,11 +603,12 @@ namespace System.Linq.Tests
         public void NullComparerResultSelectorUsed()
         {
             int[] element = [60, -10, 40, 100];
-            Record[] source = [
+            Record[] source =
+            [
                 new Record { Name = "Tim", Score = element[0] },
                 new Record { Name = "Tim", Score = element[1] },
                 new Record { Name = "miT", Score = element[2] },
-                new Record { Name = "miT", Score = element[3] },
+                new Record { Name = "miT", Score = element[3] }
             ];
 
             long[] expected = [150, 420];
@@ -812,7 +821,7 @@ namespace System.Linq.Tests
                 new Record { Name = "Tim", Score = 25 }
             ];
 
-            Assert.Equal(4, source.GroupBy(r => r.Name, e => e, (r, e) => e).Count());
+            Assert.Equal(4, source.GroupBy(r => r.Name, e=> e, (r, e) => e).Count());
         }
 
         [Fact]
@@ -830,7 +839,7 @@ namespace System.Linq.Tests
         [Fact]
         public void EmptyGroupingCount()
         {
-            Assert.Empty(Enumerable.Empty<int>().GroupBy(i => i));
+            Assert.Equal(0, Enumerable.Empty<int>().GroupBy(i => i).Count());
         }
 
         [Fact]
@@ -848,7 +857,7 @@ namespace System.Linq.Tests
         [Fact]
         public void EmptyGroupingWithResultCount()
         {
-            Assert.Empty(Enumerable.Empty<int>().GroupBy(i => i, (x, y) => x + y.Count()));
+            Assert.Equal(0, Enumerable.Empty<int>().GroupBy(i => i, (x, y) => x + y.Count()).Count());
         }
 
         [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsNotBuiltWithAggressiveTrimming))]

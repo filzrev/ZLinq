@@ -33,12 +33,12 @@ namespace System.Linq.Tests
 
         public static IEnumerable<object[]> TestData()
         {
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(9, 1), 0, 1, 9 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(9, 10), 9, 1, 18 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(-4, 10), 3, 7, -1 };
+            yield return [NumberRangeGuaranteedNotCollectionType(9, 1), 0, 1, 9];
+            yield return [NumberRangeGuaranteedNotCollectionType(9, 10), 9, 1, 18];
+            yield return [NumberRangeGuaranteedNotCollectionType(-4, 10), 3, 7, -1];
 
-            yield return new object[] { new int[] { -4 }, 0, 1, -4 };
-            yield return new object[] { new int[] { 9, 8, 0, -5, 10 }, 4, 1, 10 };
+            yield return [new int[] { -4 }, 0, 1, -4];
+            yield return [new int[] { 9, 8, 0, -5, 10 }, 4, 1, 10];
         }
 
         [Theory]
@@ -263,7 +263,7 @@ namespace System.Linq.Tests
             Assert.Throws<ArgumentOutOfRangeException>("index", () => ForceNotCollection(source).ElementAt(new Index(10)));
             Assert.Throws<ArgumentOutOfRangeException>("index", () => ForceNotCollection(source).ElementAt(^0));
 
-
+            
 
             Assert.Throws<ArgumentOutOfRangeException>("index", () => ForceNotCollection(source).ElementAt(int.MinValue));
             Assert.Throws<ArgumentOutOfRangeException>("index", () => ForceNotCollection(source).ElementAt(^int.MaxValue));

@@ -224,7 +224,7 @@ namespace System.Linq.Tests
             Assert.Equal(Enumerable.Range(10, 1), ordered.Take(11).Skip(10));
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsLinqSpeedOptimized))]
         public void TakeAndSkip_DoesntIterateRangeUnlessNecessary()
         {
             Assert.Empty(Enumerable.Range(0, int.MaxValue).Take(int.MaxValue).OrderBy(i => i).Skip(int.MaxValue - 4).Skip(15));
@@ -329,7 +329,7 @@ namespace System.Linq.Tests
         public void Count()
         {
             Assert.Equal(20, Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(10).Take(20).Count());
-            Assert.Single(Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(2).Skip(1));
+            Assert.Equal(1, Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(2).Skip(1).Count());
         }
 
         [Fact]
@@ -356,8 +356,8 @@ namespace System.Linq.Tests
         [Fact]
         public void EmptyCount()
         {
-            Assert.Empty(Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(100));
-            Assert.Empty(Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(0));
+            Assert.Equal(0, Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Skip(100).Count());
+            Assert.Equal(0, Enumerable.Range(0, 100).Shuffle().OrderBy(i => i).Take(0).Count());
         }
 
         [Fact]
@@ -393,13 +393,13 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementCount()
         {
-            Assert.Single(Enumerable.Range(0, 20).Shuffle().OrderBy(i => i).Skip(10).Take(1));
+            Assert.Equal(1, Enumerable.Range(0, 20).Shuffle().OrderBy(i => i).Skip(10).Take(1).Count());
         }
 
         [Fact]
         public void EnumeratorDoesntContinue()
         {
-            var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().OrderBy(i => i).Skip(1).GetEnumerator();
+            using var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().OrderBy(i => i).Skip(1).GetEnumerator();
             while (enumerator.MoveNext()) { }
             Assert.False(enumerator.MoveNext());
         }
@@ -455,7 +455,7 @@ namespace System.Linq.Tests
         public void SelectArray()
         {
             var source = Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]
@@ -485,7 +485,7 @@ namespace System.Linq.Tests
             Assert.Equal(93, source.RunOnce().OrderBy(i => i).ElementAt(93));
             Assert.Equal(42, source.RunOnce().OrderBy(i => i).ElementAtOrDefault(42));
             Assert.Equal(20, source.RunOnce().OrderBy(i => i).Skip(10).Take(20).Count());
-            Assert.Single(source.RunOnce().OrderBy(i => i).Take(2).Skip(1));
+            Assert.Equal(1, source.RunOnce().OrderBy(i => i).Take(2).Skip(1).Count());
         }
     }
 }

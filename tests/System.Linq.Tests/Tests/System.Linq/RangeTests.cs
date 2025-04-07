@@ -26,7 +26,7 @@ namespace System.Linq.Tests
         {
             for (int i = 0; i < 64; i++)
             {
-                yield return new object[] { i };
+                yield return [i];
             }
         }
 
@@ -55,9 +55,9 @@ namespace System.Linq.Tests
             var array = Enumerable.Range(1, 0).ToArray();
             var array2 = Enumerable.Range(int.MinValue, 0).ToArray();
             var array3 = Enumerable.Range(int.MaxValue, 0).ToArray();
-            Assert.Empty(array);
-            Assert.Empty(array2);
-            Assert.Empty(array3);
+            Assert.Equal(0, array.Length);
+            Assert.Equal(0, array2.Length);
+            Assert.Equal(0, array3.Length);
         }
 
         [Fact]
@@ -78,33 +78,27 @@ namespace System.Linq.Tests
         [Fact]
         public void Range_NotEnumerateAfterEnd()
         {
-            using (var rangeEnum = Enumerable.Range(1, 1).GetEnumerator())
-            {
-                Assert.True(rangeEnum.MoveNext());
-                Assert.False(rangeEnum.MoveNext());
-                Assert.False(rangeEnum.MoveNext());
-            }
+            using var rangeEnum = Enumerable.Range(1, 1).GetEnumerator();
+            Assert.True(rangeEnum.MoveNext());
+            Assert.False(rangeEnum.MoveNext());
+            Assert.False(rangeEnum.MoveNext());
         }
 
         [Fact]
         public void Range_EnumerableAndEnumeratorAreSame()
         {
             var rangeEnumerable = Enumerable.Range(1, 1);
-            using (var rangeEnumerator = rangeEnumerable.GetEnumerator())
-            {
-                Assert.Same(rangeEnumerable, rangeEnumerator);
-            }
+            using var rangeEnumerator = rangeEnumerable.GetEnumerator();
+            Assert.Same(rangeEnumerable, rangeEnumerator);
         }
 
         [Fact]
         public void Range_GetEnumeratorReturnUniqueInstances()
         {
             var rangeEnumerable = Enumerable.Range(1, 1);
-            using (var enum1 = rangeEnumerable.GetEnumerator())
-            using (var enum2 = rangeEnumerable.GetEnumerator())
-            {
-                Assert.NotSame(enum1, enum2);
-            }
+            using var enum1 = rangeEnumerable.GetEnumerator();
+            using var enum2 = rangeEnumerable.GetEnumerator();
+            Assert.NotSame(enum1, enum2);
         }
 
         [Fact]
@@ -216,19 +210,19 @@ namespace System.Linq.Tests
             Assert.Equal(-100, Enumerable.Range(-100, int.MaxValue).FirstOrDefault());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsLinqSpeedOptimized))]
         public void Last()
         {
             Assert.Equal(1000000056, Enumerable.Range(57, 1000000000).Last());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsLinqSpeedOptimized))]
         public void LastOrDefault()
         {
             Assert.Equal(int.MaxValue - 101, Enumerable.Range(-100, int.MaxValue).LastOrDefault());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsLinqSpeedOptimized))]
         public void IListImplementationIsValid()
         {
             Validate(Enumerable.Range(42, 10), [42, 43, 44, 45, 46, 47, 48, 49, 50, 51]);
@@ -270,7 +264,7 @@ namespace System.Linq.Tests
                 list.CopyTo(actual, 1);
                 Assert.Equal(0, actual[0]);
                 Assert.Equal(0, actual[^1]);
-                AssertExtensions.SequenceEqual(expected, actual.AsSpan(1, expected.Length));
+                AssertExtensions.SequenceEqual(expected.AsSpan(), actual.AsSpan(1, expected.Length));
             }
         }
     }

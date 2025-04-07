@@ -11,10 +11,10 @@ namespace System.Linq.Tests
         [Fact]
         public void Empty()
         {
-            Assert.All(IdentityTransforms<int>(), transform =>
+            Assert.All(CreateSources<int>([]), source =>
             {
-                Assert.Equal([], transform([]).AggregateBy(i => i, i => i, (a, i) => a + i));
-                Assert.Equal([], transform([]).AggregateBy(i => i, 0, (a, i) => a + i));
+                Assert.Equal([], source.AggregateBy(i => i, i => i, (a, i) => a + i));
+                Assert.Equal([], source.AggregateBy(i => i, 0, (a, i) => a + i));
             });
         }
 
@@ -68,7 +68,7 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnGetEnumerator();
 
-            var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
+            using var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
 
             Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
         }
@@ -78,7 +78,7 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnMoveNext();
 
-            var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
+            using var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
 
             Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
         }
@@ -88,7 +88,7 @@ namespace System.Linq.Tests
         {
             IEnumerable<int> source = new ThrowsOnCurrentEnumerator();
 
-            var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
+            using var enumerator = source.AggregateBy(x => x, 0, (x, y) => x + y).GetEnumerator();
 
             Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
         }
@@ -227,25 +227,25 @@ namespace System.Linq.Tests
                 [1, 2, 3, 4],
                 i => i % 2 == 0);
 
-            var e = oddsEvens.GetEnumerator();
+            using var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
             KeyValuePair<bool, List<int>> oddsItem = e.Current;
             Assert.False(oddsItem.Key);
             List<int> odds = oddsItem.Value;
-            Assert.Contains(1, odds);
-            Assert.Contains(3, odds);
-            Assert.DoesNotContain(2, odds);
-            Assert.DoesNotContain(4, odds);
+            Assert.True(odds.Contains(1));
+            Assert.True(odds.Contains(3));
+            Assert.False(odds.Contains(2));
+            Assert.False(odds.Contains(4));
 
             Assert.True(e.MoveNext());
             KeyValuePair<bool, List<int>> evensItem = e.Current;
             Assert.True(evensItem.Key);
             List<int> evens = evensItem.Value;
-            Assert.Contains(2, evens);
-            Assert.Contains(4, evens);
-            Assert.DoesNotContain(1, evens);
-            Assert.DoesNotContain(3, evens);
+            Assert.True(evens.Contains(2));
+            Assert.True(evens.Contains(4));
+            Assert.False(evens.Contains(1));
+            Assert.False(evens.Contains(3));
         }
 
         [Fact]
@@ -261,7 +261,7 @@ namespace System.Linq.Tests
                 [1, 2, 3, 4],
                 i => i % 2 == 0);
 
-            var e = oddsEvens.GetEnumerator();
+            using var e = oddsEvens.GetEnumerator();
 
             Assert.True(e.MoveNext());
             KeyValuePair<bool, long> oddsItem = e.Current;

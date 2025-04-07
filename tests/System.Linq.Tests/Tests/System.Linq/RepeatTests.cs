@@ -69,7 +69,7 @@ namespace System.Linq.Tests
         public void Repeat_ZeroCountLeadToEmptySequence()
         {
             var array = Enumerable.Repeat(1, 0).ToArray();
-            Assert.Empty(array);
+            Assert.Equal(0, array.Length);
         }
 
         [Fact]
@@ -82,33 +82,27 @@ namespace System.Linq.Tests
         [Fact]
         public void Repeat_NotEnumerateAfterEnd()
         {
-            using (var repeatEnum = Enumerable.Repeat(1, 1).GetEnumerator())
-            {
-                Assert.True(repeatEnum.MoveNext());
-                Assert.False(repeatEnum.MoveNext());
-                Assert.False(repeatEnum.MoveNext());
-            }
+            using var repeatEnum = Enumerable.Repeat(1, 1).GetEnumerator();
+            Assert.True(repeatEnum.MoveNext());
+            Assert.False(repeatEnum.MoveNext());
+            Assert.False(repeatEnum.MoveNext());
         }
 
         [Fact]
         public void Repeat_EnumerableAndEnumeratorAreSame()
         {
             var repeatEnumerable = Enumerable.Repeat(1, 1);
-            using (var repeatEnumerator = repeatEnumerable.GetEnumerator())
-            {
-                Assert.Same(repeatEnumerable, repeatEnumerator);
-            }
+            using var repeatEnumerator = repeatEnumerable.GetEnumerator();
+            Assert.Same(repeatEnumerable, repeatEnumerator);
         }
 
         [Fact]
         public void Repeat_GetEnumeratorReturnUniqueInstances()
         {
             var repeatEnumerable = Enumerable.Repeat(1, 1);
-            using (var enum1 = repeatEnumerable.GetEnumerator())
-            using (var enum2 = repeatEnumerable.GetEnumerator())
-            {
-                Assert.NotSame(enum1, enum2);
-            }
+            using var enum1 = repeatEnumerable.GetEnumerator();
+            using var enum2 = repeatEnumerable.GetEnumerator();
+            Assert.NotSame(enum1, enum2);
         }
 
         [Fact]
@@ -240,7 +234,7 @@ namespace System.Linq.Tests
             Assert.Equal(42, Enumerable.Repeat("Test", 42).Count());
         }
 
-        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsSpeedOptimized))]
+        [ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsLinqSpeedOptimized))]
         public void ICollectionImplementationIsValid()
         {
             Validate(Enumerable.Repeat(42, 10), [42, 42, 42, 42, 42, 42, 42, 42, 42, 42]);
@@ -282,7 +276,7 @@ namespace System.Linq.Tests
                 list.CopyTo(actual, 1);
                 Assert.Equal(0, actual[0]);
                 Assert.Equal(0, actual[^1]);
-                AssertExtensions.SequenceEqual(expected, actual.AsSpan(1, expected.Length));
+                AssertExtensions.SequenceEqual(expected.AsSpan(), actual.AsSpan(1, expected.Length));
             }
         }
     }

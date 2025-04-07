@@ -197,13 +197,15 @@ namespace System.Linq.Tests
         public static IEnumerable<object[]> SequencesWithDuplicates()
         {
             // Validate an array of different numeric data types.
-            yield return new object[] { new int[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 } };
-            yield return new object[] { new long[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 } };
-            yield return new object[] { new float[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 } };
-            yield return new object[] { new double[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 } };
-            yield return new object[] { new decimal[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 } };
+            yield return [new int[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 }];
+            yield return [new long[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 }];
+            yield return [new float[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 }];
+            yield return [new double[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 }];
+            yield return [new decimal[] { 1, 1, 1, 2, 3, 5, 5, 6, 6, 10 }];
             // Try strings
-            yield return new object[] { new []
+            yield return
+            [
+                new []
                 {
                     "add",
                     "add",
@@ -221,7 +223,7 @@ namespace System.Linq.Tests
                     "namespace",
                     "namespace",
                 }
-            };
+            ];
         }
 
         [Fact]

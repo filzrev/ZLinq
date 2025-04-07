@@ -3,7 +3,7 @@
 
 // Original code: https://github.com/dotnet/runtime/blob/v9.0.3/src/libraries/Common/tests/System/Linq/SkipTakeData.cs
 
-namespace System.Linq;
+namespace System.Linq.Tests;
 
 public class SkipTakeData
 {
