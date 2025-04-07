@@ -220,7 +220,7 @@ namespace System.Linq.Tests
             AssertExtensions.Throws<ArgumentNullException>("first", () => ((byte[])null).SequenceEqual(new byte[1]));
             AssertExtensions.Throws<ArgumentNullException>("second", () => new byte[1].SequenceEqual(null));
 
-            Assert.False(new byte[1].SequenceEqual(new byte[0]));
+            Assert.False(new byte[1].SequenceEqual([]));
             Assert.False(new byte[0].SequenceEqual(new byte[1]));
 
             var r = new Random();

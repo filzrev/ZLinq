@@ -160,13 +160,13 @@ namespace ZLinq.Tests
             Assert.Equal(convertedList, sourceList.Select(i => i.ToString()).ToList());
 
             Assert.Equal(sourceList, sourceList.Where(i => true).ToList());
-            Assert.Equal(ReadOnlyCollection<int>.Empty, sourceList.Where(i => false).ToList());
+            Assert.Equal([], sourceList.Where(i => false).ToList());
 
             Assert.Equal(convertedList, sourceList.Where(i => true).Select(i => i.ToString()).ToList());
-            Assert.Equal(ReadOnlyCollection<string>.Empty, sourceList.Where(i => false).Select(i => i.ToString()).ToList());
+            Assert.Equal([], sourceList.Where(i => false).Select(i => i.ToString()).ToList());
 
             Assert.Equal(convertedList, sourceList.Select(i => i.ToString()).Where(s => s is not null).ToList());
-            Assert.Equal(ReadOnlyCollection<string>.Empty, sourceList.Select(i => i.ToString()).Where(s => s is null).ToList());
+            Assert.Equal([], sourceList.Select(i => i.ToString()).Where(s => s is null).ToList());
         }
 
         [Fact]

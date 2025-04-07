@@ -95,7 +95,7 @@ namespace System.Linq.Tests
                 new AnagramRec{ name = "miT", orderID = 43455, total = 10 },
                 new AnagramRec{ name = "Prakash", orderID = 323232, total = 9 }
             ];
-            JoinRec[] expected = [new JoinRec{ name = "Prakash", orderID = 323232, total = 9 }];
+            JoinRec[] expected = [new JoinRec { name = "Prakash", orderID = 323232, total = 9 }];
 
             Assert.Equal(expected, outer.Join(inner, e => e.name, e => e.name, createJoinRec, null));
         }

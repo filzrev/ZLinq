@@ -50,14 +50,11 @@ namespace System.Linq.Tests
         {
             IEqualityComparer<string> defaultComparer = EqualityComparer<string>.Default;
             yield return [new string[1], new string[0], defaultComparer, new string[0]];
-            yield return [new string[] { null, null, string.Empty }, new string[2], defaultComparer,  new string[] { null }
-            ];
+            yield return [new string[] { null, null, string.Empty }, new string[2], defaultComparer, new string[] { null }];
             yield return [new string[2], new string[0], defaultComparer, new string[0]];
 
-            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, null, new string[0]
-            ];
-            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, new AnagramEqualityComparer(), new string[] { "Bob", "Mike" }
-            ];
+            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, null, new string[0]];
+            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, new AnagramEqualityComparer(), new string[] { "Bob", "Mike" }];
         }
 
         [Theory]
@@ -220,7 +217,7 @@ namespace System.Linq.Tests
                 second: ["bBo", "shriC"],
                 keySelector: x => x,
                 null,
-                expected: Array.Empty<string>());
+                expected: []);
 
             yield return WrapArgs(
                 first: ["Bob", "Tim", "Robert", "Chris"],
@@ -241,7 +238,7 @@ namespace System.Linq.Tests
                 second: ["moT"],
                 keySelector: x => x.Name,
                 comparer: null,
-                expected: Array.Empty<(string Name, int Age)>());
+                expected: []);
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },

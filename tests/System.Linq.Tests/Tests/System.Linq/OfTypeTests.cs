@@ -162,7 +162,7 @@ namespace System.Linq.Tests
         public void ToArray()
         {
             IEnumerable<object> source = [1, 2, 3, 4, 5];
-            Assert.Equal(new int[] { 1, 2, 3, 4, 5 }, source.OfType<int>().ToArray());
+            Assert.Equal([1, 2, 3, 4, 5], source.OfType<int>().ToArray());
             Assert.Empty(source.OfType<double>().ToArray());
         }
 
@@ -177,8 +177,8 @@ namespace System.Linq.Tests
         [Fact]
         public void Count()
         {
-            Assert.Equal(0, new object[] { }.OfType<string>().Count());
-            Assert.Equal(1, new object[] { "abc" }.OfType<string>().Count());
+            Assert.Empty(new object[] { }.OfType<string>());
+            Assert.Single(new object[] { "abc" }.OfType<string>());
             Assert.Equal(2, new object[] { "abc", "def" }.OfType<string>().Count());
             Assert.Equal(2, new object[] { "abc", 42, "def" }.OfType<string>().Count());
             Assert.Equal(2, new object[] { "abc", 42, null, "def" }.OfType<string>().Count());
