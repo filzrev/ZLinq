@@ -180,6 +180,9 @@ internal static partial class ZLinqDropInExtensions
  => source.AsValueEnumerable().Join(inner, outerKeySelector, innerKeySelector, resultSelector, comparer);
     public static ValueEnumerable<Join<FromMemory<TOuter>, FromEnumerable<TInner>, TOuter, TInner, TKey, TResult>, TResult> Join<TOuter, TInner, TKey, TResult>(this Memory<TOuter> source, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, TInner, TResult> resultSelector) => source.AsValueEnumerable().Join(inner, outerKeySelector, innerKeySelector, resultSelector);
     public static ValueEnumerable<Join<FromMemory<TOuter>, FromEnumerable<TInner>, TOuter, TInner, TKey, TResult>, TResult> Join<TOuter, TInner, TKey, TResult>(this Memory<TOuter> source, IEnumerable<TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter, TInner, TResult> resultSelector, IEqualityComparer<TKey>? comparer) => source.AsValueEnumerable().Join(inner, outerKeySelector, innerKeySelector, resultSelector, comparer);
+    public static String JoinToString<TSource>(this Memory<TSource> source, String separator) => source.AsValueEnumerable().JoinToString(separator);
+    public static String JoinToString<TSource>(this Memory<TSource> source, Char separator) => source.AsValueEnumerable().JoinToString(separator);
+    public static String JoinToString<TSource>(this Memory<TSource> source, ReadOnlySpan<Char> separator) => source.AsValueEnumerable().JoinToString(separator);
     public static TSource Last<TSource>(this Memory<TSource> source) => source.AsValueEnumerable().Last();
     public static TSource Last<TSource>(this Memory<TSource> source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().Last(predicate);
     public static TSource? LastOrDefault<TSource>(this Memory<TSource> source) => source.AsValueEnumerable().LastOrDefault();

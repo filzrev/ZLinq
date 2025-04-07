@@ -104,7 +104,7 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
-        if (methodInfo.Name is "Select" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("WhereSelect") || x.Name.Contains("WhereArraySelect")))
+        if (methodInfo.Name is "Select" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("WhereSelect") || x.Name.Contains("WhereArraySelect") || x.Name.Contains("RangeSelect")))
         {
             return null;
         }
@@ -123,6 +123,14 @@ internal static partial class ZLinqDropInExtensions
         {
             var firstParameter = methodInfo.GetParameters()[0].ParameterType.ToString();
             if (firstParameter.Contains("Where") || firstParameter.Contains("OfType"))
+            {
+                return null;
+            }
+        }
+
+        if (methodInfo.Name is "ToArray" or "ToList")
+        {
+            if (methodInfo.ReturnType.ToString().Contains("TResult"))
             {
                 return null;
             }
