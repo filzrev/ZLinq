@@ -32,10 +32,10 @@ namespace ZLinq.Tests
 
         public static IEnumerable<object[]> Int_TestData()
         {
-            yield return new object[] { new int[0], new int[0], new int[0] };
-            yield return new object[] { new int[] { -5, 3, -2, 6, 9 }, new int[] { 0, 5, 2, 10, 20 }, new int[0] };
-            yield return new object[] { new int[] { 1, 2, 2, 3, 4, 3, 5 }, new int[] { 1, 4, 4, 2, 2, 2 }, new int[] { 1, 2, 4 } };
-            yield return new object[] { new int[] { 1, 1, 1, 1, 1, 1 }, new int[] { 1, 1, 1, 1, 1 }, new int[] { 1 } };
+            yield return [new int[0], new int[0], new int[0]];
+            yield return [new int[] { -5, 3, -2, 6, 9 }, new int[] { 0, 5, 2, 10, 20 }, new int[0]];
+            yield return [new int[] { 1, 2, 2, 3, 4, 3, 5 }, new int[] { 1, 4, 4, 2, 2, 2 }, new int[] { 1, 2, 4 }];
+            yield return [new int[] { 1, 1, 1, 1, 1, 1 }, new int[] { 1, 1, 1, 1, 1 }, new int[] { 1 }];
         }
 
         [Theory]
@@ -49,12 +49,11 @@ namespace ZLinq.Tests
         public static IEnumerable<object[]> String_TestData()
         {
             IEqualityComparer<string> defaultComparer = EqualityComparer<string>.Default;
-            yield return new object[] { new string[1], new string[0], defaultComparer, new string[0] };
-            yield return new object[] { new string[] { null, null, string.Empty }, new string[2], defaultComparer, new string[] { null } };
-            yield return new object[] { new string[2], new string[0], defaultComparer, new string[0] };
-
-            yield return new object[] { new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, null, new string[0] };
-            yield return new object[] { new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, new AnagramEqualityComparer(), new string[] { "Bob", "Mike" } };
+            yield return [new string[1], new string[0], defaultComparer, new string[0]];
+            yield return [new string[] { null, null, string.Empty }, new string[2], defaultComparer, new string[] { null }];
+            yield return [new string[2], new string[0], defaultComparer, new string[0]];
+            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, null, new string[0]];
+            yield return [new string[] { "Tim", "Bob", "Mike", "Robert" }, new string[] { "ekiM", "bBo" }, new AnagramEqualityComparer(), new string[] { "Bob", "Mike" }];
         }
 
         [Theory]
@@ -70,9 +69,9 @@ namespace ZLinq.Tests
 
         public static IEnumerable<object[]> NullableInt_TestData()
         {
-            yield return new object[] { new int?[0], new int?[] { -5, 0, null, 1, 2, 9, 2 }, new int?[0] };
-            yield return new object[] { new int?[] { -5, 0, 1, 2, null, 9, 2 }, new int?[0], new int?[0] };
-            yield return new object[] { new int?[] { 1, 2, null, 3, 4, 5, 6 }, new int?[] { 6, 7, 7, 7, null, 8, 1 }, new int?[] { 1, null, 6 } };
+            yield return [new int?[0], new int?[] { -5, 0, null, 1, 2, 9, 2 }, new int?[0]];
+            yield return [new int?[] { -5, 0, 1, 2, null, 9, 2 }, new int?[0], new int?[0]];
+            yield return [new int?[] { 1, 2, null, 3, 4, 5, 6 }, new int?[] { 6, 7, 7, 7, null, 8, 1 }, new int?[] { 1, null, 6 }];
         }
 
         [Theory]
@@ -216,7 +215,7 @@ namespace ZLinq.Tests
                 second: ["bBo", "shriC"],
                 keySelector: x => x,
                 null,
-                expected: Array.Empty<string>());
+                expected: []);
 
             yield return WrapArgs(
                 first: ["Bob", "Tim", "Robert", "Chris"],
@@ -237,7 +236,7 @@ namespace ZLinq.Tests
                 second: ["moT"],
                 keySelector: x => x.Name,
                 comparer: null,
-                expected: Array.Empty<(string Name, int Age)>());
+                expected: []);
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },

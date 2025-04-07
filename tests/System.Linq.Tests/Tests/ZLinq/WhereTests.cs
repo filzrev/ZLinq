@@ -44,30 +44,31 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             Func<bool>[] source = [() => { funcCalled = true; return true; }];
 
-            {
-                var query = source.Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
         public void Where_List_ExecutionIsDeferred()
         {
             bool funcCalled = false;
-            List<Func<bool>> source = new List<Func<bool>>() { () => { funcCalled = true; return true; } };
+            List<Func<bool>> source =
+            [
+                () =>
+                {
+                    funcCalled = true;
+                    return true;
+                }
+            ];
 
-            {
-                var query = source.Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -76,14 +77,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             IReadOnlyCollection<Func<bool>> source = new ReadOnlyCollection<Func<bool>>(new List<Func<bool>>() { () => { funcCalled = true; return true; } });
 
-            {
-                var query = source.Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -92,14 +90,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             ICollection<Func<bool>> source = new LinkedList<Func<bool>>(new List<Func<bool>>() { () => { funcCalled = true; return true; } });
 
-            {
-                var query = source.Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -108,14 +103,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             IEnumerable<Func<bool>> source = Enumerable.Repeat((Func<bool>)(() => { funcCalled = true; return true; }), 1);
 
-            {
-                var query = source.Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -124,30 +116,31 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             Func<bool>[] source = [() => { funcCalled = true; return true; }];
 
-            {
-                var query = source.Where(value => value()).Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value()).Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
         public void WhereWhere_List_ExecutionIsDeferred()
         {
             bool funcCalled = false;
-            List<Func<bool>> source = new List<Func<bool>>() { () => { funcCalled = true; return true; } };
+            List<Func<bool>> source =
+            [
+                () =>
+                {
+                    funcCalled = true;
+                    return true;
+                }
+            ];
 
-            {
-                var query = source.Where(value => value()).Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value()).Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -156,14 +149,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             IReadOnlyCollection<Func<bool>> source = new ReadOnlyCollection<Func<bool>>(new List<Func<bool>>() { () => { funcCalled = true; return true; } });
 
-            {
-                var query = source.Where(value => value()).Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value()).Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -172,14 +162,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             ICollection<Func<bool>> source = new LinkedList<Func<bool>>(new List<Func<bool>>() { () => { funcCalled = true; return true; } });
 
-            {
-                var query = source.Where(value => value()).Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value()).Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         [Fact]
@@ -188,14 +175,11 @@ namespace ZLinq.Tests
             bool funcCalled = false;
             IEnumerable<Func<bool>> source = Enumerable.Repeat((Func<bool>)(() => { funcCalled = true; return true; }), 1);
 
-            {
-                var query = source.Where(value => value()).Where(value => value());
-                Assert.False(funcCalled);
-            }
-            {
-                var query = source.Where((value, index) => value());
-                Assert.False(funcCalled);
-            }
+            var query = source.Where(value => value()).Where(value => value());
+            Assert.False(funcCalled);
+
+            var query2 = source.Where((value, index) => value());
+            Assert.False(funcCalled);
         }
 
         #endregion
@@ -244,7 +228,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Where_List_ReturnsExpectedValues_True()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> truePredicate = (value) => true;
 
             var result = source.Where(truePredicate);
@@ -259,7 +243,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Where_List_ReturnsExpectedValues_False()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> falsePredicate = (value) => false;
 
             var result = source.Where(falsePredicate);
@@ -270,7 +254,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Where_List_ReturnsExpectedValues_Complex()
         {
-            List<int> source = new List<int> { 2, 1, 3, 5, 4 };
+            List<int> source = [2, 1, 3, 5, 4];
             Func<int, int, bool> complexPredicate = (value, index) => { return (value == index); };
 
             var result = source.Where(complexPredicate);
@@ -421,7 +405,7 @@ namespace ZLinq.Tests
             int[] source = [1];
             Func<int, bool> truePredicate = (value) => true;
 
-            var enumerator = source.Where(truePredicate).GetEnumerator();
+            using var enumerator = source.Where(truePredicate).GetEnumerator();
             while (enumerator.MoveNext()) ;
 
             Assert.Equal(default(int), enumerator.Current);
@@ -430,10 +414,10 @@ namespace ZLinq.Tests
         [Fact]
         public void Where_List_CurrentIsDefaultOfTAfterEnumeration()
         {
-            List<int> source = new List<int>() { 1 };
+            List<int> source = [1];
             Func<int, bool> truePredicate = (value) => true;
 
-            var enumerator = source.Where(truePredicate).GetEnumerator();
+            using var enumerator = source.Where(truePredicate).GetEnumerator();
             while (enumerator.MoveNext()) ;
 
             Assert.Equal(default(int), enumerator.Current);
@@ -445,7 +429,7 @@ namespace ZLinq.Tests
             IReadOnlyCollection<int> source = new ReadOnlyCollection<int>(new List<int>() { 1 });
             Func<int, bool> truePredicate = (value) => true;
 
-            var enumerator = source.Where(truePredicate).GetEnumerator();
+            using var enumerator = source.Where(truePredicate).GetEnumerator();
             while (enumerator.MoveNext()) ;
 
             Assert.Equal(default(int), enumerator.Current);
@@ -469,7 +453,7 @@ namespace ZLinq.Tests
             IEnumerable<int> source = Enumerable.Repeat(1, 1);
             Func<int, bool> truePredicate = (value) => true;
 
-            var enumerator = source.Where(truePredicate).GetEnumerator();
+            using var enumerator = source.Where(truePredicate).GetEnumerator();
             while (enumerator.MoveNext()) ;
 
             Assert.Equal(default(int), enumerator.Current);
@@ -491,7 +475,7 @@ namespace ZLinq.Tests
         [Fact]
         public void WhereWhere_List_ReturnsExpectedValues()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
 
             var result = source.Where(evenPredicate).Where(evenPredicate);
@@ -571,7 +555,7 @@ namespace ZLinq.Tests
         [Fact]
         public void WhereSelect_List_ReturnsExpectedValues()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -585,7 +569,7 @@ namespace ZLinq.Tests
         [Fact]
         public void WhereSelectSelect_List_ReturnsExpectedValues()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -698,7 +682,7 @@ namespace ZLinq.Tests
         [Fact]
         public void SelectWhere_List_ReturnsExpectedValues()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -815,6 +799,7 @@ namespace ZLinq.Tests
             Assert.True(enumerator.MoveNext());
             Assert.Equal(2, enumerator.Current);
         }
+
 
         [Fact]
         public void Where_SourceThrowsOnMoveNext()
@@ -1148,19 +1133,18 @@ namespace ZLinq.Tests
                 Assert.Equal(source, equivalent.ToList());
                 Assert.Equal(source.Count(), equivalent.Count()); // Count may be optimized. The above asserts do not imply this will pass.
 
-                using (var en = equivalent.GetEnumerator())
+                using var en = equivalent.GetEnumerator();
+
+                for (int i = 0; i < equivalent.Count(); i++)
                 {
-                    for (int i = 0; i < equivalent.Count(); i++)
-                    {
-                        Assert.True(en.MoveNext());
-                    }
-
-                    Assert.False(en.MoveNext()); // No more items, this should dispose.
-                    Assert.Equal(0, en.Current); // Reset to default value
-
-                    Assert.False(en.MoveNext()); // Want to be sure MoveNext after disposing still works.
-                    Assert.Equal(0, en.Current);
+                    Assert.True(en.MoveNext());
                 }
+
+                Assert.False(en.MoveNext()); // No more items, this should dispose.
+                Assert.Equal(0, en.Current); // Reset to default value
+
+                Assert.False(en.MoveNext()); // Want to be sure MoveNext after disposing still works.
+                Assert.Equal(0, en.Current);
             }
             {
                 var equivalent = source.Where(s => true).Select(s => s);
@@ -1169,63 +1153,58 @@ namespace ZLinq.Tests
                 Assert.Equal(source, equivalent.ToList());
                 Assert.Equal(source.Count(), equivalent.Count()); // Count may be optimized. The above asserts do not imply this will pass.
 
-                using (var en = equivalent.GetEnumerator())
+                using var en = equivalent.GetEnumerator();
+
+                for (int i = 0; i < equivalent.Count(); i++)
                 {
-                    for (int i = 0; i < equivalent.Count(); i++)
-                    {
-                        Assert.True(en.MoveNext());
-                    }
-
-                    Assert.False(en.MoveNext()); // No more items, this should dispose.
-                    Assert.Equal(0, en.Current); // Reset to default value
-
-                    Assert.False(en.MoveNext()); // Want to be sure MoveNext after disposing still works.
-                    Assert.Equal(0, en.Current);
+                    Assert.True(en.MoveNext());
                 }
+
+                Assert.False(en.MoveNext()); // No more items, this should dispose.
+                Assert.Equal(0, en.Current); // Reset to default value
+
+                Assert.False(en.MoveNext()); // Want to be sure MoveNext after disposing still works.
+                Assert.Equal(0, en.Current);
             }
         }
 
         [Fact]
         public void WhereFirstLast()
         {
-            Assert.All(IdentityTransforms<int>(), transform =>
+            Assert.All(CreateSources(Enumerable.Range(0, 10)), source =>
             {
-                IEnumerable<int> data = transform(Enumerable.Range(0, 10));
+                Assert.Equal(3, source.Where(i => i == 3).First());
+                Assert.Equal(0, source.Where(i => i % 2 == 0).First());
 
-                Assert.Equal(3, data.Where(i => i == 3).First());
-                Assert.Equal(0, data.Where(i => i % 2 == 0).First());
+                Assert.Equal(3, source.Where(i => i == 3).Last());
+                Assert.Equal(8, source.Where(i => i % 2 == 0).Last());
 
-                Assert.Equal(3, data.Where(i => i == 3).Last());
-                Assert.Equal(8, data.Where(i => i % 2 == 0).Last());
+                Assert.Equal(3, source.Where(i => i == 3).ElementAt(0));
+                Assert.Equal(8, source.Where(i => i % 2 == 0).ElementAt(4));
 
-                Assert.Equal(3, data.Where(i => i == 3).ElementAt(0));
-                Assert.Equal(8, data.Where(i => i % 2 == 0).ElementAt(4));
-
-                Assert.Throws<InvalidOperationException>(() => data.Where(i => i == 10).First());
-                Assert.Throws<InvalidOperationException>(() => data.Where(i => i == 10).Last());
-                Assert.Throws<ArgumentOutOfRangeException>(() => data.Where(i => i == 10).ElementAt(0));
+                Assert.Throws<InvalidOperationException>(() => source.Where(i => i == 10).First());
+                Assert.Throws<InvalidOperationException>(() => source.Where(i => i == 10).Last());
+                Assert.Throws<ArgumentOutOfRangeException>(() => source.Where(i => i == 10).ElementAt(0));
             });
         }
 
         [Fact]
         public void WhereSelectFirstLast()
         {
-            Assert.All(IdentityTransforms<int>(), transform =>
+            Assert.All(CreateSources(Enumerable.Range(0, 10)), source =>
             {
-                IEnumerable<int> data = transform(Enumerable.Range(0, 10));
+                Assert.Equal(6, source.Where(i => i == 3).Select(i => i * 2).First());
+                Assert.Equal(0, source.Where(i => i % 2 == 0).Select(i => i * 2).First());
 
-                Assert.Equal(6, data.Where(i => i == 3).Select(i => i * 2).First());
-                Assert.Equal(0, data.Where(i => i % 2 == 0).Select(i => i * 2).First());
+                Assert.Equal(6, source.Where(i => i == 3).Select(i => i * 2).Last());
+                Assert.Equal(16, source.Where(i => i % 2 == 0).Select(i => i * 2).Last());
 
-                Assert.Equal(6, data.Where(i => i == 3).Select(i => i * 2).Last());
-                Assert.Equal(16, data.Where(i => i % 2 == 0).Select(i => i * 2).Last());
+                Assert.Equal(6, source.Where(i => i == 3).Select(i => i * 2).ElementAt(0));
+                Assert.Equal(16, source.Where(i => i % 2 == 0).Select(i => i * 2).ElementAt(4));
 
-                Assert.Equal(6, data.Where(i => i == 3).Select(i => i * 2).ElementAt(0));
-                Assert.Equal(16, data.Where(i => i % 2 == 0).Select(i => i * 2).ElementAt(4));
-
-                Assert.Throws<InvalidOperationException>(() => data.Where(i => i == 10).Select(i => i * 2).First());
-                Assert.Throws<InvalidOperationException>(() => data.Where(i => i == 10).Select(i => i * 2).Last());
-                Assert.Throws<ArgumentOutOfRangeException>(() => data.Where(i => i == 10).Select(i => i * 2).ElementAt(0));
+                Assert.Throws<InvalidOperationException>(() => source.Where(i => i == 10).Select(i => i * 2).First());
+                Assert.Throws<InvalidOperationException>(() => source.Where(i => i == 10).Select(i => i * 2).Last());
+                Assert.Throws<ArgumentOutOfRangeException>(() => source.Where(i => i == 10).Select(i => i * 2).ElementAt(0));
             });
         }
 
@@ -1233,9 +1212,9 @@ namespace ZLinq.Tests
         {
             IEnumerable<int> seq = GenerateRandomSequnce(seed: 0xdeadbeef, count: 10);
 
-            foreach (var seq2 in IdentityTransforms<int>().Select(t => t(seq)).ToArray())
+            foreach (IEnumerable<int> seq2 in CreateSources(seq))
             {
-                yield return new object[] { seq2 };
+                yield return [seq2];
             }
         }
 

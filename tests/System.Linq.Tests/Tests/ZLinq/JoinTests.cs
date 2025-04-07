@@ -329,8 +329,8 @@ namespace ZLinq.Tests
         [Fact]
         public void SelectorsReturnNull()
         {
-            int?[] inner = [null, null, null];
-            int?[] outer = [null, null];
+            int?[] inner = [null, null];
+            int?[] outer = [null, null, null];
             Assert.Empty(outer.Join(inner, e => e, e => e, (x, y) => x));
         }
 

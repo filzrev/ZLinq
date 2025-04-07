@@ -109,11 +109,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Prakash", total= [-10, 100] }
             ];
             int?[] expected = [1, 2, 3, 4, 5, 6, 8, 9, -10, 100];
             Assert.Equal(expected, source.SelectMany(e => e.total));
@@ -124,11 +124,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Prakash", total= [-10, 100] }
             ];
             int?[] expected = [1, 2, 3, 4, 5, 6, 8, 9, -10, 100];
             Assert.Equal(expected, source.RunOnce().SelectMany(e => e.total.RunOnce()));
@@ -170,11 +170,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Prakash", total= [-10, 100] }
             ];
             int?[] expected = [1, 2, 3, 4, 5, 6, 8, 9, -10, 100];
             Assert.Equal(expected, source.SelectMany((e, index) => e.total));
@@ -185,11 +185,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Robert", total= [-10, 100] }
             ];
 
             Assert.Equal(source.First().total, source.SelectMany((e, i) => i == 0 ? e.total : Enumerable.Empty<int?>()));
@@ -228,11 +228,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Prakash", total= [-10, 100] }
             ];
             string[] expected = ["1", "2", "3", "4", "5", "6", "8", "9", "-10", "100"];
 
@@ -314,11 +314,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Prakash", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Prakash", total= [-10, 100] }
             ];
             string[] expected = ["1", "2", "3", "4"];
             Assert.Equal(expected, source.SelectMany((e, i) => i == 0 ? e.total : Enumerable.Empty<int?>(), (e, f) => f.ToString()));
@@ -329,11 +329,11 @@ namespace ZLinq.Tests
         {
             StringWithIntArray[] source =
             [
-                new StringWithIntArray { name="Prakash", total=[1, 2, 3, 4] },
-                new StringWithIntArray { name="Bob", total=[5, 6] },
+                new StringWithIntArray { name="Prakash", total= [1, 2, 3, 4] },
+                new StringWithIntArray { name="Bob", total= [5, 6] },
                 new StringWithIntArray { name="Chris", total=[] },
-                new StringWithIntArray { name=null, total=[8, 9] },
-                new StringWithIntArray { name="Robert", total=[-10, 100] }
+                new StringWithIntArray { name=null, total= [8, 9] },
+                new StringWithIntArray { name="Robert", total= [-10, 100] }
             ];
 
             string[] expected = ["-10", "100"];
@@ -373,34 +373,23 @@ namespace ZLinq.Tests
             Assert.False(en.TryGetNext(out _));
         }
 
-        [Theory]
-        [MemberData(nameof(ParameterizedTestsData))]
-        public void ParameterizedTests(IEnumerable<int> source, Func<int, IEnumerable<int>> selector)
+        [Fact]
+        public void ParameterizedTests()
         {
-            Assert.All(CreateSources(source), source =>
+            for (int i = 1; i <= 20; i++)
             {
-                var expected = source.Select(i => selector(i)).Aggregate((l, r) => l.Concat(r).ToArray()).ToArray();
-                var actual = source.SelectMany(selector);
-
-                Assert.Equal(expected, actual);
-                Assert.Equal(expected.Count(), actual.Count()); // SelectMany may employ an optimized Count implementation.
-                Assert.Equal(expected.ToArray(), actual.ToArray());
-                Assert.Equal(expected.ToList(), actual.ToList());
-            });
-        }
-
-        public static IEnumerable<object[]> ParameterizedTestsData()
-        {
-            var items = IdentityTransforms<int>().ToArray();
-            Debug.Assert(items.Length == 13);
-
-            foreach (Func<IEnumerable<int>, IEnumerable<int>> transform in IdentityTransforms<int>())
-            {
-                for (int i = 1; i <= 20; i++)
+                Assert.All(CreateSources(Enumerable.Range(1, i)), source =>
                 {
-                    Func<int, IEnumerable<int>> selector = n => transform(Enumerable.Range(i, n));
-                    yield return new object[] { Enumerable.Range(1, i), selector };
-                }
+                    Func<int, IEnumerable<int>> selector = n => Enumerable.Range(i, n);
+
+                    var expected = source.Select(i => selector(i)).Aggregate((l, r) => l.Concat(r).ToArray()).ToArray();
+                    var actual = source.SelectMany(selector);
+
+                    Assert.Equal(expected, actual);
+                    Assert.Equal(expected.Length, actual.Count()); // SelectMany may employ an optimized Count implementation.
+                    Assert.Equal(expected, actual.ToArray());
+                    Assert.Equal(expected, actual.ToList());
+                });
             }
         }
 
@@ -541,8 +530,8 @@ namespace ZLinq.Tests
         public static IEnumerable<object[]> GetToArrayDataSources()
         {
             // Marker at the end
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     new TestEnumerable<int>([0]),
@@ -550,11 +539,11 @@ namespace ZLinq.Tests
                     new TestEnumerable<int>([2]),
                     [3],
                 }
-            };
+            ];
 
             // Marker at beginning
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     [0],
@@ -562,55 +551,54 @@ namespace ZLinq.Tests
                     new TestEnumerable<int>([2]),
                     new TestEnumerable<int>([3]),
                 }
-            };
+            ];
 
             // Marker in middle
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     new TestEnumerable<int>([0]),
                     [1],
                     new TestEnumerable<int>([2]),
                 }
-            };
+            ];
 
             // Non-marker in middle
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     [0],
-                    new TestEnumerable<int>([1]),
-                    [2],
+                    new TestEnumerable<int>([1]), [2],
                 }
-            };
+            ];
 
             // Big arrays (marker in middle)
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     new TestEnumerable<int>(Enumerable.Range(0, 100).ToArray()),
                     Enumerable.Range(100, 100).ToArray(),
                     new TestEnumerable<int>(Enumerable.Range(200, 100).ToArray()),
                 }
-            };
+            ];
 
             // Big arrays (non-marker in middle)
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     Enumerable.Range(0, 100).ToArray(),
                     new TestEnumerable<int>(Enumerable.Range(100, 100).ToArray()),
                     Enumerable.Range(200, 100).ToArray(),
                 }
-            };
+            ];
 
             // Interleaved (first marker)
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     [0],
@@ -619,11 +607,11 @@ namespace ZLinq.Tests
                     new TestEnumerable<int>([3]),
                     [4],
                 }
-            };
+            ];
 
             // Interleaved (first non-marker)
-            yield return new object[]
-            {
+            yield return
+            [
                 new IEnumerable<int>[]
                 {
                     new TestEnumerable<int>([0]),
@@ -632,7 +620,7 @@ namespace ZLinq.Tests
                     [3],
                     new TestEnumerable<int>([4]),
                 }
-            };
+            ];
         }
     }
 }

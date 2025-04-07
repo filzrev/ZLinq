@@ -30,15 +30,15 @@ namespace ZLinq.Tests
 
         public static IEnumerable<object[]> LongCount_TestData()
         {
-            yield return new object[] { new int[0], null, 0L };
-            yield return new object[] { new int[] { 3 }, null, 1L };
+            yield return [new int[0], null, 0L];
+            yield return [new int[] { 3 }, null, 1L];
 
             Func<int, bool> isEvenFunc = IsEven;
-            yield return new object[] { new int[0], isEvenFunc, 0L };
-            yield return new object[] { new int[] { 4 }, isEvenFunc, 1L };
-            yield return new object[] { new int[] { 5 }, isEvenFunc, 0L };
-            yield return new object[] { new int[] { 2, 5, 7, 9, 29, 10 }, isEvenFunc, 2L };
-            yield return new object[] { new int[] { 2, 20, 22, 100, 50, 10 }, isEvenFunc, 6L };
+            yield return [new int[0], isEvenFunc, 0L];
+            yield return [new int[] { 4 }, isEvenFunc, 1L];
+            yield return [new int[] { 5 }, isEvenFunc, 0L];
+            yield return [new int[] { 2, 5, 7, 9, 29, 10 }, isEvenFunc, 2L];
+            yield return [new int[] { 2, 20, 22, 100, 50, 10 }, isEvenFunc, 6L];
         }
 
         [Theory]

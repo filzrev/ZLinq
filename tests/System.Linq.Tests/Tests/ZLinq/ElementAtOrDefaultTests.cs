@@ -33,18 +33,18 @@ namespace ZLinq.Tests
 
         public static IEnumerable<object[]> TestData()
         {
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(9, 1), 0, 1, 9 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(9, 10), 9, 1, 18 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(-4, 10), 3, 7, -1 };
+            yield return [NumberRangeGuaranteedNotCollectionType(9, 1), 0, 1, 9];
+            yield return [NumberRangeGuaranteedNotCollectionType(9, 10), 9, 1, 18];
+            yield return [NumberRangeGuaranteedNotCollectionType(-4, 10), 3, 7, -1];
 
-            yield return new object[] { new int[] { 1, 2, 3, 4 }, 4, 0, 0 };
-            yield return new object[] { new int[0], 0, 0, 0 };
-            yield return new object[] { new int[] { -4 }, 0, 1, -4 };
-            yield return new object[] { new int[] { 9, 8, 0, -5, 10 }, 4, 1, 10 };
+            yield return [new int[] { 1, 2, 3, 4 }, 4, 0, 0];
+            yield return [new int[0], 0, 0, 0];
+            yield return [new int[] { -4 }, 0, 1, -4];
+            yield return [new int[] { 9, 8, 0, -5, 10 }, 4, 1, 10];
 
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(-4, 5), -1, 6, 0 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(5, 5), 5, 0, 0 };
-            yield return new object[] { NumberRangeGuaranteedNotCollectionType(0, 0), 0, 0, 0 };
+            yield return [NumberRangeGuaranteedNotCollectionType(-4, 5), -1, 6, 0];
+            yield return [NumberRangeGuaranteedNotCollectionType(5, 5), 5, 0, 0];
+            yield return [NumberRangeGuaranteedNotCollectionType(0, 0), 0, 0, 0];
         }
 
         [Theory]

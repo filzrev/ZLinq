@@ -150,13 +150,13 @@ namespace ZLinq.Tests
             Assert.Equal(convertedStrings, sourceIntegers.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceIntegers, sourceIntegers.Where(i => true).ToArray());
-            Assert.Equal(Array.Empty<int>(), sourceIntegers.Where(i => false).ToArray());
+            Assert.Equal([], sourceIntegers.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceIntegers.Where(i => true).Select(i => i.ToString()).ToArray());
-            Assert.Equal(Array.Empty<string>(), sourceIntegers.Where(i => false).Select(i => i.ToString()).ToArray());
+            Assert.Equal([], sourceIntegers.Where(i => false).Select(i => i.ToString()).ToArray());
 
             Assert.Equal(convertedStrings, sourceIntegers.Select(i => i.ToString()).Where(s => s is not null).ToArray());
-            Assert.Equal(Array.Empty<string>(), sourceIntegers.Select(i => i.ToString()).Where(s => s is null).ToArray());
+            Assert.Equal([], sourceIntegers.Select(i => i.ToString()).Where(s => s is null).ToArray());
         }
 
         [Theory]
@@ -170,13 +170,13 @@ namespace ZLinq.Tests
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceList, sourceList.Where(i => true).ToArray());
-            Assert.Equal(Array.Empty<int>(), sourceList.Where(i => false).ToArray());
+            Assert.Equal([], sourceList.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceList.Where(i => true).Select(i => i.ToString()).ToArray());
-            Assert.Equal(Array.Empty<string>(), sourceList.Where(i => false).Select(i => i.ToString()).ToArray());
+            Assert.Equal([], sourceList.Where(i => false).Select(i => i.ToString()).ToArray());
 
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).Where(s => s is not null).ToArray());
-            Assert.Equal(Array.Empty<string>(), sourceList.Select(i => i.ToString()).Where(s => s is null).ToArray());
+            Assert.Equal([], sourceList.Select(i => i.ToString()).Where(s => s is null).ToArray());
         }
 
         [Fact]
@@ -378,13 +378,13 @@ namespace ZLinq.Tests
         {
             // Return array sizes that should be small enough not to OOM
             int MaxPower = PlatformDetection.IsBrowser ? 15 : 18;
-            yield return new object[] { 1 };
-            yield return new object[] { 2 };
+            yield return [1];
+            yield return [2];
             for (int i = 2; i <= MaxPower; i++)
             {
-                yield return new object[] { (i << i) - 1 };
-                yield return new object[] { (i << i) };
-                yield return new object[] { (i << i) + 1 };
+                yield return [(i << i) - 1];
+                yield return [(i << i)];
+                yield return [(i << i) + 1];
             }
         }
     }

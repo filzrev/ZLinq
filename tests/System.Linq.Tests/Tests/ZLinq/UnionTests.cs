@@ -308,7 +308,11 @@ namespace ZLinq.Tests
         [Fact(Skip = SkipReason.EnumeratorBehaviorDifference)]
         public void ForcedToEnumeratorDoesntEnumerateMultipleUnions()
         {
-            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3)).Union(Enumerable.Range(2, 4)).Union([9, 2, 4]);
+            var valueEnumerable = NumberRangeGuaranteedNotCollectionType(0, 3)
+                .Union(Enumerable.Range(0, 3))
+                .Union(Enumerable.Range(2, 4))
+                .Union([9, 2, 4]);
+
             // Don't insist on this behaviour, but check it's correct if it happens
             using var en = valueEnumerable.Enumerator;
             Assert.False(en.TryGetNext(out _));

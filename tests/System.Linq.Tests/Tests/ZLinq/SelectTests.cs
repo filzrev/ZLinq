@@ -307,7 +307,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Select_SourceIsAList_ReturnsExpectedValues()
         {
-            List<int> source = new List<int> { 1, 2, 3, 4, 5 };
+            List<int> source = [1, 2, 3, 4, 5];
             Func<int, int> selector = i => i + 1;
 
             var query = source.Select(selector);
@@ -398,7 +398,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Select_SourceIsAList_CurrentIsDefaultOfTAfterEnumeration()
         {
-            List<int> source = new List<int>() { 1 };
+            List<int> source = [1];
             Func<int, int> selector = i => i + 1;
 
             var query = source.Select(selector);
@@ -445,7 +445,7 @@ namespace ZLinq.Tests
 
             var query = source.Select(selector);
 
-            var enumerator = query.GetEnumerator();
+            using var enumerator = query.GetEnumerator();
             while (enumerator.MoveNext()) ;
 
             Assert.Equal(default(int), enumerator.Current);
@@ -574,7 +574,7 @@ namespace ZLinq.Tests
             Assert.Throws<InvalidOperationException>(() =>
             {
                 var result = source.Select(selector);
-                var enumerator = result.GetEnumerator();
+                using var enumerator = result.GetEnumerator();
                 enumerator.MoveNext();
             });
         }
@@ -591,7 +591,7 @@ namespace ZLinq.Tests
             };
 
             var result = source.Select(selector);
-            var enumerator = result.GetEnumerator();
+            using var enumerator = result.GetEnumerator();
 
             try
             {
@@ -615,7 +615,7 @@ namespace ZLinq.Tests
             Assert.Throws<InvalidOperationException>(() =>
             {
                 var result = source.Select(selector);
-                var enumerator = result.GetEnumerator();
+                using var enumerator = result.GetEnumerator();
                 enumerator.MoveNext();
             });
         }
@@ -627,7 +627,7 @@ namespace ZLinq.Tests
             Func<int, int> selector = i => i + 1;
 
             var result = source.Select(selector);
-            var enumerator = result.GetEnumerator();
+            using var enumerator = result.GetEnumerator();
 
             try
             {
@@ -667,7 +667,7 @@ namespace ZLinq.Tests
             Assert.Throws<InvalidOperationException>(() =>
             {
                 var result = source.Select(selector);
-                var enumerator = result.GetEnumerator();
+                using var enumerator = result.GetEnumerator();
                 enumerator.MoveNext();
             });
         }
@@ -679,7 +679,7 @@ namespace ZLinq.Tests
             Func<int, int> selector = i => i + 1;
 
             var result = source.Select(selector);
-            var enumerator = result.GetEnumerator();
+            using var enumerator = result.GetEnumerator();
 
             try
             {
@@ -702,7 +702,7 @@ namespace ZLinq.Tests
             Assert.Throws<InvalidOperationException>(() =>
             {
                 var result = source.Select(selector);
-                var enumerator = result.GetEnumerator();
+                using var enumerator = result.GetEnumerator();
                 enumerator.MoveNext();
             });
         }
@@ -714,7 +714,7 @@ namespace ZLinq.Tests
             Func<int, string> selector = i => i.ToString();
 
             var result = source.Select(selector);
-            var enumerator = result.GetEnumerator();
+            using var enumerator = result.GetEnumerator();
 
             try
             {
@@ -739,7 +739,7 @@ namespace ZLinq.Tests
             Func<int, int> selector = i => i + 1;
 
             var result = source.Select(selector);
-            var enumerator = result.GetEnumerator();
+            using var enumerator = result.GetEnumerator();
 
             Assert.True(enumerator.MoveNext());
             Assert.Equal(2 /* 1 + 1 */, enumerator.Current);
@@ -761,8 +761,8 @@ namespace ZLinq.Tests
             int[] source = [1, 2, 3, 4, 5];
             var query = source.Select(i => i + 1);
 
-            var enumerator1 = query.GetEnumerator();
-            var enumerator2 = query.GetEnumerator();
+            using var enumerator1 = query.GetEnumerator();
+            using var enumerator2 = query.GetEnumerator();
 
             // ZLinq use ref struct.
             //Assert.Same(query, enumerator1);
@@ -781,7 +781,7 @@ namespace ZLinq.Tests
             Assert.Throws<NotSupportedException>(() =>
             {
                 var result = source.Select(selector);
-                var enumerator = result.GetEnumerator();
+                using var enumerator = result.GetEnumerator();
                 // enumerator.Reset(); // ZLinq don't support Reset()
             });
         }
@@ -1155,7 +1155,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Select_SourceIsIPartitionToArray()
         {
-            Assert.Equal(Array.Empty<int>(), new List<int>().Order().Select(i => i * 2).ToArray());
+            Assert.Equal([], new List<int>().Order().Select(i => i * 2).ToArray());
             Assert.Equal([2, 4, 6, 8], new List<int> { 1, 2, 3, 4 }.Order().Select(i => i * 2).ToArray());
         }
 
@@ -1189,7 +1189,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Select_SourceIsIPartitionToList()
         {
-            Assert.Equal(Array.Empty<int>(), new List<int>().Order().Select(i => i * 2).ToList());
+            Assert.Equal([], new List<int>().Order().Select(i => i * 2).ToList());
             Assert.Equal([2, 4, 6, 8], new List<int> { 1, 2, 3, 4 }.Order().Select(i => i * 2).ToList());
         }
 
@@ -1212,19 +1212,19 @@ namespace ZLinq.Tests
             foreach (IEnumerable<int> equivalentSource in identityTransforms.Select(t => t(source)))
             {
                 var result = equivalentSource.Select(i => i);
-                using (var e = result.GetEnumerator())
-                {
-                    while (e.MoveNext()) ; // Loop until we reach the end of the iterator, @ which pt it gets disposed.
-                    Assert.False(e.MoveNext()); // MoveNext should not throw an exception after Dispose.
-                }
+                using var e = result.GetEnumerator();
+
+                while (e.MoveNext()) ; // Loop until we reach the end of the iterator, @ which pt it gets disposed.
+                Assert.False(e.MoveNext()); // MoveNext should not throw an exception after Dispose.
+
             }
         }
 
         public static IEnumerable<object[]> MoveNextAfterDisposeData()
         {
-            yield return new object[] { Array.Empty<int>() };
-            yield return new object[] { new int[1] };
-            yield return new object[] { Enumerable.Range(1, 30) };
+            yield return [Array.Empty<int>()];
+            yield return [new int[1]];
+            yield return [Enumerable.Range(1, 30)];
         }
 
         [Theory(Skip = SkipReason.Issue0082)]
@@ -1265,7 +1265,7 @@ namespace ZLinq.Tests
 
                 foreach (var transform in transforms)
                 {
-                    yield return new object[] { transform(enumerable) };
+                    yield return [transform(enumerable)];
                 }
             }
         }
