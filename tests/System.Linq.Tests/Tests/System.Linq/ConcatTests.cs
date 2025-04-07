@@ -285,7 +285,7 @@ namespace System.Linq.Tests
         {
             foreach (var transform in IdentityTransforms<int>())
             {
-                IEnumerable<int> concatee = Enumerable.Empty<int>();
+                IEnumerable<int> concatee = [];
                 foreach (var source in sources)
                 {
                     concatee = concatee.Concat(transform(source));
@@ -302,7 +302,7 @@ namespace System.Linq.Tests
         {
             foreach (var transform in IdentityTransforms<int>())
             {
-                IEnumerable<int> concatee = Enumerable.Empty<int>();
+                IEnumerable<int> concatee = [];
                 foreach (var source in sources)
                 {
                     concatee = concatee.RunOnce().Concat(transform(source));

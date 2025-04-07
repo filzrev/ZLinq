@@ -291,7 +291,7 @@ namespace ZLinq.Tests
         {
             foreach (var transform in IdentityTransforms<int>())
             {
-                IEnumerable<int> concatee = Enumerable.Empty<int>();
+                IEnumerable<int> concatee = [];
                 foreach (var source in sources)
                 {
                     // ZLinq can't assigned nested query to same variable.
@@ -309,7 +309,7 @@ namespace ZLinq.Tests
         {
             foreach (var transform in IdentityTransforms<int>())
             {
-                IEnumerable<int> concatee = Enumerable.Empty<int>();
+                IEnumerable<int> concatee = [];
                 foreach (var source in sources)
                 {
                     // ZLinq can't assigned nested query to same variable.

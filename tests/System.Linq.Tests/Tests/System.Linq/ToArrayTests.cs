@@ -28,7 +28,7 @@ namespace System.Linq.Tests
         [Fact]
         public void ToArray_UseArrayEmptyWhenEmpty()
         {
-            int[] emptySourceArray = Array.Empty<int>();
+            int[] emptySourceArray = [];
 
             Assert.Same(emptySourceArray.ToArray(), emptySourceArray.ToArray());
 
@@ -147,7 +147,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceIntegers.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceIntegers, sourceIntegers.Where(i => true).ToArray());
-            Assert.Equal(Array.Empty<int>(), sourceIntegers.Where(i => false).ToArray());
+            Assert.Equal([], sourceIntegers.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceIntegers.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceIntegers.Where(i => false).Select(i => i.ToString()).ToArray());
@@ -167,7 +167,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceList, sourceList.Where(i => true).ToArray());
-            Assert.Equal(Array.Empty<int>(), sourceList.Where(i => false).ToArray());
+            Assert.Equal([], sourceList.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceList.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceList.Where(i => false).Select(i => i.ToString()).ToArray());

@@ -307,7 +307,7 @@ namespace ZLinq.Tests
                 source: Array.Empty<int>(),
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Empty<int>());
+                expected: []);
 
             yield return WrapArgs(
                 source: Enumerable.Range(0, 10),

@@ -28,7 +28,7 @@ namespace ZLinq.Tests
         [Fact]
         public void ToArray_UseArrayEmptyWhenEmpty()
         {
-            int[] emptySourceArray = Array.Empty<int>();
+            int[] emptySourceArray = [];
 
             Assert.Same(emptySourceArray.ToArray(), emptySourceArray.ToArray());
 

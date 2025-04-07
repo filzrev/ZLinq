@@ -321,7 +321,7 @@ namespace ZLinq.Tests
         [Fact]
         public void CastFirstOnEmptySequenceThrows()
         {
-            object[] objects = Array.Empty<object>();
+            object[] objects = [];
             Assert.Throws<InvalidOperationException>(() => objects.Cast<string>().First());
         }
 
@@ -349,7 +349,7 @@ namespace ZLinq.Tests
         [Fact]
         public void CastLastOnEmptySequenceThrows()
         {
-            object[] objects = Array.Empty<object>();
+            object[] objects = [];
             Assert.Throws<InvalidOperationException>(() => objects.Cast<string>().Last());
         }
 

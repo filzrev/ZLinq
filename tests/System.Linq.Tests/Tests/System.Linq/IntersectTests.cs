@@ -125,14 +125,14 @@ namespace System.Linq.Tests
             IEnumerable<string> input1 = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "a" };
             IEnumerable<string> input2 = ["A"];
 
-            Assert.Equal(Enumerable.Empty<string>(), input1.Intersect(input2));
-            Assert.Equal(Enumerable.Empty<string>(), input1.Intersect(input2, null));
-            Assert.Equal(Enumerable.Empty<string>(), input1.Intersect(input2, EqualityComparer<string>.Default));
+            Assert.Equal([], input1.Intersect(input2));
+            Assert.Equal([], input1.Intersect(input2, null));
+            Assert.Equal([], input1.Intersect(input2, EqualityComparer<string>.Default));
             Assert.Equal(["a"], input1.Intersect(input2, StringComparer.OrdinalIgnoreCase));
 
-            Assert.Equal(Enumerable.Empty<string>(), input2.Intersect(input1));
-            Assert.Equal(Enumerable.Empty<string>(), input2.Intersect(input1, null));
-            Assert.Equal(Enumerable.Empty<string>(), input2.Intersect(input1, EqualityComparer<string>.Default));
+            Assert.Equal([], input2.Intersect(input1));
+            Assert.Equal([], input2.Intersect(input1, null));
+            Assert.Equal([], input2.Intersect(input1, EqualityComparer<string>.Default));
             Assert.Equal(["A"], input2.Intersect(input1, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -195,14 +195,14 @@ namespace System.Linq.Tests
                 second: Enumerable.Range(10, 10),
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Empty<int>());
+                expected: []);
 
             yield return WrapArgs(
                 first: Enumerable.Repeat(5, 20),
-                second: Enumerable.Empty<int>(),
+                second: [],
                 keySelector: x => x,
                 comparer: null,
-                expected: Enumerable.Empty<int>());
+                expected: []);
 
             yield return WrapArgs(
                 first: Enumerable.Repeat(5, 20),

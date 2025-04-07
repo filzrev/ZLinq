@@ -120,7 +120,7 @@ namespace ZLinq.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => nonEmpty.ElementAt(-1));
             Assert.Throws<ArgumentOutOfRangeException>(() => nonEmpty.ElementAt(4));
 
-            IEnumerable<int> empty = Enumerable.Empty<int>();
+            IEnumerable<int> empty = [];
             Assert.Equal(42, empty.DefaultIfEmpty(42).First());
             Assert.Equal(42, empty.DefaultIfEmpty(42).Last());
             Assert.Equal(42, empty.DefaultIfEmpty(42).ElementAt(0));

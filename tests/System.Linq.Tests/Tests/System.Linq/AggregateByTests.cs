@@ -13,8 +13,8 @@ namespace System.Linq.Tests
         {
             Assert.All(IdentityTransforms<int>(), transform =>
             {
-                Assert.Equal(Enumerable.Empty<KeyValuePair<int, int>>(), transform(Enumerable.Empty<int>()).AggregateBy(i => i, i => i, (a, i) => a + i));
-                Assert.Equal(Enumerable.Empty<KeyValuePair<int, int>>(), transform(Enumerable.Empty<int>()).AggregateBy(i => i, 0, (a, i) => a + i));
+                Assert.Equal([], transform([]).AggregateBy(i => i, i => i, (a, i) => a + i));
+                Assert.Equal([], transform([]).AggregateBy(i => i, 0, (a, i) => a + i));
             });
         }
 
@@ -102,7 +102,7 @@ namespace System.Linq.Tests
                 seedSelector: x => 0,
                 func: (x, y) => x + y,
                 comparer: null,
-                expected: Enumerable.Empty<KeyValuePair<int, int>>());
+                expected: []);
 
             Validate(
                 source: Enumerable.Range(0, 10),
