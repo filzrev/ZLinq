@@ -404,7 +404,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EnumeratorDoesntContinue()
         {
-            var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().OrderBy(i => i).GetEnumerator();
+            using var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().OrderBy(i => i).GetEnumerator();
             while (enumerator.MoveNext()) { }
             Assert.False(enumerator.MoveNext());
         }
@@ -550,7 +550,7 @@ namespace ZLinq.Tests
 
             using (new ThreadCultureChange(dk)) // "dk" whilst GetEnumerator
             {
-                var s = source.OrderBy(x => x).GetEnumerator();
+                using var s = source.OrderBy(x => x).GetEnumerator();
                 using (new ThreadCultureChange(au)) // but "au" whilst accessing...
                 {
                     int idx = 0;
@@ -564,7 +564,7 @@ namespace ZLinq.Tests
             using (new ThreadCultureChange(au))
             {
                 // "au" whilst GetEnumerator
-                var s = source.OrderBy(x => x).GetEnumerator();
+                using var s = source.OrderBy(x => x).GetEnumerator();
 
                 using (new ThreadCultureChange(dk))
                 {

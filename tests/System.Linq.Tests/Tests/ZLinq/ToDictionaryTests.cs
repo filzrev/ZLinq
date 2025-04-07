@@ -433,20 +433,19 @@ namespace ZLinq.Tests
             Assert.NotNull(dict);
             Assert.NotNull(keys);
             Assert.NotNull(values);
-            using (var ke = keys.GetEnumerator())
+
+            using var ke = keys.GetEnumerator();
+            foreach (var value in values)
             {
-                foreach (var value in values)
-                {
-                    Assert.True(ke.MoveNext());
-                    var key = ke.Current;
-                    E dictValue;
-                    Assert.True(dict.TryGetValue(key, out dictValue));
-                    Assert.Equal(value, dictValue);
-                    dict.Remove(key);
-                }
-                Assert.False(ke.MoveNext());
-                Assert.Empty(dict);
+                Assert.True(ke.MoveNext());
+                var key = ke.Current;
+                E dictValue;
+                Assert.True(dict.TryGetValue(key, out dictValue));
+                Assert.Equal(value, dictValue);
+                dict.Remove(key);
             }
+            Assert.False(ke.MoveNext());
+            Assert.Empty(dict);
         }
 
         [Fact]

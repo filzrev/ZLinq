@@ -28,7 +28,7 @@ namespace ZLinq.Tests
             Assert.NotNull(keys);
 
             Dictionary<TKey, List<TElement>> dict = new Dictionary<TKey, List<TElement>>(keyComparer);
-            List<TElement> groupingForNullKeys = new List<TElement>();
+            List<TElement> groupingForNullKeys = [];
             using (IEnumerator<TElement> elEn = elements.GetEnumerator())
             using (IEnumerator<TKey> keyEn = keys.GetEnumerator())
             {
@@ -46,7 +46,7 @@ namespace ZLinq.Tests
                     {
                         List<TElement> list;
                         if (!dict.TryGetValue(key, out list))
-                            dict.Add(key, list = new List<TElement>());
+                            dict.Add(key, list = []);
                         list.Add(elEn.Current);
                     }
                 }
