@@ -53,14 +53,10 @@ namespace System.Linq.Tests
         {
             IEqualityComparer<string> defaultComparer = EqualityComparer<string>.Default;
             yield return [new string[1], new string[0], defaultComparer, new string[1]];
-            yield return [new string[] { null, null, string.Empty }, new string[1], defaultComparer, new string[] { string.Empty }
-            ];
+            yield return [new string[] { null, null, string.Empty }, new string[1], defaultComparer, new string[] { string.Empty }];
             yield return [new string[2], new string[0], defaultComparer, new string[1]];
-
-            yield return [new string[] { "Bob", "Tim", "Robert", "Chris" }, new string[] { "bBo", "shriC" }, null, new string[] { "Bob", "Tim", "Robert", "Chris" }
-            ];
-            yield return [new string[] { "Bob", "Tim", "Robert", "Chris" }, new string[] { "bBo", "shriC" }, new AnagramEqualityComparer(), new string[] { "Tim", "Robert" }
-            ];
+            yield return [new string[] { "Bob", "Tim", "Robert", "Chris" }, new string[] { "bBo", "shriC" }, null, new string[] { "Bob", "Tim", "Robert", "Chris" }];
+            yield return [new string[] { "Bob", "Tim", "Robert", "Chris" }, new string[] { "bBo", "shriC" }, new AnagramEqualityComparer(), new string[] { "Tim", "Robert" }];
         }
 
         [Theory]
@@ -76,13 +72,9 @@ namespace System.Linq.Tests
 
         public static IEnumerable<object[]> NullableInt_TestData()
         {
-            yield return [new int?[] { -6, -8, -6, 2, 0, 0, 5, 6, null, null }, new int?[0], new int?[] { -6, -8, 2, 0, 5, 6, null }
-            ];
-
-            yield return [new int?[] { 1, 2, 2, 3, 4, 5 }, new int?[] { 5, 3, 2, 6, 6, 3, 1, null, null }, new int?[] { 4 }
-            ];
-            yield return [new int?[] { 2, 3, null, 2, null, 4, 5 }, new int?[] { 1, 9, null, 4 }, new int?[] { 2, 3, 5 }
-            ];
+            yield return [new int?[] { -6, -8, -6, 2, 0, 0, 5, 6, null, null }, new int?[0], new int?[] { -6, -8, 2, 0, 5, 6, null }];
+            yield return [new int?[] { 1, 2, 2, 3, 4, 5 }, new int?[] { 5, 3, 2, 6, 6, 3, 1, null, null }, new int?[] { 4 }];
+            yield return [new int?[] { 2, 3, null, 2, null, 4, 5 }, new int?[] { 1, 9, null, 4 }, new int?[] { 2, 3, 5 }];
         }
 
         [Theory]

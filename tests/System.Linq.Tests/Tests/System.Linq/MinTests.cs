@@ -336,8 +336,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (int?)i).ToArray(), 1];
             yield return [new int?[] { null, -1, -10, 10, 200, 1000 }, -10];
             yield return [new int?[] { null, 3000, 100, 200, 1000 }, 100];
-            yield return [new int?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((int?)int.MinValue, 1)), int.MinValue
-            ];
+            yield return [new int?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((int?)int.MinValue, 1)), int.MinValue];
             yield return [Enumerable.Repeat(default(int?), 100), null];
             yield return [Enumerable.Repeat((int?)42, 1), 42];
 
@@ -374,8 +373,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (long?)i).ToArray(), 1L];
             yield return [new long?[] { null, -1, -10, 10, 200, 1000 }, -10L];
             yield return [new long?[] { null, 3000, 100, 200, 1000 }, 100L];
-            yield return [new long?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((long?)long.MinValue, 1)), long.MinValue
-            ];
+            yield return [new long?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((long?)long.MinValue, 1)), long.MinValue];
             yield return [Enumerable.Repeat(default(long?), 100), null];
             yield return [Enumerable.Repeat((long?)42, 1), 42L];
 
@@ -406,8 +404,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (float?)i).ToArray(), 1f];
             yield return [new float?[] { null, -1, -10, 10, 200, 1000 }, -10f];
             yield return [new float?[] { null, 3000, 100, 200, 1000 }, 100f];
-            yield return [new float?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((float?)float.MinValue, 1)), float.MinValue
-            ];
+            yield return [new float?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((float?)float.MinValue, 1)), float.MinValue];
             yield return [Enumerable.Repeat(default(float?), 100), null];
             yield return [Enumerable.Repeat((float?)42, 1), 42f];
 
@@ -454,8 +451,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (double?)i).ToArray(), 1.0];
             yield return [new double?[] { null, -1, -10, 10, 200, 1000 }, -10.0];
             yield return [new double?[] { null, 3000, 100, 200, 1000 }, 100.0];
-            yield return [new double?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((double?)double.MinValue, 1)), double.MinValue
-            ];
+            yield return [new double?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((double?)double.MinValue, 1)), double.MinValue];
             yield return [Enumerable.Repeat(default(double?), 100), null];
             yield return [Enumerable.Repeat((double?)42, 1), 42.0];
 
@@ -501,8 +497,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (decimal?)i).ToArray(), 1m];
             yield return [new decimal?[] { null, -1, -10, 10, 200, 1000 }, -10m];
             yield return [new decimal?[] { null, 3000, 100, 200, 1000 }, 100m];
-            yield return [new decimal?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MinValue, 1)), decimal.MinValue
-            ];
+            yield return [new decimal?[] { null, 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MinValue, 1)), decimal.MinValue];
             yield return [Enumerable.Repeat(default(decimal?), 100), null];
             yield return [Enumerable.Repeat((decimal?)42, 1), 42m];
 
@@ -511,8 +506,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Repeat(default(decimal?), 5), null];
             yield return [new decimal?[] { -4.50m, null, null, 10.98m, null, 7.5m, 8.6m }, -4.5m];
             yield return [new decimal?[] { null, null, null, null, null, 0m }, 0m];
-            yield return [new decimal?[] { 6.4m, null, null, decimal.MinValue, 9.4m, decimal.MinValue, 10.9m, decimal.MinValue }, decimal.MinValue
-            ];
+            yield return [new decimal?[] { 6.4m, null, null, decimal.MinValue, 9.4m, decimal.MinValue, 10.9m, decimal.MinValue }, decimal.MinValue];
         }
 
         [Theory]
@@ -578,8 +572,7 @@ namespace System.Linq.Tests
         {
             yield return [Enumerable.Range(1, 10).Select(i => i.ToString()).ToArray(), "1"];
             yield return [new string[] { "Alice", "Bob", "Charlie", "Eve", "Mallory", "Trent", "Victor" }, "Alice"];
-            yield return [new string[] { null, "Charlie", null, "Victor", "Trent", null, "Eve", "Alice", "Mallory", "Bob" }, "Alice"
-            ];
+            yield return [new string[] { null, "Charlie", null, "Victor", "Trent", null, "Eve", "Alice", "Mallory", "Bob" }, "Alice"];
 
             yield return [Enumerable.Empty<string>(), null];
             yield return [Enumerable.Repeat("Hello", 1), "Hello"];

@@ -359,8 +359,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (int?)i).ToArray(), 10];
             yield return [new int?[] { null, -100, -15, -50, -10 }, -10];
             yield return [new int?[] { null, -16, 0, 50, 100, 1000 }, 1000];
-            yield return [new int?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((int?)int.MaxValue, 1)), int.MaxValue
-            ];
+            yield return [new int?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((int?)int.MaxValue, 1)), int.MaxValue];
             yield return [Enumerable.Repeat(default(int?), 100), null];
 
             yield return [Enumerable.Empty<int?>(), null];
@@ -399,8 +398,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (long?)i).ToArray(), 10L];
             yield return [new long?[] { null, -100, -15, -50, -10 }, -10L];
             yield return [new long?[] { null, -16, 0, 50, 100, 1000 }, 1000L];
-            yield return [new long?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((long?)long.MaxValue, 1)), long.MaxValue
-            ];
+            yield return [new long?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((long?)long.MaxValue, 1)), long.MaxValue];
             yield return [Enumerable.Repeat(default(long?), 100), null];
 
             yield return [Enumerable.Empty<long?>(), null];
@@ -432,8 +430,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (float?)i).ToArray(), 10f];
             yield return [new float?[] { null, -100, -15, -50, -10 }, -10f];
             yield return [new float?[] { null, -16, 0, 50, 100, 1000 }, 1000f];
-            yield return [new float?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((float?)float.MaxValue, 1)), float.MaxValue
-            ];
+            yield return [new float?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((float?)float.MaxValue, 1)), float.MaxValue];
             yield return [Enumerable.Repeat(default(float?), 100), null];
 
             yield return [Enumerable.Empty<float?>(), null];
@@ -474,8 +471,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (double?)i).ToArray(), 10.0];
             yield return [new double?[] { null, -100, -15, -50, -10 }, -10.0];
             yield return [new double?[] { null, -16, 0, 50, 100, 1000 }, 1000.0];
-            yield return [new double?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((double?)double.MaxValue, 1)), double.MaxValue
-            ];
+            yield return [new double?[] { null, -16, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((double?)double.MaxValue, 1)), double.MaxValue];
             yield return [Enumerable.Repeat(default(double?), 100), null];
 
             yield return [Enumerable.Empty<double?>(), null];
@@ -516,8 +512,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Range(1, 10).Select(i => (decimal?)i).ToArray(), 10m];
             yield return [new decimal?[] { null, -100M, -15, -50, -10 }, -10m];
             yield return [new decimal?[] { null, -16M, 0, 50, 100, 1000 }, 1000m];
-            yield return [new decimal?[] { null, -16M, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MaxValue, 1)), decimal.MaxValue
-            ];
+            yield return [new decimal?[] { null, -16M, 0, 50, 100, 1000 }.Concat(Enumerable.Repeat((decimal?)decimal.MaxValue, 1)), decimal.MaxValue];
             yield return [Enumerable.Repeat(default(decimal?), 100), null];
 
             yield return [Enumerable.Empty<decimal?>(), null];
@@ -525,8 +520,7 @@ namespace System.Linq.Tests
             yield return [Enumerable.Repeat(default(decimal?), 5), null];
             yield return [new decimal?[] { 14.50m, null, null, 10.98m, null, 7.5m, 8.6m }, 14.50m];
             yield return [new decimal?[] { null, null, null, null, null, 0m }, 0m];
-            yield return [new decimal?[] { 6.4m, null, null, decimal.MaxValue, 9.4m, decimal.MaxValue, 10.9m, decimal.MaxValue }, decimal.MaxValue
-            ];
+            yield return [new decimal?[] { 6.4m, null, null, decimal.MaxValue, 9.4m, decimal.MaxValue, 10.9m, decimal.MaxValue }, decimal.MaxValue];
         }
 
         [Theory]
@@ -590,8 +584,7 @@ namespace System.Linq.Tests
         {
             yield return [Enumerable.Range(1, 10).Select(i => i.ToString()).ToArray(), "9"];
             yield return [new string[] { "Alice", "Bob", "Charlie", "Eve", "Mallory", "Victor", "Trent" }, "Victor"];
-            yield return [new string[] { null, "Charlie", null, "Victor", "Trent", null, "Eve", "Alice", "Mallory", "Bob" }, "Victor"
-            ];
+            yield return [new string[] { null, "Charlie", null, "Victor", "Trent", null, "Eve", "Alice", "Mallory", "Bob" }, "Victor"];
 
             yield return [Enumerable.Empty<string>(), null];
             yield return [Enumerable.Repeat("Hello", 1), "Hello"];
