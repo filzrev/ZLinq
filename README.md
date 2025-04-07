@@ -6,7 +6,11 @@ Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSyst
 > This library is currently in preview. All methods have been implemented, but testing is not complete so operation is not guaranteed.
 The official release will be soon, but please wait until then for official use in production.
 
-![](Images/title_bench.jpg)
+![](img/title_bench.jpg)
+
+```bash
+dotnet add package ZLinq
+```
 
 ```csharp
 using ZLinq;
@@ -21,21 +25,18 @@ foreach (var item in seq) { }
 
 * **99% compatibility** with .NET 10's LINQ (including new `Shuffle`, `RightJoin`, `LeftJoin` operators)
 * **Zero allocation** for method chains through struct-based Enumerable via `ValueEnumerable`
-* Full support for LINQ operations on **Span** using .NET 9/C# 13's `allows ref struct`
+* **LINQ to Span** to full support LINQ operations on `Span<T>` using .NET 9/C# 13's `allows ref struct`
 * **LINQ to Tree** to extend tree-structured objects (built-in support for FileSystem, JSON, GameObject)
-* Automatic application of SIMD where possible and customizable **LINQ to SIMD** for arbitrary operations
+* **LINQ to SIMD** to automatic application of SIMD where possible and customizable arbitrary operations
 * Optional **Drop-in replacement** Source Generator to automatically accelerate all LINQ methods
-* Fusion of my past LINQ ([linq.js](https://github.com/neuecc/linq.js/), [SimdLinq](https://github.com/Cysharp/SimdLinq/), [UniRx](https://github.com/neuecc/UniRx), [R3](https://github.com/Cysharp/R3)) and zero alloc  ([ZString](https://github.com/Cysharp/ZString), [ZLogger](https://github.com/Cysharp/ZLogger)) impls
 
-I aimed to create not just an experimental library but a practical one. It's also designed to handle high-load requirements, such as those found in games.
+In ZLinq, we have proven high compatibility and performance by running dotnet/runtime's System.Linq.Tests as a drop-in replacement, passing 9,500 tests.
 
-You can install it from [NuGet/ZLinq](https://www.nuget.org/packages/ZLinq). For Unity usage, refer to the [Unity section](#unity). For Godot usage, refer to the [Godot section](#godot).
+![](img/testrun.png)
 
-```bash
-dotnet add package ZLinq
-```
+Previously, value type-based LINQ implementations were often experimental, but ZLinq fully implements all methods to completely replace standard LINQ in production use, delivering high performance suitable even for demanding applications like games. The performance aspects are based on my experience with previous LINQ implementations ([linq.js](https://github.com/neuecc/linq.js/), [SimdLinq](https://github.com/Cysharp/SimdLinq/), [UniRx](https://github.com/neuecc/UniRx), [R3](https://github.com/Cysharp/R3)), zero-allocation implementations ([ZString](https://github.com/Cysharp/ZString), [ZLogger](https://github.com/Cysharp/ZLogger)), and high-performance serializers ([MessagePack-CSharp](https://github.com/MessagePack-CSharp/MessagePack-CSharp/), [MemoryPack](https://github.com/Cysharp/MemoryPack)).
 
-ZLinq chains internally use the following interface:
+ZLinq achieves zero-allocation LINQ implementation using the following structs and interfaces.
 
 ```csharp
 public readonly ref struct ValueEnumerable<TEnumerator, T>(TEnumerator enumerator)
@@ -55,7 +56,7 @@ public interface IValueEnumerator<T> : IDisposable
 }
 ```
 
-Besides changing to a struct-based approach, we've integrated MoveNext and Current to reduce the number of iterator calls. Also, since structs automatically copy internal state, we've simplified the type complexity by unifying Enumerable and Enumerator(almost types only implements custom enumerator).
+Besides changing to a struct-based approach, we've integrated MoveNext and Current to reduce the number of iterator calls. Also, some operators don't need to hold Current, which allows minimizing the struct size. Additionally, being struct-based, we efficiently separate internal state by copying the Enumerator instead of using GetEnumerator. With .NET 9/C# 13 or later, `allows ref struct` enables natural integration of `Span<T>` into LINQ.
 
 ```csharp
 public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnumerator, TSource>(in this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
@@ -64,11 +65,17 @@ public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnume
 
 Operators have this method signature. C# cannot infer types from generic constraints([dotnet/csharplang#6930](https://github.com/dotnet/csharplang/discussions/6930)). Therefore, the traditional Struct LINQ approach required implementing all operator combinations as instance methods, resulting in [100,000+ methods and massive assembly sizes](https://kevinmontrose.com/2018/01/17/linqaf-replacing-linq-and-not-allocating/). However, in ZLinq, we've successfully avoided all the boilerplate method implementations by devising an approach that properly conveys types to C# compiler.
 
-Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnlySpan<T> span)`, and `TryCopyTo(Span<T> destination)` defined in the interface itself enable flexible optimizations. For example, Take+Skip can be expressed entirely as Span slices, so if the original source can be converted to a Span, Span slices are passed through TryGetSpan chains. For ToArray, if the sequence length can be calculated, a fixed-length array is prepared in advance, and operators that can write directly to the final array via TryCopyTo will do so. Some methods automatically use SIMD-based optimization if a Span can be obtained.
+Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnlySpan<T> span)`, and `TryCopyTo(Span<T> destination, Index offset)` defined in the interface itself enable flexible optimizations. To minimize assembly size, we've designed the library to achieve maximum optimization with minimal method additions. For example, `TryCopyTo` works efficiently with methods like `ToArray` when combined with `TryGetNonEnumeratedCount`. However, it also allows copying to smaller-sized destinations. By combining this with Index, we can optimize `First`, `Last`, and `ElementAt` using just `TryCopyTo` by passing a single-element Span along with an Index.
 
 Getting Started
 ---
-Use `using ZLinq;` and call `AsValueEnumerable()` on any iterable type to use ZLinq's zero-allocation LINQ. Also, `Range`, `Repeat`, and `Empty` are defined in `ValueEnumerable`.
+You can install it from [NuGet/ZLinq](https://www.nuget.org/packages/ZLinq). For Unity usage, refer to the [Unity section](#unity). For Godot usage, refer to the [Godot section](#godot).
+
+```bash
+dotnet add package ZLinq
+```
+
+Use `using ZLinq;` and call `AsValueEnumerable()` on any iterable type to use ZLinq's zero-allocation LINQ.
 
 ```csharp
 using ZLinq;
@@ -83,6 +90,52 @@ Span<int> span = stackalloc int[5] { 1, 2, 3, 4, 5 };
 var seq2 = span.AsValueEnumerable().Select(x => x * x);
 ```
 
+Even if it's netstandard 2.0 or below .NET 10, all operators up to .NET 10 are available.
+
+You can method chain and foreach like regular LINQ, but there are some limitations. Please see [Difference and Limitation](#difference-and-limitation) for details. ZLinq has drop-in replacements that apply ZLinq without needing to call `AsValueEnumerable()`. For more information, see [Drop-in replacement](#drop-in-replacement). Detailed information about [LINQ to Tree](#linq-to-tree) for LINQ-ifying tree structures (FileSystems and JSON) and [LINQ to SIMD](#linq-to-simd) for expanding SIMD application range can be found in their respective sections.
+
+Additional Operators
+---
+In ZLinq, we prioritize compatibility, so we try to minimize adding custom operators. However, the following methods have been added to enable efficient processing with zero allocation:
+
+### `AsValueEnumerable()`
+
+Converts existing collections to a type that can be chained with ZLinq. Any `IEnumerable<T>` can be converted, but for the following types, conversion is done with zero allocation without `IEnumerable<T>.GetEnumerator()` allocation. Standard supported types are `T[]`, `List<T>`, `ArraySegment<T>`, `Memory<T>`, `ReadOnlyMemory<T>`, `ReadOnlySequence<T>`, `Dictionary<TKey, TValue>`, `Queue<T>`, `Stack<T>`, `LinkedList<T>`, `HashSet<T>`, `ImmutableArray<T>`, `Span<T>`, `ReadOnlySpan<T>`. However, conversion from `ImmutableArray<T>` requires `.NET 8` or higher, and conversion from `Span<T>`, `ReadOnlySpan<T>` requires `.NET 9` or higher.
+
+### `ValueEnumerable.Range`, `ValueEnumerable.Repeat`, `ValueEnumerable.Empty`
+
+`ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`.
+
+### `Average : where INumber<T>`, `Sum : where INumber<T>`
+
+System.Linq's `Average` and `Sum` are limited to certain primitive types, but ZLinq extends them to all `INumber<T>` types. In `.NET 8` or higher, where constraints are included, but for others (netstandard2.0, 2.1), runtime errors will occur when called with non-primitive target types.
+
+### `SumUnchecked`
+
+`Sum` is `checked`, but checking for overflow during SIMD execution creates performance overhead. `SumUnchecked` skips overflow checking to achieve maximum SIMD aggregation performance. Note that this requires `.NET 8` or higher, and SIMD-supported types are `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`, and the source must be able to get a Span (`TryGetSpan` returns true).
+
+### `int CopyTo(Span<T> destination)`, `void CopyTo(List<T> list)`
+
+`CopyTo` can be used to avoid allocation of the return collection unlike `ToArray` or `ToList`. `int CopyTo(Span<T> destination)` allows the destination to be smaller than the source, returning the number of elements copied. `void CopyTo(List<T> list)` clears the list and then fills it with elements from the source, so the destination size is list.Count.
+
+### `(TSource[] Array, int Size) ToArrayPool()`
+
+The returned array is rented from `ArrayPool<TSource>.Shared`. When using it, you need to create a slice of elements using `Array.AsSpan(0, Size)` or similar. Also, after use, you must return it with `ArrayPool<TSource>.Shared.Rent(Array)`. If `TSource` is a reference type, set `clearArray: true` to prevent memory leaks.
+
+### `JoinToString(char|string seperator)`
+
+Since `ZLinq` is not `IEnumerable<T>`, it cannot be passed to `String.Join`. `JoinToString` provides the same functionality as `String.Join`, returning a string joined with the separator.
+
+Difference and Limitation
+---
+For .NET 9 and above, `ValueEnumerable<T>` is a `ref struct` and cannot be converted to `IEnumerable<T>`. To ensure compatibility when upgrading, `AsEnumerable` is not provided by default even for versions prior to .NET 9.
+
+Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to methods that require `IEnumerable<T>`. It's also difficult to pass it to other methods due to the complex type signatures required by generics (implementation is explained in the [Custom Operator](#custom-operator) section). Using `ToArray()` is one solution, but this can cause unnecessary allocations in some cases.
+
+string.Join has overloads for both `IEnumerable<string>` and `params object[]`. Passing `ValueEnumerable<T>` directly will select the `object[]` overload, which may not give the desired result. In this case, use the `JoinToString` operator instead.
+
+`ValueEnumerable<T>` is a struct, and its size increases slightly with each method chain. With many chained methods, copy costs can become significant. When iterating over small collections, these copy costs can outweigh the benefits, causing performance to be worse than standard LINQ. However, this is only an issue with extremely long method chains and small iteration counts, so it's rarely a practical concern.
+
 Drop-in replacement
 ---
 When introducing `ZLinq.DropInGenerator`, you can automatically use ZLinq for all LINQ methods without calling `AsValueEnumerable()`.
@@ -91,7 +144,7 @@ When introducing `ZLinq.DropInGenerator`, you can automatically use ZLinq for al
 dotnet add package ZLinq.DropInGenerator
 ```
 
-![](Images/dropin.jpg)
+![](img/dropin.jpg)
 
 It works by using a Source Generator to add extension methods for each type that take priority, making `ZLinq` methods be selected instead of System.Linq when the same name and arguments are used. 
 After installing the package, you need to configure it with an assembly attribute.
@@ -108,7 +161,7 @@ There are also predefined combinations: `Collection = Array | Span | Memory | Li
 You can enable it for all files by global using the generated namespace:
 
 ```csharp
-global using ZLinq.Dropin;
+global using ZLinq.DropIn;
 ```
 
 When using `DropInGenerateTypes.Enumerable`, which generates extension methods for `IEnumerable<T>`, you need to make `generateNamespace` global as a namespace priority. 
@@ -133,7 +186,7 @@ LINQ to Tree
 ---
 LINQ to XML introduced the concept of querying around axes to C#. Even if you don't use XML, similar APIs are incorporated into Roslyn and effectively used for exploring SyntaxTrees. ZLinq extends this concept to make it applicable to anything that can be considered a Tree, allowing `Ancestors`, `Children`, `Descendants`, `BeforeSelf`, and `AfterSelf` to be applied.
 
-![](Images/axis.jpg)
+![](img/axis.jpg)
 
 Specifically, by defining a struct that implements the following interface, it becomes iterable:
 
@@ -258,6 +311,8 @@ LINQ to SIMD
 ---
 `.AsVectorizable()` from `T[]` or `Span<T>` or `ReadOnlySpan<T>`.
 
+TODO:
+
 Unity
 ---
 The minimum supported Unity version will be `2022.3.12f1`, as it is necessary to support C# Incremental Source Generator(Compiler Version, 4.3.0).
@@ -275,7 +330,7 @@ https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity
 
 With the help of the Unity package, in addition to the standard ZLinq, LINQ to GameObject functionality becomes available for exploring GameObject/Transform.
 
-![](Images/axis.jpg)
+![](img/axis.jpg)
 
 ```csharp
 using ZLinq;
@@ -333,6 +388,9 @@ public static class ZLinqExtensions
 }
 ```
 
+TODO: extended AsEnumerable  
+TODO: Drop-in replacement
+
 Godot
 ---
 The minimum supported Godot version will be `4.0.0`.
@@ -344,7 +402,7 @@ dotnet add package ZLinq.Godot
 
 In addition to the standard ZLinq, LINQ to Node functionality is available.
 
-![](Images/godot.jpg)
+![](img/godot.jpg)
 
 ```csharp
 using Godot;
@@ -381,8 +439,149 @@ You can chain query(LINQ to Objects). Also, you can filter by node type using th
 // get ancestors under a Window
 var ancestors = root.Ancestors().TakeWhile(x => x is not Window);
 // get FooScript under self childer objects and self
-var fooScripts = root.ChildrenAndSelf().OfType(default(FooScript));
+var fooScripts = root.ChildrenAndSelf().OfType<FooScript>();
 ```
+
+Custom Extensions
+---
+
+Implementing extension methods for `IEnumerable<T>` is common. There are two types of operators: consuming operators like `Count` and `Sum`, and chainable operators like `Select` and `Where`. This section explains how to implement them.
+
+#### Consume Operator
+
+The method signature is slightly more complex compared to `IEnumerable<T>`, requiring constraints on `TEnumerator`. For .NET 9 or later, `allows ref struct` is also needed.
+
+```csharp
+public static class MyExtensions
+{
+    public static void Consume<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var e = source.Enumerator; // using Enumerator
+
+        while (e.TryGetNext(out var current)) // MoveNext + Current
+        {
+        }
+    }
+}
+```
+
+Instead of `GetEnumerator()`, use `Enumerator`, and instead of `MoveNext + Current`, use `TryGetNext(out)` to consume the iterator. The Enumerator must be used with `using`.
+
+Consumers can call the Enumerator's optimization methods: `TryGetNonEnumeratedCount`, `TryGetSpan`, and `TryCopyTo`. For example, getting a Span like this is faster than normal iteration with TryGetNext:
+
+```csharp
+public static class MyExtensions
+{
+    public static void ForEach<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, Action<TSource> action)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var e = source.Enumerator;
+
+        if (e.TryGetSpan(out var span))
+        {
+            // faster iteration
+            foreach (var item in span)
+            {
+                action(item);
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var item))
+            {
+                action(item);
+            }
+        }
+    }
+}
+```
+
+Since the enumerator's state changes, you cannot call other methods after calling `TryGetNext`. Also, you cannot call `TryGetNext` after `TryCopyTo` or `TryGetSpan` returns `true`.
+
+#### Custom Operator
+
+Unlike `IEnumerable<T>`, you can't use `yield return`, so everything must be implemented by hand, making it more difficult than Consume operators. A simple `Select` implementation looks like this. For .NET 9 or later, `IValueEnumerator<T>` must be implemented as a `ref struct`. Also, the accessibility must be `public` or `internal`.
+
+```csharp
+public static class MyExtensions
+{
+    public static ValueEnumerable<SimpleSelect<TEnumerator, TSource, TResult>, TResult> SimpleSelect<TEnumerator, TSource, TResult>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, TResult> selector)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif 
+    {
+        // ValueEnumerable is only a wrapper so unwrapping to enumerator immediately is ok.
+        // `new(new())` is `new ValueEnumerable(new SimpleSelect())`, wrap enumerator to ValueEnumerable.
+        return new(new(source.Enumerator, selector));
+    }
+}
+
+#if NET9_0_OR_GREATER
+public ref struct
+#else
+public struct
+#endif
+    SimpleSelect<TEnumerator, TSource, TResult>(TEnumerator source, Func<TSource, TResult> selector) : IValueEnumerator<TResult>
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif 
+{
+    TEnumerator source = source; // need to store source enumerator in field explicitly (ref struct limitation)
+
+    public bool TryGetNonEnumeratedCount(out int count)
+    {
+        // If source count is not changed, return count.
+        // Select count is same as source.
+        return source.TryGetNonEnumeratedCount(out count);
+    }
+
+    public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+    {
+        // For example, Take or Skip could return a Slice
+        span = default;
+        return false;
+    }
+
+    public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
+    {
+        // TryCopyTo implementation needs to consider Index calculations, so it's quite complex.
+        // Also, destination can be smaller than the source size.
+        // Helper methods for calculations are available in ZLinq.Internal.EnumeratorHelper,
+        // such as TryGetSliceRange, TryGetSlice, TryGetSliceRange, TryConsumeGetAt, etc.
+        return false;
+    }
+
+    // This is the main body of the normal processing
+    public bool TryGetNext(out TResult current)
+    {
+        while (source.TryGetNext(out var value))
+        {
+            current = selector(value);
+            return true;
+        }
+
+        current = default!;
+        return false;
+    }
+
+    public void Dispose()
+    {
+        // Always dispose the source
+        source.Dispose();
+    }
+}
+```
+
+For `TryGetNonEnumeratedCount`, `TryGetSpan`, and `TryCopyTo`, it's fine to return `false` if implementation is difficult. If state is needed (for example, Take needs to keep track of the number of calls), place it in a field, but note that you should not initialize reference types or structs containing reference types in the constructor. This is because in method chains, Enumerators are passed by copy, so reference types would share references. If you need to hold reference types, they must be initialized when `TryGetNext` is first called.
 
 Acknowledgement
 ---
