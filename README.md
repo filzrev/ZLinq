@@ -30,7 +30,7 @@ foreach (var item in seq) { }
 * **LINQ to SIMD** to automatic application of SIMD where possible and customizable arbitrary operations
 * Optional **Drop-in replacement** Source Generator to automatically accelerate all LINQ methods
 
-In ZLinq, we have proven high compatibility and performance by running dotnet/runtime's System.Linq.Tests as a drop-in replacement, passing 9,500 tests.
+In ZLinq, we have proven high compatibility and performance by running [dotnet/runtime's System.Linq.Tests](https://github.com/Cysharp/ZLinq/tree/main/tests/System.Linq.Tests) as a drop-in replacement, passing 9,500 tests.
 
 ![](img/testrun.png)
 
@@ -59,7 +59,7 @@ public interface IValueEnumerator<T> : IDisposable
 Besides changing to a struct-based approach, we've integrated MoveNext and Current to reduce the number of iterator calls. Also, some operators don't need to hold Current, which allows minimizing the struct size. Additionally, being struct-based, we efficiently separate internal state by copying the Enumerator instead of using GetEnumerator. With .NET 9/C# 13 or later, `allows ref struct` enables natural integration of `Span<T>` into LINQ.
 
 ```csharp
-public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnumerator, TSource>(in this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
+public static ValueEnumerable<Where<TEnumerator, TSource>, TSource> Where<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
     where TEnumerator : struct, IValueEnumerator<TSource>, allows ref struct
 ````
 
@@ -69,7 +69,7 @@ Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnl
 
 Getting Started
 ---
-You can install it from [NuGet/ZLinq](https://www.nuget.org/packages/ZLinq). For Unity usage, refer to the [Unity section](#unity). For Godot usage, refer to the [Godot section](#godot).
+You can install package from [NuGet/ZLinq](https://www.nuget.org/packages/ZLinq). For Unity usage, refer to the [Unity section](#unity). For Godot usage, refer to the [Godot section](#godot).
 
 ```bash
 dotnet add package ZLinq
@@ -130,9 +130,9 @@ Difference and Limitation
 ---
 For .NET 9 and above, `ValueEnumerable<T>` is a `ref struct` and cannot be converted to `IEnumerable<T>`. To ensure compatibility when upgrading, `AsEnumerable` is not provided by default even for versions prior to .NET 9.
 
-Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to methods that require `IEnumerable<T>`. It's also difficult to pass it to other methods due to the complex type signatures required by generics (implementation is explained in the [Custom Operator](#custom-operator) section). Using `ToArray()` is one solution, but this can cause unnecessary allocations in some cases.
+Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to methods that require `IEnumerable<T>`. It's also difficult to pass it to other methods due to the complex type signatures required by generics (implementation is explained in the [Custom Extensions](#custom-extensions) section). Using `ToArray()` is one solution, but this can cause unnecessary allocations in some cases.
 
-string.Join has overloads for both `IEnumerable<string>` and `params object[]`. Passing `ValueEnumerable<T>` directly will select the `object[]` overload, which may not give the desired result. In this case, use the `JoinToString` operator instead.
+`String.Join` has overloads for both `IEnumerable<string>` and `params object[]`. Passing `ValueEnumerable<T>` directly will select the `object[]` overload, which may not give the desired result. In this case, use the `JoinToString` operator instead.
 
 `ValueEnumerable<T>` is a struct, and its size increases slightly with each method chain. With many chained methods, copy costs can become significant. When iterating over small collections, these copy costs can outweigh the benefits, causing performance to be worse than standard LINQ. However, this is only an issue with extremely long method chains and small iteration counts, so it's rarely a practical concern.
 
@@ -296,7 +296,7 @@ var json = JsonNode.Parse("""
 var origin = json!["nesting"]!["level1"]!["level2"]!;
 
 // JsonNode axis, Children, Descendants, Anestors, BeforeSelf, AfterSelf and ***Self.
-foreach (var item in origin.Descendants().Select(x => x.Node).OfType<JsoArray>())
+foreach (var item in origin.Descendants().Select(x => x.Node).OfType<JsonArray>())
 {
     // [true, false, true], ["fast", "accurate", "balanced"], [1, 1, 2, 3, 5, 8, 13]
     Console.WriteLine(item.ToJsonString(JsonSerializerOptions.Web));
