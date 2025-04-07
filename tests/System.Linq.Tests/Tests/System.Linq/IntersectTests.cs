@@ -72,8 +72,7 @@ namespace System.Linq.Tests
         {
             yield return [new int?[0], new int?[] { -5, 0, null, 1, 2, 9, 2 }, new int?[0]];
             yield return [new int?[] { -5, 0, 1, 2, null, 9, 2 }, new int?[0], new int?[0]];
-            yield return [new int?[] { 1, 2, null, 3, 4, 5, 6 }, new int?[] { 6, 7, 7, 7, null, 8, 1 }, new int?[] { 1, null, 6 }
-            ];
+            yield return [new int?[] { 1, 2, null, 3, 4, 5, 6 }, new int?[] { 6, 7, 7, 7, null, 8, 1 }, new int?[] { 1, null, 6 }];
         }
 
         [Theory]

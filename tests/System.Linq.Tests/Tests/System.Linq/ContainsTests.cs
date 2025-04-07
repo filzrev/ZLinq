@@ -121,7 +121,9 @@ namespace System.Linq.Tests
         public void ExplicitNullComparerDoesNotDeferToCollection()
         {
             IEnumerable<string> source = new HashSet<string>(new AnagramEqualityComparer()) { "ABC" };
-            Assert.DoesNotContain("BAC", source);
+
+            var hasValue = source.Contains("BAC", null);
+            Assert.False(hasValue);
         }
 
         [Fact]
