@@ -65,7 +65,7 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<Concat<FromEnumerable<TSource>, FromEnumerable<TSource>, TSource>, TSource> Concat<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Concat(second);
     public static Boolean Contains<TSource>(this IEnumerable<TSource> source, TSource value) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Contains(value);
     public static Boolean Contains<TSource>(this IEnumerable<TSource> source, TSource value, IEqualityComparer<TSource>? comparer) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Contains(value, comparer);
-    public static Int32 CopyTo<T>(this IEnumerable<T> source, Span<T> dest) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CopyTo(dest);
+    public static Int32 CopyTo<T>(this IEnumerable<T> source, Span<T> destination) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CopyTo(destination);
     public static void CopyTo<T>(this IEnumerable<T> source, List<T> list) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CopyTo(list);
     public static Int32 Count<TSource>(this IEnumerable<TSource> source) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Count();
     public static Int32 Count<TSource>(this IEnumerable<TSource> source, Func<TSource, Boolean> predicate) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Count(predicate);

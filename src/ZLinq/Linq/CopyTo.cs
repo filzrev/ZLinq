@@ -6,7 +6,7 @@ partial class ValueEnumerableExtensions
     /// Unlike the semantics of normal CopyTo, this allows the destination to be smaller than the source.
     /// Returns the number of elements copied.
     /// </summary>
-    public static int CopyTo<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> source, Span<T> dest)
+    public static int CopyTo<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> source, Span<T> destination)
         where TEnumerator : struct, IValueEnumerator<T>
 #if NET9_0_OR_GREATER
     , allows ref struct
@@ -16,17 +16,18 @@ partial class ValueEnumerableExtensions
 
         if (enumerator.TryGetNonEnumeratedCount(out var count))
         {
-            if (enumerator.TryCopyTo(dest, 0))
+            if (enumerator.TryCopyTo(destination, 0))
             {
-                return Math.Min(count, dest.Length);
+                return Math.Min(count, destination.Length);
             }
         }
 
         var i = 0;
         while (enumerator.TryGetNext(out var current))
         {
-            dest[i++] = current;
-            if (i == dest.Length)
+            destination[i] = current;
+            i++;
+            if (i == destination.Length)
             {
                 return i;
             }
@@ -71,7 +72,8 @@ partial class ValueEnumerableExtensions
             var i = 0;
             while (enumerator.TryGetNext(out var current))
             {
-                span[i++] = current;
+                span[i] = current;
+                i++;
             }
         }
         else
