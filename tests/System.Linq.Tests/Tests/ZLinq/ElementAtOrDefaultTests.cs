@@ -123,7 +123,7 @@ namespace ZLinq.Tests
             Assert.Equal(2, source.ElementAtOrDefault(new Index(2)));
             Assert.Equal(2, source.ElementAtOrDefault(^3));
 
-            source.InsertRange(3, new[] { -1, -2 });
+            source.InsertRange(3, [-1, -2]);
             source.RemoveAt(0);
             Assert.Equal(-1, source.ElementAtOrDefault(2));
             Assert.Equal(-1, source.ElementAtOrDefault(new Index(2)));
@@ -148,7 +148,7 @@ namespace ZLinq.Tests
                 var query1 = ForceNotCollection(source).Select(i => i);
                 var query2 = ForceNotCollection(source).Select(i => i);
                 var query3 = ForceNotCollection(source).Select(i => i);
-                source.InsertRange(3, new[] { -1, -2 });
+                source.InsertRange(3, [-1, -2]);
                 source.RemoveAt(0);
                 Assert.Equal(-1, query1.ElementAtOrDefault(2));
                 Assert.Equal(-1, query2.ElementAtOrDefault(new Index(2)));
@@ -198,7 +198,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NonEmptySource_Consistency()
         {
-            int?[] source = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int?[] source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
             Assert.Equal(5, source.ElementAtOrDefault(5));
             Assert.Equal(5, source.ElementAtOrDefault(new Index(5)));
@@ -229,7 +229,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NonEmptySource_Consistency_NotList()
         {
-            int?[] source = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int?[] source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
             Assert.Equal(5, ForceNotCollection(source).ElementAtOrDefault(5));
             Assert.Equal(5, ForceNotCollection(source).ElementAtOrDefault(new Index(5)));
@@ -280,7 +280,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NonEmptySource_Consistency_ListPartition()
         {
-            int?[] source = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int?[] source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
             Assert.Equal(5, ListPartitionOrEmpty(source).ElementAtOrDefault(5));
             Assert.Equal(5, ListPartitionOrEmpty(source).ElementAtOrDefault(new Index(5)));
@@ -311,7 +311,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NonEmptySource_Consistency_EnumerablePartition()
         {
-            int?[] source = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            int?[] source = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
             Assert.Equal(5, EnumerablePartitionOrEmpty(source).ElementAtOrDefault(5));
             Assert.Equal(5, EnumerablePartitionOrEmpty(source).ElementAtOrDefault(new Index(5)));
@@ -342,7 +342,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EmptySource_Consistency()
         {
-            int?[] source = { };
+            int?[] source = [];
 
             Assert.Null(source.ElementAtOrDefault(1));
             Assert.Null(source.ElementAtOrDefault(-1));
@@ -363,7 +363,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EmptySource_Consistency_NotList()
         {
-            int?[] source = { };
+            int?[] source = [];
 
             Assert.Null(ForceNotCollection(source).ElementAtOrDefault(1));
             Assert.Null(ForceNotCollection(source).ElementAtOrDefault(-1));
@@ -384,7 +384,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EmptySource_Consistency_ListPartition()
         {
-            int?[] source = { };
+            int?[] source = [];
 
             Assert.Null(ListPartitionOrEmpty(source).ElementAtOrDefault(1));
             Assert.Null(ListPartitionOrEmpty(source).ElementAtOrDefault(-1));
@@ -405,7 +405,7 @@ namespace ZLinq.Tests
         [Fact]
         public void EmptySource_Consistency_EnumerablePartition()
         {
-            int?[] source = { };
+            int?[] source = [];
 
             Assert.Null(EnumerablePartitionOrEmpty(source).ElementAtOrDefault(1));
             Assert.Null(EnumerablePartitionOrEmpty(source).ElementAtOrDefault(-1));

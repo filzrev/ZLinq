@@ -98,18 +98,18 @@ namespace System.Linq.Tests
         {
             foreach ((int[] array, long expected) in new[]
             {
-                (new[] { 42 }, 42),
+                ([42], 42),
                 (Enumerable.Range(1, 10).ToArray(), 1),
-                (new int[] { -1, -10, 10, 200, 1000 }, -10),
-                (new int[] { 3000, 100, 200, 1000 }, 100),
+                ([-1, -10, 10, 200, 1000], -10),
+                ([3000, 100, 200, 1000], 100),
                 (new int[] { 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat(int.MinValue, 1)).ToArray(), int.MinValue),
 
-                (new[] { 20 }, 20),
+                ([20], 20),
                 (Enumerable.Repeat(-2, 5).ToArray(), -2),
                 (Enumerable.Range(1, 10).ToArray(), 1),
-                (new int[] { 6, 9, 10, 7, 8 }, 6),
-                (new int[] { 6, 9, 10, 0, -5 }, -5),
-                (new int[] { 6, 0, 9, 0, 10, 0 }, 0),
+                ([6, 9, 10, 7, 8], 6),
+                ([6, 9, 10, 0, -5], -5),
+                ([6, 0, 9, 0, 10, 0], 0),
             })
             {
                 yield return new object[] { new TestEnumerable<int>(array), expected };
@@ -147,16 +147,16 @@ namespace System.Linq.Tests
         {
             foreach ((long[] array, long expected) in new[]
             {
-                (new[] { 42L }, 42L),
+                ([42L], 42L),
                 (Enumerable.Range(1, 10).Select(i => (long)i).ToArray(), 1L),
-                (new long[] { -1, -10, 10, 200, 1000 }, -10L),
-                (new long[] { 3000, 100, 200, 1000 }, 100L),
+                ([-1, -10, 10, 200, 1000], -10L),
+                ([3000, 100, 200, 1000], 100L),
                 (new long[] { 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat(long.MinValue, 1)).ToArray(), long.MinValue),
 
-                (new[] { int.MaxValue + 10L }, int.MaxValue + 10L),
+                ([int.MaxValue + 10L], int.MaxValue + 10L),
                 (Enumerable.Repeat(500L, 5).ToArray(), 500L),
-                (new long[] { -250, 49, 130, 47, 28 }, -250L),
-                (new long[] { 6, 9, 10, 0, -int.MaxValue - 50L }, -int.MaxValue - 50L),
+                ([-250, 49, 130, 47, 28], -250L),
+                ([6, 9, 10, 0, -int.MaxValue - 50L], -int.MaxValue - 50L),
                 (new long[] { 6, -5, 9, -5, 10, -5 }, -5),
             })
             {
@@ -195,16 +195,16 @@ namespace System.Linq.Tests
         {
             foreach ((float[] array, float expected) in new[]
             {
-                (new[] { 42f }, 42f),
+                ([42f], 42f),
                 (Enumerable.Range(1, 10).Select(i => (float)i).ToArray(), 1f),
-                (new float[] { -1, -10, 10, 200, 1000 }, -10f),
+                ([-1, -10, 10, 200, 1000], -10f),
                 (new float[] { 3000, 100, 200, 1000 }, 100),
                 (new float[] { 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat(float.MinValue, 1)).ToArray(), float.MinValue),
 
-                (new[] { 5.5f }, 5.5f),
+                ([5.5f], 5.5f),
                 (Enumerable.Repeat(float.NaN, 5).ToArray(), float.NaN),
-                (new float[] { -2.5f, 4.9f, 130f, 4.7f, 28f }, -2.5f),
-                (new float[] { 6.8f, 9.4f, 10f, 0, -5.6f }, -5.6f),
+                ([-2.5f, 4.9f, 130f, 4.7f, 28f], -2.5f),
+                ([6.8f, 9.4f, 10f, 0, -5.6f], -5.6f),
                 (new float[] { -5.5f, float.NegativeInfinity, 9.9f, float.NegativeInfinity }, float.NegativeInfinity),
 
                 (new float[] { float.NaN, 6.8f, 9.4f, 10f, 0, -5.6f }, float.NaN),
@@ -265,15 +265,15 @@ namespace System.Linq.Tests
         {
             foreach ((double[] array, double expected) in new[]
             {
-                (new[] { 42.0 }, 42.0),
+                ([42.0], 42.0),
                 (Enumerable.Range(1, 10).Select(i => (double)i).ToArray(), 1.0 ),
-                (new double[] { -1, -10, 10, 200, 1000 }, -10.0),
-                (new double[] { 3000, 100, 200, 1000 }, 100.0),
+                ([-1, -10, 10, 200, 1000], -10.0),
+                ([3000, 100, 200, 1000], 100.0),
                 (new double[] { 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat(double.MinValue, 1)).ToArray(), double.MinValue),
 
-                (new[] { 5.5 }, 5.5),
-                (new double[] { -2.5, 4.9, 130, 4.7, 28 }, -2.5),
-                (new double[] { 6.8, 9.4, 10, 0, -5.6 }, -5.6),
+                ([5.5], 5.5),
+                ([-2.5, 4.9, 130, 4.7, 28], -2.5),
+                ([6.8, 9.4, 10, 0, -5.6], -5.6),
                 (new double[] { -5.5, double.NegativeInfinity, 9.9, double.NegativeInfinity }, double.NegativeInfinity),
 
                 (new double[] { double.NaN, 6.8, 9.4, 10, 0, -5.6 }, double.NaN),
@@ -333,17 +333,17 @@ namespace System.Linq.Tests
         {
             foreach ((decimal[] array, decimal expected) in new[]
             {
-                (new[] { 42m }, 42m),
+                ([42m], 42m),
                 (Enumerable.Range(1, 10).Select(i => (decimal)i).ToArray(), 1m),
-                (new decimal[] { -1, -10, 10, 200, 1000 }, -10m),
-                (new decimal[] { 3000, 100, 200, 1000 }, 100m),
+                ([-1, -10, 10, 200, 1000], -10m),
+                ([3000, 100, 200, 1000], 100m),
                 (new decimal[] { 3000, 100, 200, 1000 }.Concat(Enumerable.Repeat(decimal.MinValue, 1)).ToArray(), decimal.MinValue),
 
-                (new[] { 5.5m }, 5.5m),
+                ([5.5m], 5.5m),
                 (Enumerable.Repeat(-3.4m, 5).ToArray(), -3.4m),
-                (new decimal[] { -2.5m, 4.9m, 130m, 4.7m, 28m }, -2.5m),
+                ([-2.5m, 4.9m, 130m, 4.7m, 28m], -2.5m),
                 (new decimal[] { 6.8m, 9.4m, 10m, 0m, 0m, decimal.MinValue }, decimal.MinValue),
-                (new decimal[] { -5.5m, 0m, 9.9m, -5.5m, 5m }, -5.5m),
+                ([-5.5m, 0m, 9.9m, -5.5m, 5m], -5.5m),
             })
             {
                 yield return new object[] { new TestEnumerable<decimal>(array), expected };
@@ -575,13 +575,13 @@ namespace System.Linq.Tests
             yield return new object[] { Enumerable.Range(1, 10).Select(i => new DateTime(2000, 1, i)).ToArray(), new DateTime(2000, 1, 1) };
             yield return new object[] { new DateTime[] { new DateTime(2000, 12, 1), new DateTime(2000, 1, 1), new DateTime(2000, 1, 12) }, new DateTime(2000, 1, 1) };
 
-            DateTime[] hundred = new DateTime[]
-            {
+            DateTime[] hundred =
+            [
                 new DateTime(3000, 1, 1),
                 new DateTime(100, 1, 1),
                 new DateTime(200, 1, 1),
                 new DateTime(1000, 1, 1)
-            };
+            ];
             yield return new object[] { hundred, new DateTime(100, 1, 1) };
             yield return new object[] { hundred.Concat(Enumerable.Repeat(DateTime.MinValue, 1)), DateTime.MinValue };
         }
@@ -934,17 +934,17 @@ namespace System.Linq.Tests
                 expected: 0);
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 comparer: null,
                 expected: "Aardvark");
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 comparer: Comparer<string>.Create((x, y) => -x.CompareTo(y)),
                 expected: "Zyzzyva");
 
             object[] WrapArgs<TSource>(IEnumerable<TSource> source, IComparer<TSource>? comparer, TSource? expected)
-                => new object[] { source, comparer, expected };
+                => [source, comparer, expected];
         }
 
         [Fact]
@@ -1063,13 +1063,13 @@ namespace System.Linq.Tests
                 expected: 0);
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 keySelector: x => x,
                 comparer: null,
                 expected: "Aardvark");
 
             yield return WrapArgs(
-                source: new string[] { "Aardvark", "Zyzzyva", "Zebra", "Antelope" },
+                source: ["Aardvark", "Zyzzyva", "Zebra", "Antelope"],
                 keySelector: x => x,
                 comparer: Comparer<string>.Create((x, y) => -x.CompareTo(y)),
                 expected: "Zyzzyva");
@@ -1105,7 +1105,7 @@ namespace System.Linq.Tests
                 expected: (Name: "Harry", Age: 20));
 
             object[] WrapArgs<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer, TSource? expected)
-                => new object[] { source, keySelector, comparer, expected };
+                => [source, keySelector, comparer, expected];
         }
     }
 }

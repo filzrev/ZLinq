@@ -97,7 +97,7 @@ namespace System.Linq.Tests
         public void FirstNull_ThrowsArgumentNullException()
         {
             string[] first = null;
-            string[] second = { "bBo", "shriC" };
+            string[] second = ["bBo", "shriC"];
 
             AssertExtensions.Throws<ArgumentNullException>("first", () => first.Except(second));
             AssertExtensions.Throws<ArgumentNullException>("first", () => first.Except(second, new AnagramEqualityComparer()));
@@ -106,7 +106,7 @@ namespace System.Linq.Tests
         [Fact]
         public void SecondNull_ThrowsArgumentNullException()
         {
-            string[] first = { "Bob", "Tim", "Robert", "Chris" };
+            string[] first = ["Bob", "Tim", "Robert", "Chris"];
             string[] second = null;
 
             AssertExtensions.Throws<ArgumentNullException>("second", () => first.Except(second));
@@ -126,16 +126,16 @@ namespace System.Linq.Tests
         public void HashSetWithBuiltInComparer_HashSetContainsNotUsed()
         {
             IEnumerable<string> input1 = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "a" };
-            IEnumerable<string> input2 = new[] { "A" };
+            IEnumerable<string> input2 = ["A"];
 
-            Assert.Equal(new[] { "a" }, input1.Except(input2));
-            Assert.Equal(new[] { "a" }, input1.Except(input2, null));
-            Assert.Equal(new[] { "a" }, input1.Except(input2, EqualityComparer<string>.Default));
+            Assert.Equal(["a"], input1.Except(input2));
+            Assert.Equal(["a"], input1.Except(input2, null));
+            Assert.Equal(["a"], input1.Except(input2, EqualityComparer<string>.Default));
             Assert.Equal(Enumerable.Empty<string>(), input1.Except(input2, StringComparer.OrdinalIgnoreCase));
 
-            Assert.Equal(new[] { "A" }, input2.Except(input1));
-            Assert.Equal(new[] { "A" }, input2.Except(input1, null));
-            Assert.Equal(new[] { "A" }, input2.Except(input1, EqualityComparer<string>.Default));
+            Assert.Equal(["A"], input2.Except(input1));
+            Assert.Equal(["A"], input2.Except(input1, null));
+            Assert.Equal(["A"], input2.Except(input1, EqualityComparer<string>.Default));
             Assert.Equal(Enumerable.Empty<string>(), input2.Except(input1, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -143,7 +143,7 @@ namespace System.Linq.Tests
         public void ExceptBy_FirstNull_ThrowsArgumentNullException()
         {
             string[] first = null;
-            string[] second = { "bBo", "shriC" };
+            string[] second = ["bBo", "shriC"];
 
             AssertExtensions.Throws<ArgumentNullException>("first", () => first.ExceptBy(second, x => x));
             AssertExtensions.Throws<ArgumentNullException>("first", () => first.ExceptBy(second, x => x, new AnagramEqualityComparer()));
@@ -152,7 +152,7 @@ namespace System.Linq.Tests
         [Fact]
         public void ExceptBy_SecondNull_ThrowsArgumentNullException()
         {
-            string[] first = { "Bob", "Tim", "Robert", "Chris" };
+            string[] first = ["Bob", "Tim", "Robert", "Chris"];
             string[] second = null;
 
             AssertExtensions.Throws<ArgumentNullException>("second", () => first.ExceptBy(second, x => x));
@@ -162,8 +162,8 @@ namespace System.Linq.Tests
         [Fact]
         public void ExceptBy_KeySelectorNull_ThrowsArgumentNullException()
         {
-            string[] first = { "Bob", "Tim", "Robert", "Chris" };
-            string[] second = { "bBo", "shriC" };
+            string[] first = ["Bob", "Tim", "Robert", "Chris"];
+            string[] second = ["bBo", "shriC"];
             Func<string, string> keySelector = null;
 
             AssertExtensions.Throws<ArgumentNullException>("keySelector", () => first.ExceptBy(second, keySelector));
@@ -208,42 +208,42 @@ namespace System.Linq.Tests
                 expected: Enumerable.Empty<int>());
 
             yield return WrapArgs(
-                first: new string[] { "Bob", "Tim", "Robert", "Chris" },
-                second: new string[] { "bBo", "shriC" },
+                first: ["Bob", "Tim", "Robert", "Chris"],
+                second: ["bBo", "shriC"],
                 keySelector: x => x,
                 null,
-                expected: new string[] { "Bob", "Tim", "Robert", "Chris" });
+                expected: ["Bob", "Tim", "Robert", "Chris"]);
 
             yield return WrapArgs(
-                first: new string[] { "Bob", "Tim", "Robert", "Chris" },
-                second: new string[] { "bBo", "shriC" },
+                first: ["Bob", "Tim", "Robert", "Chris"],
+                second: ["bBo", "shriC"],
                 keySelector: x => x,
                 new AnagramEqualityComparer(),
-                expected: new string[] { "Tim", "Robert" });
+                expected: ["Tim", "Robert"]);
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },
-                second: new int[] { 15, 20, 40 },
+                second: [15, 20, 40],
                 keySelector: x => x.Age,
                 comparer: null,
                 expected: new (string Name, int Age)[] { ("Dick", 30) });
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },
-                second: new string[] { "moT" },
+                second: ["moT"],
                 keySelector: x => x.Name,
                 comparer: null,
                 expected: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) });
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },
-                second: new string[] { "moT" },
+                second: ["moT"],
                 keySelector: x => x.Name,
                 comparer: new AnagramEqualityComparer(),
                 expected: new (string Name, int Age)[] { ("Dick", 30), ("Harry", 40) });
 
             object[] WrapArgs<TSource, TKey>(IEnumerable<TSource> first, IEnumerable<TKey> second, Func<TSource, TKey> keySelector, IEqualityComparer<TKey>? comparer, IEnumerable<TSource> expected)
-                => new object[] { first, second, keySelector, comparer, expected };
+                => [first, second, keySelector, comparer, expected];
         }
     }
 }

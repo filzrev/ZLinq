@@ -158,7 +158,7 @@ namespace ZLinq.Tests
                 expected: Enumerable.Repeat(5, 1).Select(x => new KeyValuePair<int, int>(x, 100)).ToArray());
 
             Validate(
-                source: new string[] { "Bob", "bob", "tim", "Bob", "Tim" },
+                source: ["Bob", "bob", "tim", "Bob", "Tim"],
                 keySelector: x => x,
                 seedSelector: x => string.Empty,
                 func: (x, y) => x + y,
@@ -172,7 +172,7 @@ namespace ZLinq.Tests
                 ]);
 
             Validate(
-                source: new string[] { "Bob", "bob", "tim", "Bob", "Tim" },
+                source: ["Bob", "bob", "tim", "Bob", "Tim"],
                 keySelector: x => x,
                 seedSelector: x => string.Empty,
                 func: (x, y) => x + y,

@@ -42,7 +42,7 @@ namespace System.Linq.Tests
         public void Where_Array_ExecutionIsDeferred()
         {
             bool funcCalled = false;
-            Func<bool>[] source = { () => { funcCalled = true; return true; } };
+            Func<bool>[] source = [() => { funcCalled = true; return true; }];
 
             IEnumerable<Func<bool>> query = source.Where(value => value());
             Assert.False(funcCalled);
@@ -107,7 +107,7 @@ namespace System.Linq.Tests
         public void WhereWhere_Array_ExecutionIsDeferred()
         {
             bool funcCalled = false;
-            Func<bool>[] source = new Func<bool>[] { () => { funcCalled = true; return true; } };
+            Func<bool>[] source = [() => { funcCalled = true; return true; }];
 
             IEnumerable<Func<bool>> query = source.Where(value => value()).Where(value => value());
             Assert.False(funcCalled);
@@ -175,7 +175,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_Array_ReturnsExpectedValues_True()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> truePredicate = (value) => true;
 
             IEnumerable<int> result = source.Where(truePredicate);
@@ -190,7 +190,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_Array_ReturnsExpectedValues_False()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> falsePredicate = (value) => false;
 
             IEnumerable<int> result = source.Where(falsePredicate);
@@ -201,7 +201,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_Array_ReturnsExpectedValues_Complex()
         {
-            int[] source = new[] { 2, 1, 3, 5, 4 };
+            int[] source = [2, 1, 3, 5, 4];
             Func<int, int, bool> complexPredicate = (value, index) => { return (value == index); };
 
             IEnumerable<int> result = source.Where(complexPredicate);
@@ -388,7 +388,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_Array_CurrentIsDefaultOfTAfterEnumeration()
         {
-            int[] source = new[] { 1 };
+            int[] source = [1];
             Func<int, bool> truePredicate = (value) => true;
 
             var enumerator = source.Where(truePredicate).GetEnumerator();
@@ -448,7 +448,7 @@ namespace System.Linq.Tests
         [Fact]
         public void WhereWhere_Array_ReturnsExpectedValues()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
 
             IEnumerable<int> result = source.Where(evenPredicate).Where(evenPredicate);
@@ -513,7 +513,7 @@ namespace System.Linq.Tests
         [Fact]
         public void WhereSelect_Array_ReturnsExpectedValues()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -527,7 +527,7 @@ namespace System.Linq.Tests
         [Fact]
         public void WhereSelectSelect_Array_ReturnsExpectedValues()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -653,7 +653,7 @@ namespace System.Linq.Tests
         [Fact]
         public void SelectWhere_Array_ReturnsExpectedValues()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> evenPredicate = (value) => value % 2 == 0;
             Func<int, int> addSelector = (value) => value + 1;
 
@@ -732,7 +732,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_PredicateThrowsException()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             Func<int, bool> predicate = value =>
             {
                 if (value == 1)
@@ -815,7 +815,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Select_ResetEnumerator_ThrowsException()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
             IEnumerator<int> enumerator = source.Where(value => true).GetEnumerator();
 
             // The .NET Framework throws a NotImplementedException.
@@ -843,7 +843,7 @@ namespace System.Linq.Tests
         [Fact]
         public void Where_GetEnumeratorReturnsUniqueInstances()
         {
-            int[] source = new[] { 1, 2, 3, 4, 5 };
+            int[] source = [1, 2, 3, 4, 5];
 
             var result = source.Where(value => true);
 
@@ -879,51 +879,51 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementPredicateFalse()
         {
-            int[] source = { 3 };
+            int[] source = [3];
             Assert.DoesNotContain(source, IsEven);
         }
 
         [Fact]
         public void PredicateFalseForAll()
         {
-            int[] source = { 9, 7, 15, 3, 27 };
+            int[] source = [9, 7, 15, 3, 27];
             Assert.DoesNotContain(source, IsEven);
         }
 
         [Fact]
         public void PredicateTrueFirstOnly()
         {
-            int[] source = { 10, 9, 7, 15, 3, 27 };
+            int[] source = [10, 9, 7, 15, 3, 27];
             Assert.Equal(source.Take(1), source.Where(IsEven));
         }
 
         [Fact]
         public void PredicateTrueLastOnly()
         {
-            int[] source = { 9, 7, 15, 3, 27, 20 };
+            int[] source = [9, 7, 15, 3, 27, 20];
             Assert.Equal(source.Skip(source.Length - 1), source.Where(IsEven));
         }
 
         [Fact]
         public void PredicateTrueFirstThirdSixth()
         {
-            int[] source = { 20, 7, 18, 9, 7, 10, 21 };
-            int[] expected = { 20, 18, 10 };
+            int[] source = [20, 7, 18, 9, 7, 10, 21];
+            int[] expected = [20, 18, 10];
             Assert.Equal(expected, source.Where(IsEven));
         }
 
         [Fact]
         public void RunOnce()
         {
-            int[] source = { 20, 7, 18, 9, 7, 10, 21 };
-            int[] expected = { 20, 18, 10 };
+            int[] source = [20, 7, 18, 9, 7, 10, 21];
+            int[] expected = [20, 18, 10];
             Assert.Equal(expected, source.RunOnce().Where(IsEven));
         }
 
         [Fact]
         public void SourceAllNullsPredicateTrue()
         {
-            int?[] source = { null, null, null, null };
+            int?[] source = [null, null, null, null];
             Assert.Equal(source, source.Where(num => true));
         }
 
@@ -936,64 +936,64 @@ namespace System.Linq.Tests
         [Fact]
         public void SingleElementIndexedPredicateTrue()
         {
-            int[] source = { 2 };
+            int[] source = [2];
             Assert.Equal(source, source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void SingleElementIndexedPredicateFalse()
         {
-            int[] source = { 3 };
+            int[] source = [3];
             Assert.Empty(source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void IndexedPredicateFalseForAll()
         {
-            int[] source = { 9, 7, 15, 3, 27 };
+            int[] source = [9, 7, 15, 3, 27];
             Assert.Empty(source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void IndexedPredicateTrueFirstOnly()
         {
-            int[] source = { 10, 9, 7, 15, 3, 27 };
+            int[] source = [10, 9, 7, 15, 3, 27];
             Assert.Equal(source.Take(1), source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void IndexedPredicateTrueLastOnly()
         {
-            int[] source = { 9, 7, 15, 3, 27, 20 };
+            int[] source = [9, 7, 15, 3, 27, 20];
             Assert.Equal(source.Skip(source.Length - 1), source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void IndexedPredicateTrueFirstThirdSixth()
         {
-            int[] source = { 20, 7, 18, 9, 7, 10, 21 };
-            int[] expected = { 20, 18, 10 };
+            int[] source = [20, 7, 18, 9, 7, 10, 21];
+            int[] expected = [20, 18, 10];
             Assert.Equal(expected, source.Where((e, i) => e % 2 == 0));
         }
 
         [Fact]
         public void SourceAllNullsIndexedPredicateTrue()
         {
-            int?[] source = { null, null, null, null };
+            int?[] source = [null, null, null, null];
             Assert.Equal(source, source.Where((num, index) => true));
         }
 
         [Fact]
         public void PredicateSelectsFirst()
         {
-            int[] source = { -40, 20, 100, 5, 4, 9 };
+            int[] source = [-40, 20, 100, 5, 4, 9];
             Assert.Equal(source.Take(1), source.Where((e, i) => i == 0));
         }
 
         [Fact]
         public void PredicateSelectsLast()
         {
-            int[] source = { -40, 20, 100, 5, 4, 9 };
+            int[] source = [-40, 20, 100, 5, 4, 9];
             Assert.Equal(source.Skip(source.Length - 1), source.Where((e, i) => i == source.Length - 1));
         }
 

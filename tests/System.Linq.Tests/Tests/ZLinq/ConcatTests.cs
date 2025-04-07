@@ -380,7 +380,7 @@ namespace ZLinq.Tests
             Assert.Empty(concatChain); // should not throw a StackOverflowException
             // ToArray needs the count as well, and the process of copying all of the collections
             // to the array should also not be recursive.
-            Assert.Equal(new int[] { }, concatChain.ToArray());
+            Assert.Equal([], concatChain.ToArray());
             Assert.Equal(new List<int> { }, concatChain.ToList()); // ToList also gets the count beforehand
         }
 
@@ -433,7 +433,7 @@ namespace ZLinq.Tests
             // Start with a lazy seed.
             // The seed holds 1 item, so during the first MoveNext we won't have to
             // backtrack through the linked list 30000 times. This is for test perf.
-            IEnumerable<int> concatChain = ForceNotCollection(new int[] { 0xf00 });
+            IEnumerable<int> concatChain = ForceNotCollection([0xf00]);
 
             for (int i = 0; i < NumberOfConcats; i++)
             {
@@ -469,7 +469,7 @@ namespace ZLinq.Tests
 
             // This time, start with an ICollection seed. We want the subsequent Concats in
             // the loop to produce collection iterators.
-            IEnumerable<int> concatChain = new int[] { 0xf00 };
+            IEnumerable<int> concatChain = [0xf00];
 
             for (int i = 0; i < NumberOfConcats - 1; i++)
             {
@@ -514,10 +514,10 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new TestEnumerable<int>(new int[] { 0 }),
-                    new TestEnumerable<int>(new int[] { 1 }),
-                    new TestEnumerable<int>(new int[] { 2 }),
-                    new int[] { 3 },
+                    new TestEnumerable<int>([0]),
+                    new TestEnumerable<int>([1]),
+                    new TestEnumerable<int>([2]),
+                    [3],
                 }
             };
 
@@ -526,10 +526,10 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new int[] { 0 },
-                    new TestEnumerable<int>(new int[] { 1 }),
-                    new TestEnumerable<int>(new int[] { 2 }),
-                    new TestEnumerable<int>(new int[] { 3 }),
+                    [0],
+                    new TestEnumerable<int>([1]),
+                    new TestEnumerable<int>([2]),
+                    new TestEnumerable<int>([3]),
                 }
             };
 
@@ -538,9 +538,9 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new TestEnumerable<int>(new int[] { 0 }),
-                    new int[] { 1 },
-                    new TestEnumerable<int>(new int[] { 2 }),
+                    new TestEnumerable<int>([0]),
+                    [1],
+                    new TestEnumerable<int>([2]),
                 }
             };
 
@@ -549,9 +549,9 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new int[] { 0 },
-                    new TestEnumerable<int>(new int[] { 1 }),
-                    new int[] { 2 },
+                    [0],
+                    new TestEnumerable<int>([1]),
+                    [2],
                 }
             };
 
@@ -582,11 +582,11 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new int[] { 0 },
-                    new TestEnumerable<int>(new int[] { 1 }),
-                    new int[] { 2 },
-                    new TestEnumerable<int>(new int[] { 3 }),
-                    new int[] { 4 },
+                    [0],
+                    new TestEnumerable<int>([1]),
+                    [2],
+                    new TestEnumerable<int>([3]),
+                    [4],
                 }
             };
 
@@ -595,11 +595,11 @@ namespace ZLinq.Tests
             {
                 new IEnumerable<int>[]
                 {
-                    new TestEnumerable<int>(new int[] { 0 }),
-                    new int[] { 1 },
-                    new TestEnumerable<int>(new int[] { 2 }),
-                    new int[] { 3 },
-                    new TestEnumerable<int>(new int[] { 4 }),
+                    new TestEnumerable<int>([0]),
+                    [1],
+                    new TestEnumerable<int>([2]),
+                    [3],
+                    new TestEnumerable<int>([4]),
                 }
             };
         }

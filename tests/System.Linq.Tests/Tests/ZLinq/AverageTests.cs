@@ -288,7 +288,7 @@ namespace ZLinq.Tests
         [Fact]
         public void Long_SumTooLarge_ThrowsOverflowException()
         {
-            long[] source = new long[] { long.MaxValue, long.MaxValue };
+            long[] source = [long.MaxValue, long.MaxValue];
 
             Assert.Throws<OverflowException>(() => source.Average());
         }
@@ -589,7 +589,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NullableDecimal_SumTooLarge_ThrowsOverflowException()
         {
-            decimal?[] source = new decimal?[] { decimal.MaxValue, decimal.MaxValue };
+            decimal?[] source = [decimal.MaxValue, decimal.MaxValue];
 
             Assert.Throws<OverflowException>(() => source.Average());
         }

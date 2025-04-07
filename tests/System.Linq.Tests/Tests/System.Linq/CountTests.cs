@@ -80,7 +80,7 @@ namespace System.Linq.Tests
         [Fact]
         public void NullableIntArray_IncludesNullObjects()
         {
-            int?[] data = { -10, 4, 9, null, 11 };
+            int?[] data = [-10, 4, 9, null, 11];
             Assert.Equal(5, data.Count());
         }
 
@@ -172,9 +172,9 @@ namespace System.Linq.Tests
 
         public static IEnumerable<object[]> NonEnumeratedCount_SupportedEnumerables()
         {
-            yield return WrapArgs(4, new int[] { 1, 2, 3, 4 });
-            yield return WrapArgs(4, new List<int>(new int[] { 1, 2, 3, 4 }));
-            yield return WrapArgs(4, new Stack<int>(new int[] { 1, 2, 3, 4 }));
+            yield return WrapArgs(4, [1, 2, 3, 4]);
+            yield return WrapArgs(4, new List<int>([1, 2, 3, 4]));
+            yield return WrapArgs(4, new Stack<int>([1, 2, 3, 4]));
 
             yield return WrapArgs(0, Enumerable.Empty<string>());
 
@@ -190,14 +190,14 @@ namespace System.Linq.Tests
                 yield return WrapArgs(20, Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10)));
             }
 
-            static object[] WrapArgs<T>(int expectedCount, IEnumerable<T> source) => new object[] { expectedCount, source };
+            static object[] WrapArgs<T>(int expectedCount, IEnumerable<T> source) => [expectedCount, source];
         }
 
         public static IEnumerable<object[]> NonEnumeratedCount_UnsupportedEnumerables()
         {
             yield return WrapArgs(Enumerable.Range(1, 100).Where(x => x % 2 == 0));
             yield return WrapArgs(Enumerable.Range(1, 100).GroupBy(x => x % 2 == 0));
-            yield return WrapArgs(new Stack<int>(new int[] { 1, 2, 3, 4 }).Select(x => x + 1));
+            yield return WrapArgs(new Stack<int>([1, 2, 3, 4]).Select(x => x + 1));
             yield return WrapArgs(Enumerable.Range(1, 100).Distinct());
 
             if (!PlatformDetection.IsSpeedOptimized)
@@ -212,7 +212,7 @@ namespace System.Linq.Tests
                 yield return WrapArgs(Enumerable.Range(1, 10).Concat(Enumerable.Range(11, 10)));
             }
 
-            static object[] WrapArgs<T>(IEnumerable<T> source) => new object[] { source };
+            static object[] WrapArgs<T>(IEnumerable<T> source) => [source];
         }
     }
 }

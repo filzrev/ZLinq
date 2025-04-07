@@ -123,7 +123,7 @@ namespace System.Linq.Tests
         [Fact]
         public void NullObjectsInArray_Included()
         {
-            int?[] source = { null, null, null, null };
+            int?[] source = [null, null, null, null];
             Assert.All(CreateSources(source), source =>
             {
                 Assert.True(source.Any());

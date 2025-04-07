@@ -78,16 +78,16 @@ namespace ZLinq.Tests
         [Fact]
         public void NullableArray_Empty_WithoutDefaultValue()
         {
-            int?[] source = new int?[0];
-            Assert.Equal(new int?[] { null }, source.DefaultIfEmpty());
+            int?[] source = [];
+            Assert.Equal([null], source.DefaultIfEmpty());
         }
 
         [Fact]
         public void NullableArray_Empty_WithDefaultValue()
         {
-            int?[] source = new int?[0];
+            int?[] source = [];
             int? defaultValue = 9;
-            Assert.Equal(new int?[] { defaultValue }, source.DefaultIfEmpty(defaultValue));
+            Assert.Equal([defaultValue], source.DefaultIfEmpty(defaultValue));
         }
 
         [Fact]

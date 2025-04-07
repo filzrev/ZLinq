@@ -80,7 +80,7 @@ namespace ZLinq.Tests
         [Fact]
         public void NullableIntArray_IncludesNullObjects()
         {
-            int?[] data = { -10, 4, 9, null, 11 };
+            int?[] data = [-10, 4, 9, null, 11];
             Assert.Equal(5, data.Count());
         }
 
@@ -148,12 +148,12 @@ namespace ZLinq.Tests
                 Assert.Equal(source.Length, actualCount);
             }
             {
-                var source = new List<int>(new int[] { 1, 2, 3, 4 });
+                var source = new List<int>([1, 2, 3, 4]);
                 Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
                 Assert.Equal(source.Count, actualCount);
             }
             {
-                var source = new Stack<int>(new int[] { 1, 2, 3, 4 });
+                var source = new Stack<int>([1, 2, 3, 4]);
                 Assert.True(source.TryGetNonEnumeratedCount(out int actualCount));
                 Assert.Equal(source.Count, actualCount);
             }
