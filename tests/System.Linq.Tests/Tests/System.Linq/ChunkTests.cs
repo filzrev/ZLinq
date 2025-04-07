@@ -34,71 +34,63 @@ namespace System.Linq.Tests
         {
             using IEnumerator<int[]> chunks = new FastInfiniteEnumerator<int>().Chunk(5).GetEnumerator();
             chunks.MoveNext();
-            Assert.Equal([0, 0, 0, 0, 0], chunks.Current);
+            Assert.Equal(new[] {0, 0, 0, 0, 0}, chunks.Current);
             Assert.True(chunks.MoveNext());
         }
 
         [Theory]
-        [InlineData(new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 })]
+        [InlineData(new[] {9999, 0, 888, -1, 66, -777, 1, 2, -12345})]
         public void ChunkSourceRepeatCalls(int[] array)
         {
-            Assert.All(IdentityTransforms<int>(), t =>
+            Assert.All(CreateSources(array), source =>
             {
-                IEnumerable<int> source = t(array);
-
                 Assert.Equal(source.Chunk(3), source.Chunk(3));
             });
         }
 
         [Theory]
-        [InlineData(new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 })]
+        [InlineData(new[] {9999, 0, 888, -1, 66, -777, 1, 2, -12345})]
         public void ChunkSourceEvenly(int[] array)
         {
-            Assert.All(IdentityTransforms<int>(), t =>
+            Assert.All(CreateSources(array), source =>
             {
-                IEnumerable<int> source = t(array);
-
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0, 888], chunks.Current);
+                Assert.Equal(new[] { 9999, 0, 888 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([-1, 66, -777], chunks.Current);
+                Assert.Equal(new[] { -1, 66, -777 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([1, 2, -12345], chunks.Current);
+                Assert.Equal(new[] { 1, 2, -12345 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }
 
         [Theory]
-        [InlineData(new[] { 9999, 0, 888, -1, 66, -777, 1, 2 })]
+        [InlineData(new[] {9999, 0, 888, -1, 66, -777, 1, 2})]
         public void ChunkSourceUnevenly(int[] array)
         {
-            Assert.All(IdentityTransforms<int>(), t =>
+            Assert.All(CreateSources(array), source =>
             {
-                IEnumerable<int> source = t(array);
-
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0, 888], chunks.Current);
+                Assert.Equal(new[] { 9999, 0, 888 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([-1, 66, -777], chunks.Current);
+                Assert.Equal(new[] { -1, 66, -777 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([1, 2], chunks.Current);
+                Assert.Equal(new[] { 1, 2 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }
 
         [Theory]
-        [InlineData(new[] { 9999, 0 })]
+        [InlineData(new[] {9999, 0})]
         public void ChunkSourceSmallerThanMaxSize(int[] array)
         {
-            Assert.All(IdentityTransforms<int>(), t =>
+            Assert.All(CreateSources(array), source =>
             {
-                IEnumerable<int> source = t(array);
-
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0], chunks.Current);
+                Assert.Equal(new[] { 9999, 0 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }
@@ -107,10 +99,8 @@ namespace System.Linq.Tests
         [InlineData(new int[0])]
         public void EmptySourceYieldsNoChunks(int[] array)
         {
-            Assert.All(IdentityTransforms<int>(), t =>
+            Assert.All(CreateSources(array), source =>
             {
-                IEnumerable<int> source = t(array);
-
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 Assert.False(chunks.MoveNext());
             });

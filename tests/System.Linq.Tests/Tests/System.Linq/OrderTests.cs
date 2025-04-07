@@ -325,7 +325,7 @@ namespace System.Linq.Tests
         [Fact]
         public void EnumeratorDoesntContinue()
         {
-            var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().Order().GetEnumerator();
+            using var enumerator = NumberRangeGuaranteedNotCollectionType(0, 3).Shuffle().Order().GetEnumerator();
             while (enumerator.MoveNext()) { }
             Assert.False(enumerator.MoveNext());
         }
@@ -430,7 +430,7 @@ namespace System.Linq.Tests
 
             using (new ThreadCultureChange(dk)) // "dk" whilst GetEnumerator
             {
-                IEnumerator<string> s = source.Order().GetEnumerator();
+                using IEnumerator<string> s = source.Order().GetEnumerator();
                 using (new ThreadCultureChange(au)) // but "au" whilst accessing...
                 {
                     int idx = 0;
@@ -444,7 +444,7 @@ namespace System.Linq.Tests
             using (new ThreadCultureChange(au))
             {
                 // "au" whilst GetEnumerator
-                IEnumerator<string> s = source.Order().GetEnumerator();
+                using IEnumerator<string> s = source.Order().GetEnumerator();
 
                 using (new ThreadCultureChange(dk))
                 {

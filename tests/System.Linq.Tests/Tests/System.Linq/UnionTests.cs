@@ -280,7 +280,8 @@ namespace System.Linq.Tests
             string[] third = ["trotFox", "Golf", "Alpha", "choE", "Tango"];
 
             string[] plainThenAnagram = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Tango"];
-            string[] anagramThenPlain = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "trotFox", "Golf", "choE", "Tango"];
+            string[] anagramThenPlain = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "trotFox", "Golf", "choE", "Tango"
+            ];
 
             Assert.Equal(plainThenAnagram, first.Union(second).Union(third, new AnagramEqualityComparer()));
             Assert.Equal(anagramThenPlain, first.Union(second, new AnagramEqualityComparer()).Union(third));
@@ -308,7 +309,10 @@ namespace System.Linq.Tests
         [Fact]
         public void ForcedToEnumeratorDoesntEnumerateMultipleUnions()
         {
-            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3).Union(Enumerable.Range(0, 3)).Union(Enumerable.Range(2, 4)).Union([9, 2, 4]);
+            var iterator = NumberRangeGuaranteedNotCollectionType(0, 3)
+                .Union(Enumerable.Range(0, 3))
+                .Union(Enumerable.Range(2, 4))
+                .Union([9, 2, 4]);
             // Don't insist on this behaviour, but check it's correct if it happens
             var en = iterator as IEnumerator<int>;
             Assert.False(en is not null && en.MoveNext());

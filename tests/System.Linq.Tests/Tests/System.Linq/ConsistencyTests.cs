@@ -23,10 +23,10 @@ namespace System.Linq.Tests
             MethodInfo queryableNotInEnumerable = GetMissingExtensionMethod(
                 typeof(Queryable),
                 typeof(Enumerable),
-                 [
-                     nameof(Queryable.AsQueryable)
-                 ]
-                );
+                [
+                    nameof(Queryable.AsQueryable)
+                ]
+            );
 
             Assert.True(queryableNotInEnumerable is null, string.Format("Queryable method {0} not defined by Enumerable", queryableNotInEnumerable));
         }
@@ -44,9 +44,9 @@ namespace System.Linq.Tests
                 nameof(Enumerable.ToList),
                 nameof(Enumerable.ToHashSet),
                 nameof(Enumerable.TryGetNonEnumeratedCount),
-                nameof(Enumerable.Reverse), // Required for .NET 10
+                nameof(Enumerable.Reverse),
                 "Fold",
-                "LeftJoin",
+                "LeftJoin"
             ];
 
             return result;

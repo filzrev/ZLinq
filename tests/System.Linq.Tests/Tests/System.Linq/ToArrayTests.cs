@@ -64,7 +64,7 @@ namespace System.Linq.Tests
                 resultArray =>
                 {
                     Assert.NotNull(resultArray);
-                    Assert.Empty(resultArray);
+                    Assert.Equal(0, resultArray.Length);
                 });
         }
 
@@ -92,9 +92,9 @@ namespace System.Linq.Tests
         [Fact]
         public void RunOnce()
         {
-            Assert.Equal([1, 2, 3, 4, 5, 6, 7], Enumerable.Range(1, 7).RunOnce().ToArray());
+            Assert.Equal(new int[] {1, 2, 3, 4, 5, 6, 7}, Enumerable.Range(1, 7).RunOnce().ToArray());
             Assert.Equal(
-                new string[] { "1", "2", "3", "4", "5", "6", "7", "8" },
+                new string[] {"1", "2", "3", "4", "5", "6", "7", "8"},
                 Enumerable.Range(1, 8).Select(i => i.ToString()).RunOnce().ToArray());
         }
 
@@ -147,7 +147,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceIntegers.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceIntegers, sourceIntegers.Where(i => true).ToArray());
-            Assert.Equal([], sourceIntegers.Where(i => false).ToArray());
+            Assert.Equal(Array.Empty<int>(), sourceIntegers.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceIntegers.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceIntegers.Where(i => false).Select(i => i.ToString()).ToArray());
@@ -167,7 +167,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceList, sourceList.Where(i => true).ToArray());
-            Assert.Equal([], sourceList.Where(i => false).ToArray());
+            Assert.Equal(Array.Empty<int>(), sourceList.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceList.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceList.Where(i => false).Select(i => i.ToString()).ToArray());
@@ -190,8 +190,8 @@ namespace System.Linq.Tests
         public void SameResultsRepeatCallsFromWhereOnStringQuery()
         {
             var q = from x in new[] { "!@#$%^", "C", "AAA", "", "Calling Twice", "SoS", string.Empty }
-                    where !string.IsNullOrEmpty(x)
-                    select x;
+                        where !string.IsNullOrEmpty(x)
+                        select x;
 
             Assert.Equal(q.ToArray(), q.ToArray());
         }
@@ -200,12 +200,12 @@ namespace System.Linq.Tests
         public void SameResultsButNotSameObject()
         {
             var qInt = from x in new[] { 9999, 0, 888, -1, 66, -777, 1, 2, -12345 }
-                       where x > int.MinValue
-                       select x;
+                    where x > int.MinValue
+                    select x;
 
             var qString = from x in new[] { "!@#$%^", "C", "AAA", "", "Calling Twice", "SoS", string.Empty }
-                          where !string.IsNullOrEmpty(x)
-                          select x;
+                        where !string.IsNullOrEmpty(x)
+                        select x;
 
             Assert.NotSame(qInt.ToArray(), qInt.ToArray());
             Assert.NotSame(qString.ToArray(), qString.ToArray());
@@ -281,7 +281,7 @@ namespace System.Linq.Tests
         public void ConstantTimeCountPartitionSelectSameTypeToArray()
         {
             var source = Enumerable.Range(0, 100).Select(i => i * 2).Skip(1).Take(5);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace System.Linq.Tests
         public void NonConstantTimeCountPartitionSelectSameTypeToArray()
         {
             var source = NumberRangeGuaranteedNotCollectionType(0, 100).OrderBy(i => i).Select(i => i * 2).Skip(1).Take(5);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]
@@ -375,13 +375,13 @@ namespace System.Linq.Tests
         {
             // Return array sizes that should be small enough not to OOM
             int MaxPower = PlatformDetection.IsBrowser ? 15 : 18;
-            yield return new object[] { 1 };
-            yield return new object[] { 2 };
+            yield return [1];
+            yield return [2];
             for (int i = 2; i <= MaxPower; i++)
             {
-                yield return new object[] { (i << i) - 1 };
-                yield return new object[] { (i << i) };
-                yield return new object[] { (i << i) + 1 };
+                yield return [(i << i) - 1];
+                yield return [(i << i)];
+                yield return [(i << i) + 1];
             }
         }
     }

@@ -16,7 +16,7 @@ namespace System.Linq.Tests
         [Fact]
         public void ToList_AlwaysCreateACopy()
         {
-            List<int> sourceList = new List<int>() { 1, 2, 3, 4, 5 };
+            List<int> sourceList = [1, 2, 3, 4, 5];
             List<int> resultList = sourceList.ToList();
 
             Assert.NotSame(sourceList, resultList);
@@ -41,7 +41,7 @@ namespace System.Linq.Tests
                 resultList =>
                 {
                     Assert.NotNull(resultList);
-                    Assert.Empty(resultList);
+                    Assert.Equal(0, resultList.Count);
                 });
         }
 
@@ -184,8 +184,8 @@ namespace System.Linq.Tests
         public void SameResultsRepeatCallsFromWhereOnStringQuery()
         {
             var q = from x in new[] { "!@#$%^", "C", "AAA", "", "Calling Twice", "SoS", string.Empty }
-                    where !string.IsNullOrEmpty(x)
-                    select x;
+                        where !string.IsNullOrEmpty(x)
+                        select x;
 
             Assert.Equal(q.ToList(), q.ToList());
         }
