@@ -4,7 +4,7 @@ Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSyst
 
 ![](img/benchmarkhead.jpg)
 
-Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14282419424). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
+Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14329644584). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
 
 ```bash
 dotnet add package ZLinq
@@ -490,6 +490,11 @@ source.AsVectorizable().Any(x => Vector.LessThanAll(x, new(5000)), x => x < 5000
 source.AsVectorizable().Count(x => Vector.GreaterThan(x, new(5000)), x => x > 5000);
 ```
 
+| Method            | Mean        | Error    | StdDev  | Allocated |
+|------------------ |------------:|---------:|--------:|----------:|
+| VectorizableCount |  1,048.4 ns | 39.39 ns | 2.16 ns |         - |
+| LinqCount         | 10,909.3 ns | 54.79 ns | 3.00 ns |         - |
+
 * `Select` -> `ToArray` or `CopyTo`
 
 ```csharp
@@ -508,6 +513,14 @@ array1.AsVectorizable().Zip(array2, (x, y) => x + y, (x, y) => x + y).ToArray();
 array1.AsVectorizable().Zip(array2, array3, (x, y, z) => x + y + z, (x, y, z) => x + y + z).CopyTo(destination);
 array1.AsVectorizable().Zip(array2, array3, (x, y, z) => x + y + z, (x, y, z) => x + y + z).ToArray();
 ```
+
+| Method                      | Mean      |
+|---------------------------- |----------:|
+| ZLinqVectorizableZipCopyTo  |  24.17 μs |
+| ZLinqVectorizableZip3CopyTo |  29.26 μs |
+| ZLinqZipCopyTo              | 329.43 μs |
+| ZLinqZip3CopyTo             | 584.69 μs |
+
 
 Unity
 ---
