@@ -1,7 +1,7 @@
 ﻿
 using ZLinq;
 
-[assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
+[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
 
 var items = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 5, 12, 13, 14, 15 };

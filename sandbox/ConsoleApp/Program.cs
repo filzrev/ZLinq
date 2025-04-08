@@ -24,7 +24,7 @@ using ZLinq.Traversables;
 //byte.MaxValue
 // 2147483647
 
-[assembly: ZLinq.ZLinqDropInAttribute("", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
+[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
 
 var first = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };

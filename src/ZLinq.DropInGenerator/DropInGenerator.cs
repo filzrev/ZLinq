@@ -74,6 +74,11 @@ public class DropInGenerator : IIncrementalGenerator
                 sb.AppendLine($"#if {attribute.ConditionalCompilationSymbols}");
             }
 
+            if (dropinType == DropInGenerateTypes.Span)
+            {
+                sb.AppendLine("#if NET9_0_OR_GREATER");
+            }
+
             using (var stream = thisAsm.GetManifestResourceStream(resourceName))
             using (var sr = new StreamReader(stream!))
             {
@@ -104,6 +109,11 @@ namespace {{attribute.GenerateNamespace}}
             if (attribute.ConditionalCompilationSymbols is not null)
             {
                 sb.AppendLine($"#endif");
+            }
+
+            if (dropinType == DropInGenerateTypes.Span)
+            {
+                sb.AppendLine("#endif");
             }
 
             var hintName = resourceName.Replace("ZLinq.DropInGenerator.ResourceCodes.", "ZLinq.DropIn.").Replace(".cs", ".g.cs");
