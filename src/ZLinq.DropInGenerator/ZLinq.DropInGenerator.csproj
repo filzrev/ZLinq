@@ -11,6 +11,7 @@
     <IncludeSymbols>false</IncludeSymbols>
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <IsRoslynComponent>true</IsRoslynComponent>
+    <NoWarn>$(NoWarn);CS8002</NoWarn>
 
     <DefineConstants>SOURCE_GENERATOR</DefineConstants>
 

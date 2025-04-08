@@ -8,6 +8,7 @@
     <LangVersion>13</LangVersion>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS8002</NoWarn>
 
     <!-- Microsoft.Testing.Platform Support -->
     <OutputType>Exe</OutputType>

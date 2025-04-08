@@ -8,6 +8,7 @@
     <Nullable>enable</Nullable>
     <LangVersion>9</LangVersion>
     <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CS8002</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(TargetFramework.StartsWith(`netstandard`))">
