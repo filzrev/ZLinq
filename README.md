@@ -30,7 +30,7 @@ foreach (var item in seq) { }
 * **LINQ to SIMD** to automatic application of SIMD where possible and customizable arbitrary operations
 * Optional **Drop-in replacement** Source Generator to automatically accelerate all LINQ methods
 
-In ZLinq, we have proven high compatibility and performance by running [dotnet/runtime's System.Linq.Tests](https://github.com/Cysharp/ZLinq/tree/main/tests/System.Linq.Tests) as a drop-in replacement, passing 9,500 tests.
+In ZLinq, we have proven high compatibility and performance by running [dotnet/runtime's System.Linq.Tests](https://github.com/Cysharp/ZLinq/tree/main/tests/System.Linq.Tests) as a drop-in replacement, passing 9000 tests.
 
 ![](img/testrun.png)
 
@@ -135,6 +135,8 @@ Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to me
 `String.Join` has overloads for both `IEnumerable<string>` and `params object[]`. Passing `ValueEnumerable<T>` directly will select the `object[]` overload, which may not give the desired result. In this case, use the `JoinToString` operator instead.
 
 `ValueEnumerable<T>` is a struct, and its size increases slightly with each method chain. With many chained methods, copy costs can become significant. When iterating over small collections, these copy costs can outweigh the benefits, causing performance to be worse than standard LINQ. However, this is only an issue with extremely long method chains and small iteration counts, so it's rarely a practical concern.
+
+In .NET 8 and above, the `Sum` and `Average` methods for `double` use SIMD processing, which performs parallel processing based on SIMD width. This results in calculation errors that differ from normal ones due to the different order of addition.
 
 Drop-in replacement
 ---
