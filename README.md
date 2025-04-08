@@ -526,6 +526,8 @@ Open Window from NuGet -> Manage NuGet Packages, Search "ZLinq" and Press Instal
 https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity
 ```
 
+3. Update Collections(`com.unity.collections`) package version to `2.5.3` from Package Manager if reference Unity Collections.
+
 With the help of the Unity package, in addition to the standard ZLinq, LINQ to GameObject functionality becomes available for exploring GameObject/Transform.
 
 ![](img/axis.jpg)
@@ -586,8 +588,17 @@ public static class ZLinqExtensions
 }
 ```
 
-TODO: extended AsEnumerable  
-TODO: Drop-in replacement
+In Unity, you can convert `NativeArray`, `NativeSlice`, `NativeQueue`, `NativeHashSet`, `NativeText`, `FixedList32Bytes`, `FixedList64Bytes`, `FixedList128Bytes`, `FixedList512Bytes`, `FixedList4096Bytes`, `FixedString32Bytes`, `FixedString64Bytes`, `FixedString128Bytes`, `FixedString512Bytes`, and `FixedString4096Bytes` using `AsValueEnumerable()` to write queries with ZLinq.
+
+You can also use drop-in replacement. Add `ZLinq.DropInGenerator` from NuGetForUnity. Assembly attributes need to be set for each asmdef. For example, place a cs file like the following in each asmdef. The DropInGenerator is defined in the assembly attributes.
+
+```csharp
+// AssemblyAttributes.cs
+using ZLinq;
+[assembly: ZLinqDropIn("MyApp", DropInGenerateTypes.Array | DropInGenerateTypes.List)]
+```
+
+For more details about DropInGenerator, please refer to the [Drop-in replacement](#drop-in-replacement) section.
 
 Godot
 ---
