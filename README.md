@@ -522,8 +522,6 @@ Open Window from NuGet -> Manage NuGet Packages, Search "ZLinq" and Press Instal
 https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity
 ```
 
-3. Update Collections(`com.unity.collections`) package version to `2.5.3` from Package Manager if reference Unity Collections.
-
 With the help of the Unity package, in addition to the standard ZLinq, LINQ to GameObject functionality becomes available for exploring GameObject/Transform.
 
 ![](img/axis.jpg)
@@ -584,7 +582,7 @@ public static class ZLinqExtensions
 }
 ```
 
-In Unity, you can convert `NativeArray`, `NativeSlice`, `NativeQueue`, `NativeHashSet`, `NativeText`, `FixedList32Bytes`, `FixedList64Bytes`, `FixedList128Bytes`, `FixedList512Bytes`, `FixedList4096Bytes`, `FixedString32Bytes`, `FixedString64Bytes`, `FixedString128Bytes`, `FixedString512Bytes`, and `FixedString4096Bytes` using `AsValueEnumerable()` to write queries with ZLinq.
+In Unity, you can convert `NativeArray`, `NativeSlice` using `AsEnumerable()` to write queries with ZLinq. If Unity Collections(`com.unity.collections`) package version is `2.1.1` or above,  `NativeQueue`, `NativeHashSet`, `NativeText`, `FixedList32Bytes`, `FixedList64Bytes`, `FixedList128Bytes`, `FixedList512Bytes`, `FixedList4096Bytes`, `FixedString32Bytes`, `FixedString64Bytes`, `FixedString128Bytes`, `FixedString512Bytes`, and `FixedString4096Bytes` support `AsValueEnumerable()`.
 
 You can also use drop-in replacement. Add `ZLinq.DropInGenerator` from NuGetForUnity. If you want to use DropInGenerator, the minimum supported Unity version will be `2022.3.12f1`, as it is necessary to support C# Incremental Source Generator(Compiler Version, 4.3.0).
 

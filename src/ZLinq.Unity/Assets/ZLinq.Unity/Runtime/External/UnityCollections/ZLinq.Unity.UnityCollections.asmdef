@@ -16,7 +16,7 @@
     "versionDefines": [
         {
             "name": "com.unity.collections",
-            "expression": "",
+            "expression": "2.1.1",
             "define": "ZLINQ_UNITY_COLLECTIONS_SUPPORT"
         }
     ],
