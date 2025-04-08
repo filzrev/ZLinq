@@ -49,13 +49,13 @@ public static class SkipReason
     public const string Issue0082 = "See: https://github.com/Cysharp/ZLinq/issues/82";
 
     /// <summary>
-    /// ZLinq don't support optimization for IEnumerable<T>::Take(range).Skip()
+    /// ZLinq don't support optimization for IEnumerable[T]::Take(range).Skip()
     /// </summary>
     public const string Issue0090 = "ZLinq don't support IEnumerable<T>::Take(range).Skip() optimization. " +
                                     "See: https://github.com/Cysharp/ZLinq/issues/90";
 
     /// <summary>
-    /// ZLinq don't support optimization for IEnumerable<T>::Min() that contains NaN.
+    /// ZLinq don't support optimization for IEnumerable[T]::Min() that contains NaN.
     /// Skip these tests because it takes times to complete.
     /// </summary>
     public const string Issue0092 = "ZLinq don't support optimization for IEnumerable<T>::Min() that contains NaN. " +

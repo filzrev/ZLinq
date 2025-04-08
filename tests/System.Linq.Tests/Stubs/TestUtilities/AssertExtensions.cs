@@ -320,6 +320,7 @@ public static class AssertExtensions
     /// </summary>
     /// <param name="actual">The value that should be greater than <paramref name="greaterThan"/>.</param>
     /// <param name="greaterThan">The value that <paramref name="actual"/> should be greater than.</param>
+    /// <param name="userMessage" />
     public static void GreaterThan<T>(T actual, T greaterThan, string userMessage = null) where T : IComparable
     {
         if (actual == null)
@@ -337,6 +338,7 @@ public static class AssertExtensions
     /// </summary>
     /// <param name="actual">The value that should be less than <paramref name="lessThan"/>.</param>
     /// <param name="lessThan">The value that <paramref name="actual"/> should be less than.</param>
+    /// <param name="userMessage" />
     public static void LessThan<T>(T actual, T lessThan, string userMessage = null) where T : IComparable
     {
         if (actual == null)
@@ -361,6 +363,7 @@ public static class AssertExtensions
     /// </summary>
     /// <param name="actual">The value that should be less than or equal to <paramref name="lessThanOrEqualTo"/></param>
     /// <param name="lessThanOrEqualTo">The value that <paramref name="actual"/> should be less than or equal to.</param>
+    /// <param name="userMessage" />
     public static void LessThanOrEqualTo<T>(T actual, T lessThanOrEqualTo, string userMessage = null) where T : IComparable
     {
         // null, by definition is always less than or equal to
@@ -376,6 +379,7 @@ public static class AssertExtensions
     /// </summary>
     /// <param name="actual">The value that should be greater than or equal to <paramref name="greaterThanOrEqualTo"/></param>
     /// <param name="greaterThanOrEqualTo">The value that <paramref name="actual"/> should be greater than or equal to.</param>
+    /// <param name="userMessage" />
     public static void GreaterThanOrEqualTo<T>(T actual, T greaterThanOrEqualTo, string userMessage = null) where T : IComparable
     {
         // null, by definition is always less than or equal to
@@ -403,6 +407,7 @@ public static class AssertExtensions
     /// <typeparam name="T">The enum type.</typeparam>
     /// <param name="expected">The flag which should be present in <paramref name="actual"/>.</param>
     /// <param name="actual">The value which should contain the flag <paramref name="expected"/>.</param>
+    /// <param name="userMessage" />
     public static void HasFlag<T>(T expected, T actual, string userMessage = null) where T : Enum
     {
         if (!actual.HasFlag(expected))
@@ -807,7 +812,7 @@ public static class AssertExtensions
     }
 #endif
 
-    /// <summary>Verifies that two <see cref="double"/> values are equal, within the <paramref name="allowedVariance"/>.</summary>
+    /// <summary>Verifies that two <see cref="double"/> values are equal, within the <paramref name="variance"/>.</summary>
     /// <param name="expected">The expected value</param>
     /// <param name="actual">The value to be compared against</param>
     /// <param name="variance">The total variance allowed between the expected and actual results.</param>

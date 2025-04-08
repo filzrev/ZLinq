@@ -2,11 +2,9 @@ ZLinq
 ===
 Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSystem, JSON, GameObject, etc.) for all .NET platforms(netstandard2.0, 2.1, net8, net9) and Unity, Godot.
 
-> [!IMPORTANT]
-> This library is currently in preview. All methods have been implemented, but testing is not complete so operation is not guaranteed.
-The official release will be soon, but please wait until then for official use in production.
+![](img/benchmarkhead.jpg)
 
-![](img/title_bench.jpg)
+Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14282419424). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
 
 ```bash
 dotnet add package ZLinq
