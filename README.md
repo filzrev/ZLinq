@@ -177,14 +177,101 @@ For example:
 
 This is the most aggressive configuration, causing all LINQ methods to be processed by ZLinq, and making it impossible to use normal LINQ methods (if Enumerable is not included, you can call AsEnumerable() to execute with System.Linq).
 
-While ZLinq offers superior performance, there are some differences from System.Linq. 
-For instance, be aware that you cannot store it in fields or pass it as method arguments. 
-For example, you cannot pass LINQ operations to `string.Join`. 
-In such cases, you need to use `ToArray` (if you want to minimize allocations, you can use `ToArrayPool` and return it to the Pool after the Join operation). However case of `string.Join`, ZLinq has `JoinToString` operator so you can use it instead.
+It's better to use application's default namespace rather than globally, as this allows you to switch between normal LINQ using namespaces. This approach is recommended when you need to target `Enumerable`.
 
-> I recommend considering `Everything` to have too strong of side effects, so it would be better to try using namespaces and `DropInGenerateTypes.Collection`.
+```csharp
+using ZLinq;
+
+[assembly: ZLinqDropInAttribute("MyApp", DropInGenerateTypes.Everything)]
+
+// namespace under MyApp
+namespace MyApp.Foo
+{
+    public class Bar
+    {
+        public static void Foo(IEnumerable<int> source)
+        {
+            // ZLinq ValueEnumerable<T>
+            var seq = source.Select(x => x * 2).Shuffle();
+            using var e = seq.Enumerator;
+            while (e.TryGetNext(out var current))
+            {
+                Console.WriteLine(current);
+            }
+        }
+    }
+}
+
+// not under MyApp namespace
+namespace NotMyApp
+{
+    public class Baz
+    {
+        public static void Foo(IEnumerable<int> source)
+        {
+            // IEnumerable<T>
+            var seq = source.Select(x => x * 2); // .Shuffle();
+            using var e = seq.GetEnumerator();
+            while (e.MoveNext())
+            {
+                Console.WriteLine(e.Current);
+            }
+        }
+    }
+}
+```
+
+ZLinq is powerful and in many cases it performs better than regular LINQ, but it also has its limitations. For more information, please refer to [Difference and Limitation](#difference-and-limitation). When you are not familiar with it, we recommend that you use `DropInGenerateTypes.Collection` instead of `DropInGenerateTypes.Everything`.
 
 Other options for `ZLinqDropInAttribute` include `GenerateAsPublic`, `ConditionalCompilationSymbols`, and `DisableEmitSource`.
+
+```csharp
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
+public sealed class ZLinqDropInAttribute : Attribute
+{
+    /// <summary>
+    /// Gets the namespace where the generated LINQ implementations will be placed.
+    /// If empty, the implementations will be generated in the global namespace.
+    /// </summary>
+    public string GenerateNamespace { get; }
+
+    /// <summary>
+    /// Gets the types of collections for which LINQ implementations should be generated.
+    /// </summary>
+    public DropInGenerateTypes DropInGenerateTypes { get; }
+
+    /// <summary>
+    /// Gets whether the generated LINQ implementations should be public.
+    /// When true, the implementations will be generated with public visibility.
+    /// When false (default), the implementations will be generated with internal visibility.
+    /// </summary>
+    public bool GenerateAsPublic { get; set; }
+
+    /// <summary>
+    /// Gets or sets the conditional compilation symbols to wrap the generated code with #if directives.
+    /// If specified, the generated code will be wrapped in #if/#endif directives using these symbols.
+    /// </summary>
+    public string? ConditionalCompilationSymbols { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to disable source generation in emitted code.
+    /// When true, the source code comments will not be included in the generated code.
+    /// When false (default), source code comments will be included in the generated code.
+    /// </summary>
+    public bool DisableEmitSource { get; set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ZLinqDropInAttribute"/> class.
+    /// </summary>
+    /// <param name="generateNamespace">The namespace where the generated LINQ implementations will be placed. If empty, place to global.</param>
+    /// <param name="dropInGenerateTypes">The types of collections for which LINQ implementations should be generated.</param>
+    public ZLinqDropInAttribute(string generateNamespace, DropInGenerateTypes dropInGenerateTypes)
+    {
+        GenerateNamespace = generateNamespace;
+        DropInGenerateTypes = dropInGenerateTypes;
+    }
+}
+```
 
 LINQ to Tree
 ---
@@ -609,6 +696,34 @@ public static class MyExtensions
             {
                 action(item);
             }
+        }
+    }
+
+    public static ImmutableArray<T> ToImmutableArray<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> source)
+        where TEnumerator : struct, IValueEnumerator<T>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var e = source.Enumerator;
+
+        if (e.TryGetSpan(out var span))
+        {
+            return ImmutableArray.Create(span);
+        }
+        else
+        {
+            // set capacity if can
+            var builder = e.TryGetNonEnumeratedCount(out var count)
+                ? ImmutableArray.CreateBuilder<T>(count)
+                : ImmutableArray.CreateBuilder<T>();
+
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(current);
+            }
+
+            return builder.ToImmutable();
         }
     }
 }
