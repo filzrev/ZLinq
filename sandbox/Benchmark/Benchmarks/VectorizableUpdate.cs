@@ -22,6 +22,7 @@ public class VectorizableUpdate
     [Benchmark]
     public int[] For()
     {
+        var source = this.source;
         for (int i = 0; i < source.Length; i++)
         {
             source[i] = source[i] * 10;
