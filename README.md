@@ -511,8 +511,6 @@ array1.AsVectorizable().Zip(array2, array3, (x, y, z) => x + y + z, (x, y, z) =>
 
 Unity
 ---
-The minimum supported Unity version will be `2022.3.12f1`, as it is necessary to support C# Incremental Source Generator(Compiler Version, 4.3.0).
-
 There are two installation steps required to use it in Unity.
 
 1. Install `ZLinq` from NuGet using [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)  
@@ -588,7 +586,9 @@ public static class ZLinqExtensions
 
 In Unity, you can convert `NativeArray`, `NativeSlice`, `NativeQueue`, `NativeHashSet`, `NativeText`, `FixedList32Bytes`, `FixedList64Bytes`, `FixedList128Bytes`, `FixedList512Bytes`, `FixedList4096Bytes`, `FixedString32Bytes`, `FixedString64Bytes`, `FixedString128Bytes`, `FixedString512Bytes`, and `FixedString4096Bytes` using `AsValueEnumerable()` to write queries with ZLinq.
 
-You can also use drop-in replacement. Add `ZLinq.DropInGenerator` from NuGetForUnity. Assembly attributes need to be set for each asmdef. For example, place a cs file like the following in each asmdef. The DropInGenerator is defined in the assembly attributes.
+You can also use drop-in replacement. Add `ZLinq.DropInGenerator` from NuGetForUnity. If you want to use DropInGenerator, the minimum supported Unity version will be `2022.3.12f1`, as it is necessary to support C# Incremental Source Generator(Compiler Version, 4.3.0).
+
+Assembly attributes need to be set for each asmdef. For example, place a `.cs` file like the following in each asmdef. The DropInGenerator is defined in the assembly attributes.
 
 ```csharp
 // AssemblyAttributes.cs
