@@ -14,21 +14,21 @@ partial struct Vectorizable<T>
         if (src.Length == 0) Throws.NoElements<T>();
 
         T result;
-        
+
         if (Vector.IsHardwareAccelerated && Vector<T>.IsSupported && src.Length >= Vector<T>.Count)
         {
             var vectors = MemoryMarshal.Cast<T, Vector<T>>(src);
 
-            var vecorResult = vectors[0];
+            var vectorResult = vectors[0];
             foreach (var item in vectors.Slice(1))
             {
-                vecorResult = vectorFunc(vecorResult, item);
+                vectorResult = vectorFunc(vectorResult, item);
             }
 
-            result = vecorResult[0];
+            result = vectorResult[0];
             for (int i = 1; i < Vector<T>.Count; i++)
             {
-                result = func(result, vecorResult[i]);
+                result = func(result, vectorResult[i]);
             }
 
             src = src.Slice(vectors.Length * Vector<T>.Count);

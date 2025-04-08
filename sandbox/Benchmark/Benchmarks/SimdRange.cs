@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZLinq;
+using ZLinq.Simd;
 
 namespace Benchmark;
 
@@ -33,4 +34,13 @@ public class SimdRange
     {
         ValueEnumerable.Range(0, 10000).CopyTo(dest.AsSpan());
     }
+
+//#if NET8_0_OR_GREATER
+//    [Benchmark]
+//    public void Range2()
+//    {
+//        dest.VectorizedFillRange(0);
+//    }
+
+//#endif
 }

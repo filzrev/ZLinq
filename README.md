@@ -136,6 +136,8 @@ Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to me
 
 `ValueEnumerable<T>` is a struct, and its size increases slightly with each method chain. With many chained methods, copy costs can become significant. When iterating over small collections, these copy costs can outweigh the benefits, causing performance to be worse than standard LINQ. However, this is only an issue with extremely long method chains and small iteration counts, so it's rarely a practical concern.
 
+Each chain operation returns a different type, so you cannot reassign to the same variable. For example, code that continuously reassigns `Concat` in a for loop cannot be implemented.
+
 In .NET 8 and above, the `Sum` and `Average` methods for `double` use SIMD processing, which performs parallel processing based on SIMD width. This results in calculation errors that differ from normal ones due to the different order of addition.
 
 Drop-in replacement
@@ -311,9 +313,116 @@ see: [unity](#unity) section.
 
 LINQ to SIMD
 ---
-`.AsVectorizable()` from `T[]` or `Span<T>` or `ReadOnlySpan<T>`.
+In .NET 8 and above, there are operators that apply SIMD when `ValueEnumerable<T>.TryGetSpan` returns true. The scope of application is wider than in regular System.Linq.
 
-TODO:
+* **Range** to ToArray/ToList/CopyTo/etc...
+* **Repeat** for `unmanaged struct` and `size is power of 2` to ToArray/ToList/CopyTo/etc...
+* **Sum** for `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`
+* **SumUnchecked** for `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`
+* **Average** for `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`
+* **Max** for `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `nint`, `nuint`, `Int128`, `UInt128`
+* **Min** for `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `nint`, `nuint`, `Int128`, `UInt128`
+* **Contains** for `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `bool`, `char`, `nint`, `nuint`
+* **SequenceEqual** for `byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `bool`, `char`, `nint`, `nuint`
+
+`Sum` performs calculations as checked, but if you don't need to worry about overflow, using `SumUnchecked` is faster.
+
+| Method            | N     | Mean          | Allocated |
+|------------------ |------ |--------------:|----------:|
+| ForLoop           | 16384 | 25,198.556 ns |         - |
+| SystemLinqSum     | 16384 |  1,402.259 ns |         - |
+| ZLinqSum          | 16384 |  1,351.449 ns |         - |
+| ZLinqSumUnchecked | 16384 |    721.832 ns |         - |
+
+By using `ZLinq.Simd` in your using statements, you can call `.AsVectorizable()` on `T[]` or `Span<T>` or `ReadOnlySpan<T>`, which allows you to use `Sum`, `SumUnchecked`, `Average`, `Max`, `Min`, `Contains`, and `SequenceEqual`. This explicitly indicates execution with SIMD regardless of the LINQ chain state (though type checking is ambiguous so processing might occur in a normal loop, and if `Vector.IsHardwareAccelerated && Vector<T>.IsSupported` is false, normal loop processing will be used).
+
+From `int[]` or `Span<int>`, you can call `VectorizedFillRange`. This is equivalent to `ValueEunmerable.Range().CopyTo()` and allows you to quickly generate sequential numbers through SIMD processing.
+
+| Method | Mean       | Allocated |
+|------- |-----------:|----------:|
+| Range  |   540.0 ns |         - |
+| For    | 6,228.9 ns |         - |
+
+### `VectorizedUpdate`
+
+In ZLinq, you can perform relatively flexible vectorized loop processing using `Func`. With `T[]` and `Span<T>`, you can use the `VectorizedUpdate` method. By writing two lambda expressions - `Func<Vector<T>, Vector<T>> vectorFunc` for vector operations and `Func<T, T> func` for handling remainder elements - you can perform loop update processing at SIMD width.
+
+```csharp
+using ZLinq.Simd; // needs using
+
+int[] source = Enumerable.Range(0, 10000).ToArray();
+
+[Benchmark]
+public void For()
+{
+    for (int i = 0; i < source.Length; i++)
+    {
+        source[i] = source[i] * 10;
+    }
+}
+
+[Benchmark]
+public void VectorizedUpdate()
+{
+    // arg1: Vector<int> => Vector<int>
+    // arg2: int => int
+    source.VectorizedUpdate(static x => x * 10, static x => x * 10);
+}
+```
+
+| Method           | N     | Mean       | Error    | StdDev  | Allocated |
+|----------------- |------ |-----------:|---------:|--------:|----------:|
+| For              | 10000 | 7,019.0 ns | 14.57 ns | 0.80 ns |         - |
+| VectorizedUpdate | 10000 |   560.3 ns | 11.79 ns | 0.65 ns |         - |
+
+There is delegate overhead when compared to writing everything inline, but processing can be faster than using for-loops. However, this varies case by case, so please take measurements in advance based on your data volume and method content. Of course, if you're seeking the best possible performance, you should write code inline.
+
+### Vectorizable Methods
+
+You can convert from `T[]` or `Span<T>` or `ReadOnlySpan<T>` to `Vectorizable<T>` using `AsVectorizable()`, which allows you to use `Aggregate`, `All`, `Any`, `Count`, `Select`, and `Zip` methods that accept a `Func` as an argument.
+
+* `Aggregate`
+
+```csharp
+source.AsVectorizable().Aggregate((x, y) => Vector.Min(x, y), (x, y) => Math.Min(x, y))
+```
+
+* `All`
+
+```csharp
+source.AsVectorizable().All(x => Vector.GreaterThanAll(x, new(5000)), x => x > 5000);
+```
+
+* `Any`
+
+```csharp
+source.AsVectorizable().Any(x => Vector.LessThanAll(x, new(5000)), x => x < 5000);
+```
+
+* `Count`
+
+```csharp
+source.AsVectorizable().Count(x => Vector.GreaterThan(x, new(5000)), x => x > 5000);
+```
+
+* `Select` -> `ToArray` or `CopyTo`
+
+```csharp
+source.AsVectorizable().Select(x => x * 3, x => x * 3).ToArray();
+source.AsVectorizable().Select(x => x * 3, x => x * 3).CopyTo(destination);
+```
+
+* `Zip` -> `ToArray` or `CopyTo`
+
+```csharp
+// Zip2
+array1.AsVectorizable().Zip(array2, (x, y) => x + y, (x, y) => x + y).CopyTo(destination);
+array1.AsVectorizable().Zip(array2, (x, y) => x + y, (x, y) => x + y).ToArray();
+
+// Zip3
+array1.AsVectorizable().Zip(array2, array3, (x, y, z) => x + y + z, (x, y, z) => x + y + z).CopyTo(destination);
+array1.AsVectorizable().Zip(array2, array3, (x, y, z) => x + y + z, (x, y, z) => x + y + z).ToArray();
+```
 
 Unity
 ---

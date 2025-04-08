@@ -6,60 +6,44 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ZLinq;
 using ZLinq.Simd;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Benchmark;
 
-[Orderer(SummaryOrderPolicy.FastestToSlowest)]
-// [GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByParams)]
+[GroupBenchmarksBy(BenchmarkDotNet.Configs.BenchmarkLogicalGroupRule.ByParams)]
 public class SimdAny
 {
-    //[Params(32, 128, 1024, 8192, 16384)]
-    //public int N;
+    [Params(32, 128, 1024, 8192, 16384)]
+    public int N;
 
+    int target;
     int[] src = default!;
 
     [BenchmarkDotNet.Attributes.GlobalSetup]
     public void Setup()
     {
-        src = Enumerable.Range(1, 10000).ToArray();
+        src = Enumerable.Range(1, N).ToArray();
+        target = N / 2;
     }
 
     [Benchmark]
-    public bool ForInline()
+    public bool ForPredicate()
     {
-        return AnyFor(src.AsSpan());
+        return AnyForPredicate(src.AsSpan(), x => x > target);
     }
-
-    //[Benchmark]
-    //public bool ForPredicate()
-    //{
-    //    return AnyForPredicate(src.AsSpan(), x => x > 9800);
-    //}
 
     [Benchmark]
-    public bool SimdInline()
+    public bool SystemLinqAny()
     {
-        return AnySimd<int>(src.AsSpan());
+        return src.Any(x => x > target);
     }
 
-    //[Benchmark]
-    //public bool SystemLinqAny()
-    //{
-    //    return src.Any(x => x > 9800);
-    //}
-
-    //[Benchmark]
-    //public bool ZLinqAny()
-    //{
-    //    return src.AsValueEnumerable().Any(x => x > 9800);
-    //}
-
-    //[Benchmark]
-    //public bool ZLinqAsVectorizable()
-    //{
-    //    return src.AsVectorizable()
-    //        .Any(x => Vector.GreaterThanAny(x, new(9800)), x => x > 9800);
-    //}
+    [Benchmark]
+    public bool ZLinqAsVectorizableAny()
+    {
+        return src.AsVectorizable()
+            .Any(x => Vector.GreaterThanAll(x, new(target)), x => x > target);
+    }
 
     //[Benchmark]
     //public bool ZLinqAsVectorizableX()
@@ -83,7 +67,7 @@ public class SimdAny
     //}
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    static Boolean AnyFor(ReadOnlySpan<int> span)
+    static bool AnyFor(ReadOnlySpan<int> span)
     {
         foreach (var item in span)
         {
@@ -97,7 +81,7 @@ public class SimdAny
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    static Boolean AnyForPredicate(ReadOnlySpan<int> span, Func<int, bool> predicate)
+    static bool AnyForPredicate(ReadOnlySpan<int> span, Func<int, bool> predicate)
     {
         foreach (var item in span)
         {
