@@ -33,7 +33,7 @@ namespace ZLinq.Linq
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
-            if (source.TryGetNonEnumeratedCount(out count))
+            if (source.TryGetNonEnumeratedCount(out count) && count < int.MaxValue)
             {
                 count++;
                 return true;
