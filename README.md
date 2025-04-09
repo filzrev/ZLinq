@@ -4,7 +4,7 @@ Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSyst
 
 ![](img/benchmarkhead.jpg)
 
-Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14329644584). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
+Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14347384964). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
 
 ```bash
 dotnet add package ZLinq
@@ -457,8 +457,8 @@ public void VectorizedUpdate()
 
 | Method           | N     | Mean       | Error    | StdDev  | Allocated |
 |----------------- |------ |-----------:|---------:|--------:|----------:|
-| For              | 10000 | 7,019.0 ns | 14.57 ns | 0.80 ns |         - |
-| VectorizedUpdate | 10000 |   560.3 ns | 11.79 ns | 0.65 ns |         - |
+| For              | 10000 | 4,560.5 ns | 67.24 ns | 3.69 ns |         - |
+| VectorizedUpdate | 10000 |   558.9 ns |  6.42 ns | 0.35 ns |         - |
 
 There is delegate overhead when compared to writing everything inline, but processing can be faster than using for-loops. However, this varies case by case, so please take measurements in advance based on your data volume and method content. Of course, if you're seeking the best possible performance, you should write code inline.
 
@@ -575,6 +575,8 @@ var foobars = root.Descendants().Where(x => x.tag == "foobar");
 // get FooScript under self childer objects and self
 var fooScripts = root.ChildrenAndSelf().OfComponent<FooScript>(); 
 ```
+
+NOTE: In Unity, since .NET Standard 2.1 is referenced, SIMD is not utilized.
 
 In .NET 9, `ValueEnumerable` is a `ref struct`, so it cannot be converted to `IEnumerable<T>`. However, in Unity it's a regular `struct`, making it possible to convert to `IEnumerable<T>`. You can improve interoperability by preparing an extension method like this:
 
