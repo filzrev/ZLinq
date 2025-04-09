@@ -3,7 +3,7 @@
 namespace ZLinq.Internal;
 
 // storing struct enumerator, with pooling(stack itself is node)
-public sealed class RefStack<T> where T : IDisposable
+internal sealed class RefStack<T> where T : IDisposable
 {
     internal static readonly RefStack<T> DisposeSentinel = new(0);
     static int gate = 0;
