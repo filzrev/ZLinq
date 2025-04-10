@@ -231,7 +231,7 @@ public class RightJoinTest
         // The order might be different, so we need to check that the results contain the same elements
         var expectedGroups = expected.GroupBy(x => x.Inner).ToDictionary(g => g.Key, g => g.Select(x => x.Outer).ToList());
         var actualGroups = actual.GroupBy(x => x.Inner).ToDictionary(g => g.Key, g => g.Select(x => x.Outer).ToList());
-        
+
         expectedGroups.Keys.ShouldBe(actualGroups.Keys);
         foreach (var key in expectedGroups.Keys)
         {
@@ -438,18 +438,18 @@ public class RightJoinTest
 
         // Assert
         actual.Length.ShouldBe(4); // All elements from inner should be present
-        
+
         // Only inner[0] (3) should have a match
         actual[0].Inner.ShouldBe(3);
         actual[0].Outer.ShouldBe(3);
-        
+
         // Rest should have null for outer
         actual[1].Inner.ShouldBe(4);
         actual[1].Outer.ShouldBe(0);
-        
+
         actual[2].Inner.ShouldBe(5);
         actual[2].Outer.ShouldBe(0);
-        
+
         actual[3].Inner.ShouldBe(6);
         actual[3].Outer.ShouldBe(0);
     }

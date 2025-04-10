@@ -582,7 +582,7 @@ namespace ZLinq.Linq
             throw new NotSupportedException();
         }
     }
-   
+
     internal sealed class GroupingDebugView<TKey, TElement>
     {
         readonly Grouping<TKey, TElement> _grouping;

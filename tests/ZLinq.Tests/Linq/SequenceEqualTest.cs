@@ -11,11 +11,11 @@ public class SequenceEqualTest
         // Both empty - should be equal
         empty1.AsValueEnumerable().SequenceEqual(empty2).ShouldBeTrue();
         empty1.AsValueEnumerable().SequenceEqual(empty2.AsValueEnumerable()).ShouldBeTrue();
-        
+
         // Test with ToValueEnumerable variant
         empty1.ToValueEnumerable().SequenceEqual(empty2).ShouldBeTrue();
         empty1.ToValueEnumerable().SequenceEqual(empty2.AsValueEnumerable()).ShouldBeTrue();
-        
+
         // Verify against System.Linq
         bool linqResult = empty1.SequenceEqual(empty2);
         empty1.AsValueEnumerable().SequenceEqual(empty2).ShouldBe(linqResult);
@@ -30,7 +30,7 @@ public class SequenceEqualTest
         // Empty vs non-empty - should be false
         empty.AsValueEnumerable().SequenceEqual(nonEmpty).ShouldBeFalse();
         nonEmpty.AsValueEnumerable().SequenceEqual(empty).ShouldBeFalse();
-        
+
         empty.AsValueEnumerable().SequenceEqual(nonEmpty.AsValueEnumerable()).ShouldBeFalse();
         nonEmpty.AsValueEnumerable().SequenceEqual(empty.AsValueEnumerable()).ShouldBeFalse();
 
@@ -49,11 +49,11 @@ public class SequenceEqualTest
         // Arrays - should be equal
         sequence1.AsValueEnumerable().SequenceEqual(sequence2).ShouldBeTrue();
         sequence1.AsValueEnumerable().SequenceEqual(sequence2.AsValueEnumerable()).ShouldBeTrue();
-        
+
         // Different collection types - should still be equal
         sequence1.AsValueEnumerable().SequenceEqual(sequence3).ShouldBeTrue();
         sequence1.AsValueEnumerable().SequenceEqual(sequence3.AsValueEnumerable()).ShouldBeTrue();
-        
+
         // Verify against System.Linq
         var linqResult = sequence1.SequenceEqual(sequence3);
         sequence1.AsValueEnumerable().SequenceEqual(sequence3).ShouldBe(linqResult);
@@ -68,7 +68,7 @@ public class SequenceEqualTest
         // Different lengths - should be false
         shorter.AsValueEnumerable().SequenceEqual(longer).ShouldBeFalse();
         longer.AsValueEnumerable().SequenceEqual(shorter).ShouldBeFalse();
-        
+
         shorter.AsValueEnumerable().SequenceEqual(longer.AsValueEnumerable()).ShouldBeFalse();
         longer.AsValueEnumerable().SequenceEqual(shorter.AsValueEnumerable()).ShouldBeFalse();
 
@@ -149,10 +149,10 @@ public class SequenceEqualTest
         var p3 = new Person("Alice", 35);
 
         var sequence1 = new[] { p1, p2, p3 };
-        var sequence2 = new[] { 
-            new Person("John", 25), 
-            new Person("Jane", 30), 
-            new Person("Alice", 35) 
+        var sequence2 = new[] {
+            new Person("John", 25),
+            new Person("Jane", 30),
+            new Person("Alice", 35)
         };
 
         // Default equality comparer (reference equality) - should be false
@@ -165,10 +165,10 @@ public class SequenceEqualTest
         sequence1.AsValueEnumerable().SequenceEqual(sequence2.AsValueEnumerable(), comparer).ShouldBeTrue();
 
         // Different values with custom comparer
-        var sequence3 = new[] { 
-            new Person("John", 25), 
+        var sequence3 = new[] {
+            new Person("John", 25),
             new Person("Jane", 31), // Different age
-            new Person("Alice", 35) 
+            new Person("Alice", 35)
         };
         sequence1.AsValueEnumerable().SequenceEqual(sequence3, comparer).ShouldBeFalse();
         sequence1.AsValueEnumerable().SequenceEqual(sequence3.AsValueEnumerable(), comparer).ShouldBeFalse();
@@ -183,7 +183,8 @@ public class SequenceEqualTest
         // Create a counting comparer to verify early termination
         var counter = 0;
         var countingComparer = new FunctionEqualityComparer<int>(
-            (x, y) => {
+            (x, y) =>
+            {
                 counter++;
                 return x == y;
             },
@@ -228,7 +229,8 @@ public class SequenceEqualTest
 
         var counter = 0;
         var countingComparer = new FunctionEqualityComparer<int>(
-            (x, y) => {
+            (x, y) =>
+            {
                 counter++;
                 return x == y;
             },
@@ -243,25 +245,25 @@ public class SequenceEqualTest
     public void ConsistentWithSystemLinq()
     {
         // Test various scenarios and ensure results match System.Linq
-        
+
         // Test 1: Empty sequences
         var empty1 = Array.Empty<int>();
         var empty2 = Array.Empty<int>();
         empty1.AsValueEnumerable().SequenceEqual(empty2).ShouldBe(empty1.SequenceEqual(empty2));
-        
+
         // Test 2: Equal sequences
         var seq1 = new[] { 1, 2, 3, 4, 5 };
         var seq2 = new[] { 1, 2, 3, 4, 5 };
         seq1.AsValueEnumerable().SequenceEqual(seq2).ShouldBe(seq1.SequenceEqual(seq2));
-        
+
         // Test 3: Different sequences - different lengths
         var seq3 = new[] { 1, 2, 3 };
         seq1.AsValueEnumerable().SequenceEqual(seq3).ShouldBe(seq1.SequenceEqual(seq3));
-        
+
         // Test 4: Different sequences - same length but different values
         var seq4 = new[] { 1, 2, 3, 4, 6 };
         seq1.AsValueEnumerable().SequenceEqual(seq4).ShouldBe(seq1.SequenceEqual(seq4));
-        
+
         // Test 5: With custom comparer
         var strings1 = new[] { "A", "B", "C" };
         var strings2 = new[] { "a", "b", "c" };

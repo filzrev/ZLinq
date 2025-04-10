@@ -136,15 +136,15 @@ public class JoinTest
     public void Join_WithNullKeys()
     {
         // Arrange
-        var outer = new[] 
-        { 
+        var outer = new[]
+        {
             new { Id = 1, Key = "A" },
             new { Id = 2, Key = (string)null! },
             new { Id = 3, Key = "C" },
         };
 
-        var inner = new[] 
-        { 
+        var inner = new[]
+        {
             new { Id = 101, Key = "A" },
             new { Id = 102, Key = (string)null! },
             new { Id = 103, Key = "C" },

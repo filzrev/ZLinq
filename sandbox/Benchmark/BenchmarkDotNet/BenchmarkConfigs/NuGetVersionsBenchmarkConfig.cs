@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Jobs;
 

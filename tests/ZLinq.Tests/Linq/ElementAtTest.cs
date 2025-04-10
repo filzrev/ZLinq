@@ -72,6 +72,6 @@ public class ElementAtTest
 
         Assert.Equal(1, source.ElementAt(0));
         Assert.Equal(1, source.ElementAt(new Index(0)));
-        Assert.Equal(1, source.ElementAt(^1)); 
+        Assert.Equal(1, source.ElementAt(^1));
     }
 }

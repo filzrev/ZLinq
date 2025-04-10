@@ -443,11 +443,11 @@ public class LeftJoinTest
 
     //    // Assert
     //    actual.Length.ShouldBe(2);
-        
+
     //    // First element (null key) should have matched with the inner element with null key
     //    actual[0].OuterId.ShouldBe(1);
     //    actual[0].InnerId.ShouldBe(101);
-        
+
     //    // Second element (key "B") should have no match, so inner is null
     //    actual[1].OuterId.ShouldBe(2);
     //    actual[1].InnerId.ShouldBeNull();

@@ -277,8 +277,8 @@ public class ToLookupTest
 
         // Assert
         results.Count.ShouldBe(expectedResults.Count);
-        results[0].ShouldBe(expectedResults[0]);    
-        results[1].ShouldBe(expectedResults[1]);    
+        results[0].ShouldBe(expectedResults[0]);
+        results[1].ShouldBe(expectedResults[1]);
         results[2].ShouldBe(expectedResults[2]);
     }
 

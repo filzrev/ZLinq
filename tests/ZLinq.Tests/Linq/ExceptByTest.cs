@@ -36,7 +36,7 @@ namespace ZLinq.Tests.Linq
 
             // Act & Assert
             var result = source.AsValueEnumerable().ExceptBy(empty, p => p.Name).ToArray();
-            
+
             // Should return all elements from source since second is empty
             result.Length.ShouldBe(2);
             result[0].Name.ShouldBe("Alice");

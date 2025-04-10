@@ -161,17 +161,17 @@ public class ConcatTest
         // Arrange
         var first = new[] { 1, 2, 3 };
         var second = new[] { 4, 5, 6 };
-        
+
         var zlinq = first
             .AsValueEnumerable()
             .Concat(second.AsValueEnumerable());
-        
+
         // Get internal enumerator to test TryGetNonEnumeratedCount directly
         var enumerator = zlinq.Enumerator;
-        
+
         // Act
         var success = enumerator.TryGetNonEnumeratedCount(out var count);
-        
+
         // Assert
         success.ShouldBeTrue();
         count.ShouldBe(6); // 3 + 3
@@ -183,17 +183,17 @@ public class ConcatTest
         // Arrange
         var first = new[] { 1, 2, 3 };
         var second = new[] { 4, 5, 6 };
-        
+
         var zlinq = first
             .AsValueEnumerable()
             .Concat(second.AsValueEnumerable());
-        
+
         // Get internal enumerator to test TryGetSpan directly
         var enumerator = zlinq.Enumerator;
-        
+
         // Act
         var success = enumerator.TryGetSpan(out var span);
-        
+
         // Assert
         success.ShouldBeFalse();
         span.IsEmpty.ShouldBeTrue();
@@ -209,17 +209,17 @@ public class ConcatTest
         // Arrange
         var first = new[] { 1, 2, 3 };
         var second = new[] { 4, 5, 6 };
-        
+
         // Act - Manually enumerate through the concatenated collection
         var concat = first.AsValueEnumerable().Concat(second.AsValueEnumerable());
         var enumerator = concat.Enumerator;
         var results = new List<int>();
-        
+
         while (enumerator.TryGetNext(out var item))
         {
             results.Add(item);
         }
-        
+
         // Assert
         results.Count.ShouldBe(6);
         results[0].ShouldBe(1);
@@ -237,17 +237,17 @@ public class ConcatTest
         var first = new[] { 1, 2, 3 };
         var second = new[] { 4, 5 };
         var third = new[] { 6, 7, 8 };
-        
+
         // Act - Chaining multiple concat operations
         var result = first
             .AsValueEnumerable()
             .Concat(second.AsValueEnumerable())
             .Concat(third.AsValueEnumerable())
             .ToArray();
-        
+
         // Act - Standard LINQ as reference
         var expected = first.Concat(second).Concat(third).ToArray();
-        
+
         // Assert
         result.Length.ShouldBe(8);
         result.ShouldBe(expected);

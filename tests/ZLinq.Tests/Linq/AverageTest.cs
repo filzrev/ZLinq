@@ -77,7 +77,7 @@ public class AverageTest
     {
         // Arrange
         var empty = Array.Empty<int?>();
-        
+
         // Act & Assert
         empty.AsValueEnumerable().Average().ShouldBeNull();
         empty.ToValueEnumerable().Average().ShouldBeNull();
@@ -88,7 +88,7 @@ public class AverageTest
     {
         // Arrange
         var onlyNulls = new int?[] { null, null, null };
-        
+
         // Act & Assert
         onlyNulls.AsValueEnumerable().Average().ShouldBeNull();
         onlyNulls.ToValueEnumerable().Average().ShouldBeNull();
@@ -268,7 +268,7 @@ public class AverageTest
     {
         var floats = new[] { 1.5f, 2.5f, 3.5f };
         var result = floats.AsValueEnumerable().Average();
-        
+
         result.GetType().ShouldBe(typeof(float));
     }
 
@@ -278,7 +278,7 @@ public class AverageTest
     {
         var decimals = new[] { 1.5m, 2.5m, 3.5m };
         var result = decimals.AsValueEnumerable().Average();
-        
+
         result.GetType().ShouldBe(typeof(decimal));
     }
 
@@ -288,7 +288,7 @@ public class AverageTest
     {
         var ints = new[] { 1, 2, 3 };
         var result = ints.AsValueEnumerable().Average();
-        
+
         result.GetType().ShouldBe(typeof(double));
     }
 
@@ -352,7 +352,7 @@ public class AverageTest
         var items = new[] { 1, 2, 3 };
         Func<int, int> selector = null!;
         Func<int, int?> nullableSelector = null!;
-        
+
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => items.AsValueEnumerable().Average(selector));
         Assert.Throws<ArgumentNullException>(() => items.AsValueEnumerable().Average(nullableSelector));
