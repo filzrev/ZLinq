@@ -598,10 +598,8 @@ namespace System.Linq.Tests
                 new IEnumerable<int>[]
                 {
                     [0],
-                    new TestEnumerable<int>([1]),
-                    [2],
-                    new TestEnumerable<int>([3]),
-                    [4],
+                    new TestEnumerable<int>([1]), [2],
+                    new TestEnumerable<int>([3]), [4],
                 }
             ];
 
@@ -610,10 +608,8 @@ namespace System.Linq.Tests
             [
                 new IEnumerable<int>[]
                 {
-                    new TestEnumerable<int>([0]),
-                    [1],
-                    new TestEnumerable<int>([2]),
-                    [3],
+                    new TestEnumerable<int>([0]), [1],
+                    new TestEnumerable<int>([2]), [3],
                     new TestEnumerable<int>([4]),
                 }
             ];

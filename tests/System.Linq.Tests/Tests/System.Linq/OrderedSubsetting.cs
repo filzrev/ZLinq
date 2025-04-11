@@ -455,7 +455,7 @@ namespace System.Linq.Tests
         public void SelectArray()
         {
             var source = Enumerable.Range(0, 9).Shuffle().OrderBy(i => i).Skip(1).Take(5).Select(i => i * 2);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]

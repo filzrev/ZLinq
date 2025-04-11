@@ -532,39 +532,39 @@ namespace System.Linq.Tests
         {
             foreach (var source in CreateSources([1, 2, 3, 4, 5]))
             {
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(5).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(6).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(40).ToArray());
-                Assert.Equal([1, 2, 3, 4], source.Take(4).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(5).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(6).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(40).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4 }, source.Take(4).ToArray());
                 Assert.Equal(1, source.Take(1).ToArray().Single());
                 Assert.Empty(source.Take(0).ToArray());
                 Assert.Empty(source.Take(-10).ToArray());
 
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(0..5).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(0..6).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(0..40).ToArray());
-                Assert.Equal([1, 2, 3, 4], source.Take(0..4).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(0..5).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(0..6).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(0..40).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4 }, source.Take(0..4).ToArray());
                 Assert.Equal(1, source.Take(0..1).ToArray().Single());
                 Assert.Empty(source.Take(0..0).ToArray());
 
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^5..5).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^5..6).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^5..40).ToArray());
-                Assert.Equal([1, 2, 3, 4], source.Take(^5..4).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^5..5).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^5..6).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^5..40).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4 }, source.Take(^5..4).ToArray());
                 Assert.Equal(1, source.Take(^5..1).ToArray().Single());
                 Assert.Empty(source.Take(^5..0).ToArray());
                 Assert.Empty(source.Take(^15..0).ToArray());
 
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(0..^0).ToArray());
-                Assert.Equal([1, 2, 3, 4], source.Take(0..^1).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(0..^0).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4 }, source.Take(0..^1).ToArray());
                 Assert.Equal(1, source.Take(0..^4).ToArray().Single());
                 Assert.Empty(source.Take(0..^5).ToArray());
                 Assert.Empty(source.Take(0..^15).ToArray());
 
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^5..^0).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^6..^0).ToArray());
-                Assert.Equal([1, 2, 3, 4, 5], source.Take(^45..^0).ToArray());
-                Assert.Equal([1, 2, 3, 4], source.Take(^5..^1).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^5..^0).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^6..^0).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Take(^45..^0).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4 }, source.Take(^5..^1).ToArray());
                 Assert.Equal(1, source.Take(^5..^4).ToArray().Single());
                 Assert.Empty(source.Take(^5..^5).ToArray());
                 Assert.Empty(source.Take(^15..^5).ToArray());

@@ -87,7 +87,7 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<int> source in new IEnumerable<int>[]
             {
-                [],
+                Array.Empty<int>(),
                 new List<int>(),
                 [],
                 new TestEnumerable<int>([])
@@ -217,7 +217,7 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<long> source in new IEnumerable<long>[]
             {
-                [],
+                Array.Empty<long>(),
                 new List<long>(),
                 [],
                 new TestEnumerable<long>([])
@@ -345,7 +345,7 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<double> source in new IEnumerable<double>[]
             {
-                [],
+                Array.Empty<double>(),
                 new List<double>(),
                 [],
                 new TestEnumerable<double>([])
@@ -467,7 +467,7 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<decimal> source in new IEnumerable<decimal>[]
             {
-                [],
+                Array.Empty<decimal>(),
                 new List<decimal>(),
                 [],
                 new TestEnumerable<decimal>([])
@@ -595,7 +595,7 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<float> source in new IEnumerable<float>[]
             {
-                [],
+                Array.Empty<float>(),
                 new List<float>(),
                 [],
                 new TestEnumerable<float>([])

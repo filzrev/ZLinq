@@ -92,7 +92,7 @@ namespace System.Linq.Tests
             list.RemoveAt(4);
             list.RemoveAt(3);
 
-            Assert.Equal([1], e.ToArray());
+            Assert.Equal(new[] { 1 }, e.ToArray());
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace System.Linq.Tests
 
             list.RemoveAt(4);
 
-            Assert.Equal([2], e.ToArray());
+            Assert.Equal(new[] { 2 }, e.ToArray());
         }
     }
 }

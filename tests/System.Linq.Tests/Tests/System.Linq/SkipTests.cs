@@ -289,8 +289,8 @@ namespace System.Linq.Tests
         {
             foreach (IEnumerable<int> source in CreateSources([1, 2, 3, 4, 5]))
             {
-                Assert.Equal([1, 2, 3, 4, 5], source.Skip(0).ToArray());
-                Assert.Equal([2, 3, 4, 5], source.Skip(1).ToArray());
+                Assert.Equal(new[] { 1, 2, 3, 4, 5 }, source.Skip(0).ToArray());
+                Assert.Equal(new[] { 2, 3, 4, 5 }, source.Skip(1).ToArray());
                 Assert.Equal(5, source.Skip(4).ToArray().Single());
                 Assert.Empty(source.Skip(5).ToArray());
                 Assert.Empty(source.Skip(40).ToArray());

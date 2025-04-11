@@ -92,7 +92,7 @@ namespace System.Linq.Tests
         [Fact]
         public void RunOnce()
         {
-            Assert.Equal([1, 2, 3, 4, 5, 6, 7], Enumerable.Range(1, 7).RunOnce().ToArray());
+            Assert.Equal(new int[] { 1, 2, 3, 4, 5, 6, 7 }, Enumerable.Range(1, 7).RunOnce().ToArray());
             Assert.Equal(
                 new string[] { "1", "2", "3", "4", "5", "6", "7", "8" },
                 Enumerable.Range(1, 8).Select(i => i.ToString()).RunOnce().ToArray());
@@ -147,7 +147,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceIntegers.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceIntegers, sourceIntegers.Where(i => true).ToArray());
-            Assert.Equal([], sourceIntegers.Where(i => false).ToArray());
+            Assert.Equal(Array.Empty<int>(), sourceIntegers.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceIntegers.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceIntegers.Where(i => false).Select(i => i.ToString()).ToArray());
@@ -167,7 +167,7 @@ namespace System.Linq.Tests
             Assert.Equal(convertedStrings, sourceList.Select(i => i.ToString()).ToArray());
 
             Assert.Equal(sourceList, sourceList.Where(i => true).ToArray());
-            Assert.Equal([], sourceList.Where(i => false).ToArray());
+            Assert.Equal(Array.Empty<int>(), sourceList.Where(i => false).ToArray());
 
             Assert.Equal(convertedStrings, sourceList.Where(i => true).Select(i => i.ToString()).ToArray());
             Assert.Equal(Array.Empty<string>(), sourceList.Where(i => false).Select(i => i.ToString()).ToArray());
@@ -281,7 +281,7 @@ namespace System.Linq.Tests
         public void ConstantTimeCountPartitionSelectSameTypeToArray()
         {
             var source = Enumerable.Range(0, 100).Select(i => i * 2).Skip(1).Take(5);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]
@@ -309,7 +309,7 @@ namespace System.Linq.Tests
         public void NonConstantTimeCountPartitionSelectSameTypeToArray()
         {
             var source = NumberRangeGuaranteedNotCollectionType(0, 100).OrderBy(i => i).Select(i => i * 2).Skip(1).Take(5);
-            Assert.Equal([2, 4, 6, 8, 10], source.ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8, 10 }, source.ToArray());
         }
 
         [Fact]

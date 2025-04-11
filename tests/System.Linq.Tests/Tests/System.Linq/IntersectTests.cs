@@ -216,7 +216,7 @@ namespace System.Linq.Tests
                 second: ["bBo", "shriC"],
                 keySelector: x => x,
                 null,
-                expected: []);
+                expected: Array.Empty<string>());
 
             yield return WrapArgs(
                 first: ["Bob", "Tim", "Robert", "Chris"],
@@ -237,7 +237,7 @@ namespace System.Linq.Tests
                 second: ["moT"],
                 keySelector: x => x.Name,
                 comparer: null,
-                expected: []);
+                expected: Array.Empty<(string Name, int Age)>());
 
             yield return WrapArgs(
                 first: new (string Name, int Age)[] { ("Tom", 20), ("Dick", 30), ("Harry", 40) },

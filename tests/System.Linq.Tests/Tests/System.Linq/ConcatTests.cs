@@ -346,16 +346,16 @@ namespace System.Linq.Tests
 
             // For perf reasons (this test can take a long time to run)
             // we use a for-loop manually rather than .Repeat and .Aggregate
-            IEnumerable<int> concatChain = []; // note: all items in this chain must implement ICollection<T>
+            IEnumerable<int> concatChain = Array.Empty<int>(); // note: all items in this chain must implement ICollection<T>
             for (int i = 0; i < NumberOfConcats; i++)
             {
-                concatChain = concatChain.Concat([]);
+                concatChain = concatChain.Concat(Array.Empty<int>());
             }
 
             Assert.Empty(concatChain); // should not throw a StackOverflowException
             // ToArray needs the count as well, and the process of copying all of the collections
             // to the array should also not be recursive.
-            Assert.Equal([], concatChain.ToArray());
+            Assert.Equal(new int[] { }, concatChain.ToArray());
             Assert.Equal([], concatChain.ToList()); // ToList also gets the count beforehand
         }
 
@@ -382,7 +382,7 @@ namespace System.Linq.Tests
             // would take quite long.
             for (int i = 0; i < NumberOfConcats; i++)
             {
-                concatChain = concatChain.Concat([]);
+                concatChain = concatChain.Concat(Array.Empty<int>());
             }
 
             Assert.Empty(concatChain);
@@ -412,7 +412,7 @@ namespace System.Linq.Tests
 
             for (int i = 0; i < NumberOfConcats; i++)
             {
-                concatChain = concatChain.Concat([]);
+                concatChain = concatChain.Concat(Array.Empty<int>());
             }
 
             using (IEnumerator<int> en = concatChain.GetEnumerator())
@@ -448,7 +448,7 @@ namespace System.Linq.Tests
 
             for (int i = 0; i < NumberOfConcats - 1; i++)
             {
-                concatChain = concatChain.Concat([]);
+                concatChain = concatChain.Concat(Array.Empty<int>());
             }
 
             // Finally, link an enumerable iterator at the head of the list.

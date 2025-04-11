@@ -34,7 +34,7 @@ namespace System.Linq.Tests
         {
             using IEnumerator<int[]> chunks = new FastInfiniteEnumerator<int>().Chunk(5).GetEnumerator();
             chunks.MoveNext();
-            Assert.Equal([0, 0, 0, 0, 0], chunks.Current);
+            Assert.Equal(new[] { 0, 0, 0, 0, 0 }, chunks.Current);
             Assert.True(chunks.MoveNext());
         }
 
@@ -56,11 +56,11 @@ namespace System.Linq.Tests
             {
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0, 888], chunks.Current);
+                Assert.Equal(new[] { 9999, 0, 888 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([-1, 66, -777], chunks.Current);
+                Assert.Equal(new[] { -1, 66, -777 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([1, 2, -12345], chunks.Current);
+                Assert.Equal(new[] { 1, 2, -12345 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }
@@ -73,11 +73,11 @@ namespace System.Linq.Tests
             {
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0, 888], chunks.Current);
+                Assert.Equal(new[] { 9999, 0, 888 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([-1, 66, -777], chunks.Current);
+                Assert.Equal(new[] { -1, 66, -777 }, chunks.Current);
                 chunks.MoveNext();
-                Assert.Equal([1, 2], chunks.Current);
+                Assert.Equal(new[] { 1, 2 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }
@@ -90,7 +90,7 @@ namespace System.Linq.Tests
             {
                 using IEnumerator<int[]> chunks = source.Chunk(3).GetEnumerator();
                 chunks.MoveNext();
-                Assert.Equal([9999, 0], chunks.Current);
+                Assert.Equal(new[] { 9999, 0 }, chunks.Current);
                 Assert.False(chunks.MoveNext());
             });
         }

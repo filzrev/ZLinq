@@ -344,7 +344,7 @@ namespace System.Linq.Tests
         private sealed class NopGrouping : IGrouping<string, int>
         {
             public string Key => "";
-            public IEnumerator<int> GetEnumerator() => ((IList<int>)[]).GetEnumerator();
+            public IEnumerator<int> GetEnumerator() => ((IList<int>)Array.Empty<int>()).GetEnumerator();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 

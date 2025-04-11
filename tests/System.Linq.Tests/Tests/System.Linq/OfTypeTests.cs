@@ -162,7 +162,7 @@ namespace System.Linq.Tests
         public void ToArray()
         {
             IEnumerable<object> source = [1, 2, 3, 4, 5];
-            Assert.Equal([1, 2, 3, 4, 5], source.OfType<int>().ToArray());
+            Assert.Equal(new int[] { 1, 2, 3, 4, 5 }, source.OfType<int>().ToArray());
             Assert.Empty(source.OfType<double>().ToArray());
         }
 

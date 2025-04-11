@@ -1124,8 +1124,8 @@ namespace System.Linq.Tests
         [Fact]
         public void Select_SourceIsIPartitionToArray()
         {
-            Assert.Equal([], new List<int>().Order().Select(i => i * 2).ToArray());
-            Assert.Equal([2, 4, 6, 8], new List<int> { 1, 2, 3, 4 }.Order().Select(i => i * 2).ToArray());
+            Assert.Equal(Array.Empty<int>(), new List<int>().Order().Select(i => i * 2).ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8 }, new List<int> { 1, 2, 3, 4 }.Order().Select(i => i * 2).ToArray());
         }
 
         [Fact]
@@ -1140,9 +1140,9 @@ namespace System.Linq.Tests
         [Fact]
         public void Select_SourceIsListSkipTakeToArray()
         {
-            Assert.Equal([2, 4, 6], new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Take(3).ToArray());
-            Assert.Equal([2, 4, 6, 8], new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Take(9).ToArray());
-            Assert.Equal([6, 8], new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Skip(2).ToArray());
+            Assert.Equal(new[] { 2, 4, 6 }, new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Take(3).ToArray());
+            Assert.Equal(new[] { 2, 4, 6, 8 }, new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Take(9).ToArray());
+            Assert.Equal(new[] { 6, 8 }, new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Skip(2).ToArray());
             Assert.Empty(new List<int> { 1, 2, 3, 4 }.Select(i => i * 2).Skip(8).ToArray());
         }
 
