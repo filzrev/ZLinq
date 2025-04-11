@@ -87,7 +87,7 @@ partial class ValueEnumerableExtensions
 
         if (enumerator.TryGetSpan(out var sourceSpan))
         {
-            if(sourceSpan.Length == 0)
+            if (sourceSpan.Length == 0)
             {
                 return Array.Empty<TResult>();
             }
@@ -147,7 +147,7 @@ partial class ValueEnumerableExtensions
         var count = source.Enumerator.count;
         var selector = source.Enumerator.selector;
 
-        if(count == 0)
+        if (count == 0)
         {
             return Array.Empty<TResult>();
         }

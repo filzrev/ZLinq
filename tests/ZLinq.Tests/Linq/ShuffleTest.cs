@@ -40,7 +40,7 @@ public class ShuffleTest
 
         var array = enumerable.ToArray();
         array.Length.ShouldBe(5);
-        
+
         // Same check for ToArray result
         var sortedArray = array.ToArray();
         Array.Sort(sortedArray);
@@ -55,13 +55,13 @@ public class ShuffleTest
         {
             var original = Enumerable.Range(1, size).ToArray();
             var shuffled = original.AsValueEnumerable().Shuffle().ToArray();
-            
+
             shuffled.Length.ShouldBe(original.Length);
-            
+
             // Sort both arrays and compare to ensure they contain the same elements
             var sortedOriginal = original.OrderBy(x => x).ToArray();
             var sortedShuffled = shuffled.OrderBy(x => x).ToArray();
-            
+
             sortedShuffled.ShouldBe(sortedOriginal);
         }
     }
@@ -71,7 +71,7 @@ public class ShuffleTest
     {
         var xs = new[] { 42 };
         var shuffled = xs.AsValueEnumerable().Shuffle().ToArray();
-        
+
         shuffled.Length.ShouldBe(1);
         shuffled[0].ShouldBe(42);
     }
@@ -82,10 +82,10 @@ public class ShuffleTest
         // Test with strings
         var strings = new[] { "apple", "banana", "cherry", "date", "elderberry" };
         var shuffledStrings = strings.AsValueEnumerable().Shuffle().ToArray();
-        
+
         shuffledStrings.Length.ShouldBe(strings.Length);
         shuffledStrings.OrderBy(s => s).ShouldBe(strings.OrderBy(s => s));
-        
+
         // Test with custom struct
         var structs = new[]
         {
@@ -95,9 +95,9 @@ public class ShuffleTest
             new TestStruct { Value = 4 },
             new TestStruct { Value = 5 }
         };
-        
+
         var shuffledStructs = structs.AsValueEnumerable().Shuffle().ToArray();
-        
+
         shuffledStructs.Length.ShouldBe(structs.Length);
         shuffledStructs.OrderBy(s => s.Value).Select(s => s.Value)
             .ShouldBe(structs.OrderBy(s => s.Value).Select(s => s.Value));
@@ -108,18 +108,18 @@ public class ShuffleTest
     {
         var size = 100;
         var original = Enumerable.Range(1, size).ToArray();
-        
+
         // Perform multiple shuffles to check randomization
         var shufflesInSameOrder = 0;
         var totalShuffles = 10;
-        
+
         for (int i = 0; i < totalShuffles; i++)
         {
             var shuffled = original.AsValueEnumerable().Shuffle().ToArray();
-            
+
             // Count how many elements are in the same position after shuffling
             var samePositionCount = original.Zip(shuffled, (o, s) => o == s).Count(x => x);
-            
+
             // For a good shuffle of 100 elements, it's very unlikely that more than 20% 
             // of elements would remain in the same position by chance
             if (samePositionCount > size * 0.8)
@@ -127,7 +127,7 @@ public class ShuffleTest
                 shufflesInSameOrder++;
             }
         }
-        
+
         // It's extremely unlikely for multiple shuffles to maintain most elements in the same position
         shufflesInSameOrder.ShouldBeLessThan(3);
     }
@@ -137,15 +137,15 @@ public class ShuffleTest
     {
         var original = Enumerable.Range(1, 10).ToArray();
         var destination = new int[10];
-        
+
         // Test with no offset
         var enumerable = original.AsValueEnumerable().Shuffle();
         enumerable.TryCopyTo(destination).ShouldBeTrue();
-        
+
         // The destination should now have all elements (in shuffled order)
         Array.Sort(destination);
         destination.ShouldBe(original);
-        
+
         // Test with offset
         var partialDestination = new int[5];
         enumerable = original.AsValueEnumerable().Shuffle();
@@ -157,13 +157,13 @@ public class ShuffleTest
     {
         var original = Enumerable.Range(1, 5).ToArray();
         var shuffled = original.AsValueEnumerable().Shuffle().Enumerator;
-        
+
         var collected = new List<int>();
         while (shuffled.TryGetNext(out var item))
         {
             collected.Add(item);
         }
-        
+
         collected.Count.ShouldBe(5);
         collected.OrderBy(x => x).ShouldBe(original.OrderBy(x => x));
     }

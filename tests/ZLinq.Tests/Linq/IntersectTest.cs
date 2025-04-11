@@ -284,15 +284,15 @@ namespace ZLinq.Tests.Linq
         {
             // This test indirectly verifies that the HashSetSlim is disposed, 
             // though we can't directly check it since it's an implementation detail
-            
+
             // Arrange
             var first = new[] { 1, 2, 3 }.AsValueEnumerable();
             var second = new[] { 2, 3, 4 }.AsValueEnumerable();
-            
+
             // Act & Assert - no memory leak or exception
             var intersect = first.Intersect(second);
             var result = intersect.ToArray();
-            
+
             Assert.Equal(new[] { 2, 3 }, result);
             // If there's a memory leak, it won't be caught by this test directly
             // But at least we know the operation completes without throwing
@@ -302,12 +302,12 @@ namespace ZLinq.Tests.Linq
         public void IntersectWithValueTypes()
         {
             // Arrange
-            var first = new[] { 
+            var first = new[] {
                 new DateTime(2023, 1, 1),
                 new DateTime(2023, 2, 1),
                 new DateTime(2023, 3, 1)
             }.AsValueEnumerable();
-            
+
             var second = new[] {
                 new DateTime(2023, 2, 1),
                 new DateTime(2023, 3, 1),
@@ -395,7 +395,7 @@ namespace ZLinq.Tests.Linq
                 span = default;
                 return false;
             }
-          
+
             public bool TryCopyTo(Span<T> destination, Index offset)
             {
                 return false;

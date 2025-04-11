@@ -35,12 +35,12 @@ public class SimdRange
         ValueEnumerable.Range(0, 10000).CopyTo(dest.AsSpan());
     }
 
-//#if NET8_0_OR_GREATER
-//    [Benchmark]
-//    public void Range2()
-//    {
-//        dest.VectorizedFillRange(0);
-//    }
+    //#if NET8_0_OR_GREATER
+    //    [Benchmark]
+    //    public void Range2()
+    //    {
+    //        dest.VectorizedFillRange(0);
+    //    }
 
-//#endif
+    //#endif
 }

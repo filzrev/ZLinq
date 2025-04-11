@@ -280,7 +280,7 @@ internal struct InlineArray27<T>
 
 #if !NET8_0_OR_GREATER
 
-    internal static class InlineArrayMarshal
+internal static class InlineArrayMarshal
 {
 #if !NETSTANDARD2_0
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

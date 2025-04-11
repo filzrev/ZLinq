@@ -321,7 +321,7 @@ public class SelectManyTest
     {
         // Arrange
         var sourceDisposed = false;
-        
+
         // Create a sequence that tracks disposal
         IEnumerable<int> GetTrackingSequence()
         {

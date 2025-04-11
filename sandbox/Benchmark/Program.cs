@@ -23,7 +23,7 @@ internal static class Program
     {
 #if DEBUG
 
-    
+
 
         return 0;
 #endif

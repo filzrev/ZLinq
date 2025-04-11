@@ -8,7 +8,7 @@ public class TryGetNonEnumeratedCountTest
         var xs = Array.Empty<int>();
 
         // System LINQ doesn't have this feature directly to compare against
-        
+
         // ZLinq implementations
         var result = xs.AsValueEnumerable().TryGetNonEnumeratedCount(out var count);
         result.ShouldBeTrue();
@@ -29,7 +29,7 @@ public class TryGetNonEnumeratedCountTest
 
         xs.ToValueEnumerable().TryGetNonEnumeratedCount(out count).ShouldBeFalse();
     }
-    
+
     [Fact]
     public void NonCountableSource()
     {
@@ -48,7 +48,7 @@ public class TryGetNonEnumeratedCountTest
         var result = xs.AsValueEnumerable()
             .Concat(new[] { 6, 7, 8 }.AsValueEnumerable())
             .TryGetNonEnumeratedCount(out var count);
-            
+
         result.ShouldBeTrue();
         count.ShouldBe(8);
     }
@@ -62,7 +62,7 @@ public class TryGetNonEnumeratedCountTest
         var result = xs.AsValueEnumerable()
             .Where(x => x > 0) // Filter that keeps all items but breaks count optimization
             .TryGetNonEnumeratedCount(out var count);
-            
+
         result.ShouldBeFalse();
         count.ShouldBe(0);
     }
@@ -76,7 +76,7 @@ public class TryGetNonEnumeratedCountTest
         var result = xs.AsValueEnumerable()
             .Select(x => x * 2)
             .TryGetNonEnumeratedCount(out var count);
-            
+
         result.ShouldBeTrue();
         count.ShouldBe(5);
     }
@@ -90,7 +90,7 @@ public class TryGetNonEnumeratedCountTest
         var result = xs.AsValueEnumerable()
             .Chunk(2)
             .TryGetNonEnumeratedCount(out var count);
-            
+
         result.ShouldBeTrue();
         count.ShouldBe(3); // Ceiling(5/2) = 3 chunks
     }
@@ -105,14 +105,14 @@ public class TryGetNonEnumeratedCountTest
         var result1 = xs.AsValueEnumerable()
             .Concat(empty.AsValueEnumerable())
             .TryGetNonEnumeratedCount(out var count1);
-            
+
         result1.ShouldBeTrue();
         count1.ShouldBe(5);
 
         var result2 = empty.AsValueEnumerable()
             .Concat(xs.AsValueEnumerable())
             .TryGetNonEnumeratedCount(out var count2);
-            
+
         result2.ShouldBeTrue();
         count2.ShouldBe(5);
     }
@@ -126,7 +126,7 @@ public class TryGetNonEnumeratedCountTest
         var result = xs.AsValueEnumerable()
             .Concat(TestUtil.Empty<int>().AsValueEnumerable())
             .TryGetNonEnumeratedCount(out var count);
-            
+
         result.ShouldBeFalse();
         count.ShouldBe(0);
     }
