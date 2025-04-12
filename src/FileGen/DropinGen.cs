@@ -106,6 +106,11 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
+        if(methodInfo.Name is "Skip" or "Take" && methodInfo.ReturnType.ToString().Contains("OrderBySkipTake"))
+        {
+            return null;
+        }
+
         if (methodInfo.Name is "Contains" && !methodInfo.GetGenericArguments().Any(x => x.Name == "TEnumerator"))
         {
             return null;
