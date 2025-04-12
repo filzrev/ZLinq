@@ -6,6 +6,8 @@ Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSyst
 
 Unlike regular LINQ, ZLinq doesn't increase allocations when adding more method chains, and it also has higher basic performance. You can check various benchmark patterns at [GitHub Actions/Benchmark](https://github.com/Cysharp/ZLinq/actions/runs/14347384964). ZLinq shows high performance in almost all patterns, with some benchmarks showing overwhelming differences.
 
+As a bonus, LINQ operators and optimizations equivalent to .NET 10 can be used in .NET Framework 4.8 (netstandard2.0) and Unity (netstandard2.1).
+
 ```bash
 dotnet add package ZLinq
 ```
