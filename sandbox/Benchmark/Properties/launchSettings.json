@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.ReadMeBenchmark2.* -- Default",
+      "commandLineArgs": "--filter Benchmark.OrderTakeBenchmark.* -- Default",
 
       // Available config
       // 1. Default

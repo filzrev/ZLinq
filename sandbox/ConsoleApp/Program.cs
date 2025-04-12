@@ -27,20 +27,20 @@ using ZLinq.Traversables;
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
 
-var first = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-var second = new[] { 10, 20, 30, 40, 50, 60, 70, 80 };
-var third = new[] { 100, 200, 300, 400, 500, 600, 700, 800 };
+var N = 100000;
+var M = 100;
+var array = new int[N];
+Random.Shared.NextBytes(MemoryMarshal.Cast<int, byte>(array));
 
-var result = first.AsVectorizable().Zip(
-    second,
-    third,
-    (v1, v2, v3) => v1 + v2 + v3,
-    (x, y, z) => x + y + z
-).ToArray();
+var src = array.AsValueEnumerable().OrderDescending().Take(M);
+
+using var e = src.Enumerator;
+while (e.TryGetNext(out var item))
+{
+}
 
 
 
-Console.WriteLine(result.Length);
 
 
 //var srcFiles = new DirectoryInfo("../../../../../src/ZLinq/Linq/").GetFiles();

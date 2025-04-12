@@ -47,6 +47,21 @@ public static class TestUtil
         return Core(source).AsValueEnumerable();
     }
 
+    public static T[] IterateToArray<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> enumerable)
+        where TEnumerator : struct, IValueEnumerator<T>
+    #if NET9_0_OR_GREATER
+        , allows ref struct
+    #endif
+    {
+        var list = new List<T>();
+        using var e = enumerable.Enumerator;
+        while (e.TryGetNext(out var current))
+        {
+            list.Add(current);
+        }
+        return list.ToArray();
+    }
+
     // direct shortcut of enumerable.enumerator
 
     // Enumerator is struct so this shortcut is dangerous.

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 
 namespace ZLinq
 {
@@ -98,6 +96,46 @@ namespace ZLinq
                 , allows ref struct
 #endif
             => new(source.Enumerator.ThenByDescending(Throws.IfNull(keySelector), comparer));
+
+        // Skip Take Optimization
+
+        public static ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> Skip<TEnumerator, TSource, TKey>(this ValueEnumerable<OrderBy<TEnumerator, TSource, TKey>, TSource> source, int count)
+            where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+        {
+            return new(new(source.Enumerator, Math.Max(0, count), int.MaxValue));
+        }
+
+        public static ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> Take<TEnumerator, TSource, TKey>(this ValueEnumerable<OrderBy<TEnumerator, TSource, TKey>, TSource> source, int count)
+    where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+        {
+            count = Math.Max(0, count);
+            return new(new(source.Enumerator, 0, count - 1));
+        }
+
+        public static ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> Skip<TEnumerator, TSource, TKey>(this ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> source, int count)
+            where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+        {
+            return new(source.Enumerator.Skip(Math.Max(0, count)));
+        }
+
+        public static ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> Take<TEnumerator, TSource, TKey>(this ValueEnumerable<OrderBySkipTake<TEnumerator, TSource, TKey>, TSource> source, int count)
+    where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+        {
+            count = Math.Max(0, count);
+            return new(source.Enumerator.Take(count));
+        }
     }
 }
 
@@ -119,8 +157,8 @@ namespace ZLinq.Linq
             , allows ref struct
 #endif
     {
-        TEnumerator source = source;
-        OrderByComparable<TSource, TKey> comparable = new(keySelector, comparer, parent, descending); // boxed, this is safe to copy as struct state
+        internal TEnumerator source = source;
+        internal OrderByComparable<TSource, TKey> comparable = new(keySelector, comparer, parent, descending); // boxed, this is safe to copy as struct state
 
         RentedArrayBox<TSource>? buffer;
         int index;
@@ -219,7 +257,8 @@ namespace ZLinq.Linq
 
             if (index < buffer.Length)
             {
-                current = buffer.UnsafeGetAt(index++);
+                current = buffer.UnsafeGetAt(index);
+                index++;
                 return true;
             }
 
@@ -287,6 +326,172 @@ namespace ZLinq.Linq
                 return true;
             }
             return false;
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct OrderBySkipTake<TEnumerator, TSource, TKey>
+        : IValueEnumerator<TSource>
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+    {
+        TEnumerator source;
+        OrderByComparable<TSource, TKey> comparable;
+        int minIndexInclusive;
+        int maxIndexInclusive;
+
+        RentedArrayBox<TSource>? buffer;
+        RentedArrayBox<int>? indexMap;
+        int maxIndex;
+        int index;
+
+        public OrderBySkipTake(OrderBy<TEnumerator, TSource, TKey> orderBy, int minIndexInclusive, int maxIndexInclusive)
+        {
+            this.source = orderBy.source;
+            this.comparable = orderBy.comparable;
+            this.minIndexInclusive = minIndexInclusive;
+            this.maxIndexInclusive = maxIndexInclusive;
+        }
+
+        OrderBySkipTake(TEnumerator source, OrderByComparable<TSource, TKey> comparable, int minIndexInclusive, int maxIndexInclusive)
+        {
+            this.source = source;
+            this.comparable = comparable;
+            this.minIndexInclusive = minIndexInclusive;
+            this.maxIndexInclusive = maxIndexInclusive;
+        }
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            if (source.TryGetNonEnumeratedCount(out count))
+            {
+                if (count <= minIndexInclusive)
+                {
+                    count = 0;
+                    return true;
+                }
+
+                count = (count <= maxIndexInclusive ? count : maxIndexInclusive + 1) - minIndexInclusive;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TSource> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        {
+            InitBuffer();
+            if (indexMap != null)
+            {
+                var indexSlice = indexMap.Span.Slice(minIndexInclusive, (int)Math.Min((uint)maxIndexInclusive - minIndexInclusive + 1, (uint)indexMap.Span.Length - minIndexInclusive));
+
+                if (EnumeratorHelper.TryGetSlice<int>(indexSlice, offset, destination.Length, out var slice))
+                {
+                    for (var i = 0; i < slice.Length; i++)
+                    {
+                        destination[i] = buffer.UnsafeGetAt(slice[i]);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryGetNext(out TSource current)
+        {
+            var buf = buffer;
+            if (buf == null)
+            {
+                InitBuffer();
+                buf = buffer;
+            }
+
+            var i = index + minIndexInclusive;
+            var map = indexMap;
+            if (map != null && i <= maxIndex)
+            {
+                current = buf.UnsafeGetAt(map!.UnsafeGetAt(i));
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            buffer?.Dispose();
+            indexMap?.Dispose();
+            source.Dispose();
+        }
+
+        [MemberNotNull(nameof(buffer))]
+        void InitBuffer()
+        {
+            if (buffer == null)
+            {
+                var (array, count) = new ValueEnumerable<TEnumerator, TSource>(source).ToArrayPool();
+                buffer = new RentedArrayBox<TSource>(array, count);
+                Sort(buffer.Span);
+            }
+        }
+
+        void Sort(ReadOnlySpan<TSource> span) // not sort element, only indexes
+        {
+            var count = span.Length;
+            if (count > minIndexInclusive)
+            {
+                maxIndex = maxIndexInclusive;
+                if (count <= maxIndex)
+                {
+                    maxIndex = count - 1;
+                }
+
+                var (indexMapSource, size) = ValueEnumerable.Range(0, span.Length).ToArrayPool();
+                indexMap = new RentedArrayBox<int>(indexMapSource, size);
+
+                using var comparer = comparable.GetComparer(span, null!);
+                OrderByHelper.PartialQuickSort(indexMapSource, comparer, left: 0, right: size - 1, minIdx: minIndexInclusive, maxIdx: maxIndex);
+            }
+        }
+
+        internal OrderBySkipTake<TEnumerator, TSource, TKey> Skip(int count)
+        {
+            var minIndex = minIndexInclusive + count;
+            if ((uint)minIndex > (uint)maxIndexInclusive)
+            {
+                return new OrderBySkipTake<TEnumerator, TSource, TKey>(source, comparable, 0, -1); // Empty
+            }
+            else
+            {
+                return new OrderBySkipTake<TEnumerator, TSource, TKey>(source, comparable, minIndex, maxIndexInclusive);
+            }
+        }
+
+        internal OrderBySkipTake<TEnumerator, TSource, TKey> Take(int count)
+        {
+            var maxIndex = minIndexInclusive + count - 1;
+            if ((uint)maxIndex >= (uint)maxIndexInclusive)
+            {
+                return this;
+            }
+
+            return new OrderBySkipTake<TEnumerator, TSource, TKey>(source, comparable, minIndexInclusive, maxIndex);
         }
     }
 
@@ -485,6 +690,73 @@ namespace ZLinq.Linq
             while (left < right);
 
             return map[idx];
+        }
+
+        internal static void PartialQuickSort(int[] map, IComparer<int> comparer, int left, int right, int minIdx, int maxIdx)
+        {
+            do
+            {
+                int i = left;
+                int j = right;
+                int x = map[i + ((j - i) >> 1)];
+                do
+                {
+                    while (i < map.Length && comparer.Compare(x, map[i]) > 0)
+                    {
+                        i++;
+                    }
+
+                    while (j >= 0 && comparer.Compare(x, map[j]) < 0)
+                    {
+                        j--;
+                    }
+
+                    if (i > j)
+                    {
+                        break;
+                    }
+
+                    if (i < j)
+                    {
+                        int temp = map[i];
+                        map[i] = map[j];
+                        map[j] = temp;
+                    }
+
+                    i++;
+                    j--;
+                }
+                while (i <= j);
+
+                if (minIdx >= i)
+                {
+                    left = i + 1;
+                }
+                else if (maxIdx <= j)
+                {
+                    right = j - 1;
+                }
+
+                if (j - left <= right - i)
+                {
+                    if (left < j)
+                    {
+                        PartialQuickSort(map, comparer, left, j, minIdx, maxIdx);
+                    }
+
+                    left = i;
+                }
+                else
+                {
+                    if (i < right)
+                    {
+                        PartialQuickSort(map, comparer, i, right, minIdx, maxIdx);
+                    }
+
+                    right = j;
+                }
+            }
+            while (left < right);
         }
 
         internal static int Min(int[] map, IComparer<int> comparer, int count)
