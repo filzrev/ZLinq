@@ -19,9 +19,7 @@ public class ShuffleBench
     [GlobalSetup]
     public void Setup()
     {
-        var rand = new Random(42);
-        array = new int[N];
-        rand.NextBytes(MemoryMarshal.Cast<int, byte>(array));
+        array = Enumerable.Range(0, N).ToArray();
     }
 
 #if NET10_0_OR_GREATER
