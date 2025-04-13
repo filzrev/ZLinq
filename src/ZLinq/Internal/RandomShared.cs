@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Cryptography;
 
 namespace ZLinq.Internal;
 
@@ -22,6 +19,24 @@ internal static class RandomShared
         Random.Shared.Shuffle(span);
 #else
         Shared.Value.Shuffle(span);
+#endif
+    }
+
+    public static void Shuffle<T>(T[] array, int count)
+    {
+#if NET8_0_OR_GREATER
+        Random.Shared.Shuffle(array.AsSpan(), count);
+#else
+        Shared.Value.Shuffle(array.AsSpan(), count);
+#endif
+    }
+
+    public static void Shuffle<T>(Span<T> span, int count)
+    {
+#if NET8_0_OR_GREATER
+        Random.Shared.Shuffle(span, count);
+#else
+        Shared.Value.Shuffle(span, count);
 #endif
     }
 
@@ -56,4 +71,33 @@ internal static class RandomShared
     }
 
 #endif
+
+    static void Shuffle<T>(this Random random, Span<T> values, int count)
+    {
+        if (count <= 0)
+            return;
+
+        int length = values.Length;
+        if (count > length)
+            count = length;
+
+        int n = length;
+        if (n > count)
+            n = count;
+
+        if (n == length)
+            n--;  // exclude last item
+
+        for (int i = 0; i < n; i++)
+        {
+            int j = random.Next(i, length);
+
+            if (j != i)
+            {
+                T temp = values[i];
+                values[i] = values[j];
+                values[j] = temp;
+            }
+        }
+    }
 }
