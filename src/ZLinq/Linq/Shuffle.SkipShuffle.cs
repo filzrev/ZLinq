@@ -120,6 +120,7 @@ namespace ZLinq.Linq
         }
 
         [MemberNotNull(nameof(buffer))]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         void InitBuffer()
         {
             if (buffer == null)
