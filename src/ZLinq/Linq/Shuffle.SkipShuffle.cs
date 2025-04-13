@@ -54,7 +54,7 @@ namespace ZLinq.Linq
 #else
     public
 #endif
-    struct SkipShuffle<TEnumerator, TSource>(Shuffle<TEnumerator, TSource> shuffle, int count, bool skip)
+    struct SkipShuffle<TEnumerator, TSource>(Shuffle<TEnumerator, TSource> shuffle, int count, bool skipOrTake)
         : IValueEnumerator<TSource>
         where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
@@ -65,7 +65,7 @@ namespace ZLinq.Linq
         RentedArrayBox<TSource>? buffer;
         int index = 0;
         readonly int count = count < 0 ? 0 : count;
-        readonly bool skip = skip;
+        readonly bool skipOrTake = skipOrTake;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -127,7 +127,7 @@ namespace ZLinq.Linq
                 var (array, consumed) = new ValueEnumerable<TEnumerator, TSource>(source).ToArrayPool();
                 var count = consumed;
 
-                if (skip)
+                if (skipOrTake)
                 {
                     count -= this.count;
 
