@@ -28,7 +28,7 @@ using ZLinq.Traversables;
 
 var test = new[] { 1, 10, 100 };
 
-var seq = test.AsValueEnumerable3();
+var seq = test.AsValueEnumerable();
 foreach (var item in seq)
 {
     Console.WriteLine(item);
