@@ -102,12 +102,52 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromEnumerable<T>(IEnumerable<T> source) : IValueEnumerator<T>
+    public struct FromEnumerable<T> : IValueEnumerator<T>
     {
-        IEnumerator<T>? enumerator = null;
+        CollectionIterator<T> iterator;
+
+        public FromEnumerable(IEnumerable<T> source)
+        {
+            if (source is T[] array)
+            {
+                iterator = new ArrayIterator<T>(array);
+            }
+            else if (source is List<T> list)
+            {
+                iterator = new ListIterator<T>(list);
+            }
+            else if (source is IReadOnlyList<T> readonlyList)
+            {
+                iterator = new IReadOnlyListIterator<T>(readonlyList);
+            }
+            else if (source is IList<T> ilist)
+            {
+                iterator = new IListIterator<T>(ilist);
+            }
+            else
+            {
+                iterator = new EnumerableIterator<T>(source);
+            }
+        }
 
         // for Contains, need to check ICollection of IEqualityComparer due to compatibility
-        internal IEnumerable<T> GetSource() => source;
+        internal IEnumerable<T> GetSource() => iterator.GetSource();
+
+        public bool TryGetNonEnumeratedCount(out int count) => iterator.TryGetNonEnumeratedCount(out count);
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span) => iterator.TryGetSpan(out span);
+
+        public bool TryCopyTo(Span<T> destination, Index offset) => iterator.TryCopyTo(destination, offset);
+
+        public bool TryGetNext(out T current) => iterator.TryGetNext(out current);
+
+        public void Dispose() => iterator.Dispose();
+    }
+
+    // variation for FromEnumerable
+    internal abstract class CollectionIterator<T>(IEnumerable<T> source) : IDisposable
+    {
+        public IEnumerable<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -165,7 +205,90 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryGetNext(out T current)
+        public virtual void Dispose() { }
+
+        public abstract bool TryGetNext(out T current);
+    }
+
+    internal sealed class ArrayIterator<T>(T[] source) : CollectionIterator<T>(source)
+    {
+        int index;
+
+        public override bool TryGetNext(out T current)
+        {
+            if (index < source.Length)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+    internal sealed class ListIterator<T>(List<T> source) : CollectionIterator<T>(source)
+    {
+        int index;
+
+        public override bool TryGetNext(out T current)
+        {
+            if (index < source.Count)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+    internal sealed class IListIterator<T>(IList<T> source) : CollectionIterator<T>(source)
+    {
+        int index;
+
+        public override bool TryGetNext(out T current)
+        {
+            if (index < source.Count)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+    internal sealed class IReadOnlyListIterator<T>(IReadOnlyList<T> source) : CollectionIterator<T>(source)
+    {
+        int index;
+
+        public override bool TryGetNext(out T current)
+        {
+            if (index < source.Count)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
+    internal sealed class EnumerableIterator<T>(IEnumerable<T> source) : CollectionIterator<T>(source)
+#pragma warning restore CS9107
+    {
+        IEnumerator<T>? enumerator = null;
+
+        public override bool TryGetNext(out T current)
         {
             if (enumerator == null)
             {
@@ -182,12 +305,9 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            if (enumerator != null)
-            {
-                enumerator.Dispose();
-            }
+            enumerator?.Dispose();
         }
     }
 
