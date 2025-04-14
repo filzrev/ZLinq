@@ -15,6 +15,16 @@ namespace ZLinq
             return new(new(Throws.IfNull(source)));
         }
 
+        public static ValueEnumerable<FromEnumerable2<T>, T> AsValueEnumerable2<T>(this IEnumerable<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
+        public static ValueEnumerable<FromEnumerable3<T>, T> AsValueEnumerable3<T>(this IEnumerable<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
         public static ValueEnumerable<FromArray<T>, T> AsValueEnumerable<T>(this T[] source)
         {
             return new(new(Throws.IfNull(source)));
@@ -103,14 +113,393 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromEnumerable<T>(IEnumerable<T> source) : IValueEnumerator<T>
+    public unsafe struct FromEnumerable2<T> : IValueEnumerator<T>
     {
+        IEnumerable<T> source;
+        readonly byte type; // 0 = Array, 1 = lList, 2 = IReadOnlyList, 3 = IList, 4 = IEnumerable
+
+        int index;
+        IEnumerator<T>? enumerator;
+
+        public FromEnumerable2(IEnumerable<T> source)
+        {
+            this.source = source;
+            if (source is T[] array)
+            {
+                type = 0;
+            }
+            else if (source is List<T> list)
+            {
+                type = 1;
+            }
+            else if (source is IReadOnlyList<T> readonlyList)
+            {
+                type = 2;
+            }
+            else if (source is IList<T> ilist)
+            {
+                type = 3;
+            }
+            else
+            {
+                type = 4;
+            }
+        }
+
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
+        internal IEnumerable<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+#if NET8_0_OR_GREATER
+            if (source.TryGetNonEnumeratedCount(out count)) // call System.Linq.Enumerable.TryGetNonEnumeratedCount
+            {
+                return true;
+            }
+#else
+            if (source is ICollection<T> c)
+            {
+                count = c.Count;
+                return true;
+            }
+#endif
+            else if (source is IReadOnlyCollection<T> rc) // Enumerable.TryGetNonEnumeratedCount does not check IReadOnlyCollection
+            {
+                count = rc.Count;
+                return true;
+            }
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            if (source.GetType() == typeof(T[]))
+            {
+                span = Unsafe.As<T[]>(source);
+                return true;
+            }
+            else if (source.GetType() == typeof(List<T>))
+            {
+                span = CollectionsMarshal.AsSpan(Unsafe.As<List<T>>(source));
+                return true;
+            }
+            else
+            {
+                span = default;
+                return false;
+            }
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset)
+        {
+            if (TryGetSpan(out var span))
+            {
+                if (EnumeratorHelper.TryGetSlice<T>(span, offset, destination.Length, out var slice))
+                {
+                    slice.CopyTo(destination);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            switch (type)
+            {
+                case 0:
+                    return TryGetNextArray(out current);
+                case 1:
+                    return TryGetNextList(out current);
+                case 2:
+                    return TryGetNextIList(out current);
+                case 3:
+                    return TryGetNextIReadOnlyList(out current);
+                default:
+                    return TryGetNextEnumerable(out current);
+            }
+        }
+
+        public void Dispose()
+        {
+            enumerator?.Dispose();
+            enumerator = null;
+        }
+
+        bool TryGetNextArray(out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, T[]>(ref source);
+            if (index < src.Length)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        bool TryGetNextList(out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, List<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        bool TryGetNextIList(out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, IList<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        bool TryGetNextIReadOnlyList(out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, IReadOnlyList<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        bool TryGetNextEnumerable(out T current)
+        {
+            if (enumerator == null)
+            {
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public unsafe struct FromEnumerable3<T> : IValueEnumerator<T>
+    {
+        IEnumerable<T> source;
+
+        // index, enumerator, source, current, try-result
+        readonly delegate* managed<ref int, ref IEnumerator<T>?, IEnumerable<T>, out T, bool> tryGetNextFunctionPointer;
+
+        int index;
+        IEnumerator<T>? enumerator;
+
+        public FromEnumerable3(IEnumerable<T> source)
+        {
+            this.source = source;
+            if (source is T[] array)
+            {
+                tryGetNextFunctionPointer = &TryGetNextArray;
+            }
+            else if (source is List<T> list)
+            {
+                tryGetNextFunctionPointer = &TryGetNextList;
+            }
+            else if (source is IReadOnlyList<T> readonlyList)
+            {
+                tryGetNextFunctionPointer = &TryGetNextIList;
+            }
+            else if (source is IList<T> ilist)
+            {
+                tryGetNextFunctionPointer = &TryGetNextIReadOnlyList;
+            }
+            else
+            {
+                tryGetNextFunctionPointer = &TryGetNextEnumerable;
+            }
+        }
+
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
+        internal IEnumerable<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+#if NET8_0_OR_GREATER
+            if (source.TryGetNonEnumeratedCount(out count)) // call System.Linq.Enumerable.TryGetNonEnumeratedCount
+            {
+                return true;
+            }
+#else
+            if (source is ICollection<T> c)
+            {
+                count = c.Count;
+                return true;
+            }
+#endif
+            else if (source is IReadOnlyCollection<T> rc) // Enumerable.TryGetNonEnumeratedCount does not check IReadOnlyCollection
+            {
+                count = rc.Count;
+                return true;
+            }
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            if (source.GetType() == typeof(T[]))
+            {
+                span = Unsafe.As<T[]>(source);
+                return true;
+            }
+            else if (source.GetType() == typeof(List<T>))
+            {
+                span = CollectionsMarshal.AsSpan(Unsafe.As<List<T>>(source));
+                return true;
+            }
+            else
+            {
+                span = default;
+                return false;
+            }
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset)
+        {
+            if (TryGetSpan(out var span))
+            {
+                if (EnumeratorHelper.TryGetSlice<T>(span, offset, destination.Length, out var slice))
+                {
+                    slice.CopyTo(destination);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetNext(out T current) => tryGetNextFunctionPointer(ref index, ref enumerator, source, out current);
+
+        public void Dispose()
+        {
+            enumerator?.Dispose();
+            enumerator = null;
+        }
+
+        static bool TryGetNextArray(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, T[]>(ref source);
+            if (index < src.Length)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        static bool TryGetNextList(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, List<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        static bool TryGetNextIList(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, IList<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        static bool TryGetNextIReadOnlyList(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        {
+            var src = Unsafe.As<IEnumerable<T>, IReadOnlyList<T>>(ref source);
+            if (index < src.Count)
+            {
+                current = src[index];
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        static bool TryGetNextEnumerable(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        {
+            if (enumerator == null)
+            {
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public unsafe struct FromEnumerable<T>(IEnumerable<T> source) : IValueEnumerator<T>
+    {
+        delegate* managed<ref int, IEnumerable<T>, ref T, bool> TryGetNextFunctionPointer;
+
+        byte type; // 0 = Array, 1 = lList, 2 = IReadOnlyList, 3 = IList, 4 = IEnumerable
+        // int index, int IEnumerator...
+
         CollectionIterator<T>? iterator; // field instantiate must deferred
         int index;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         CollectionIterator<T> CreateIterator()
         {
+            T v = default!;
+            var result = TryGetNextFunctionPointer(ref index, source, ref v);
+
             if (source is T[] array)
             {
                 return ArrayIterator<T>.Instance;

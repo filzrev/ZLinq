@@ -89,6 +89,8 @@ public class SelectFromEnumerableArray
             .Consume(consumer);
     }
 
+    // FromEnumerable
+
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
     public void ZLinqSelect_FromReadOnlyCollection()
@@ -121,6 +123,84 @@ public class SelectFromEnumerableArray
     public void ZLinqSelect_FromEnumerableNotCollection()
     {
         enumerableNotCollection.AsValueEnumerable()
+                               .Select(x => x + x)
+                               .Consume(consumer);
+    }
+
+    // variation 2
+
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqSwitch")]
+    public void ZLinqSelect_FromReadOnlyCollection_SwitchVariation()
+    {
+        readOnlyCollection.AsValueEnumerable2()
+                          .Select(x => x + x)
+                          .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqSwitch")]
+    public void ZLinqSelect_FromIReadOnlyListArray_SwitchVariation()
+    {
+        enumerableReadOnlyList.AsValueEnumerable2()
+                              .Select(x => x + x)
+                              .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqSwitch")]
+    public void ZLinqSelect_FromEnumerableArray_SwitchVariation()
+    {
+        enumerableArray.AsValueEnumerable2()
+                       .Select(x => x + x)
+                       .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqSwitch")]
+    public void ZLinqSelect_FromEnumerableNotCollection_SwitchVariation()
+    {
+        enumerableNotCollection.AsValueEnumerable2()
+                               .Select(x => x + x)
+                               .Consume(consumer);
+    }
+
+    //variation 3
+
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqFunctionPointer")]
+    public void ZLinqSelect_FromReadOnlyCollection_FunctionPointerVariation()
+    {
+        readOnlyCollection.AsValueEnumerable3()
+                          .Select(x => x + x)
+                          .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqFunctionPointer")]
+    public void ZLinqSelect_FromIReadOnlyListArray_FunctionPointerVariation()
+    {
+        enumerableReadOnlyList.AsValueEnumerable3()
+                              .Select(x => x + x)
+                              .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqFunctionPointer")]
+    public void ZLinqSelect_FromEnumerableArray_FunctionPointerVariation()
+    {
+        enumerableArray.AsValueEnumerable3()
+                       .Select(x => x + x)
+                       .Consume(consumer);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory("ZLinqFunctionPointer")]
+    public void ZLinqSelect_FromEnumerableNotCollection_FunctionPointerVariation()
+    {
+        enumerableNotCollection.AsValueEnumerable3()
                                .Select(x => x + x)
                                .Consume(consumer);
     }

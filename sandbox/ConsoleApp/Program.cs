@@ -28,7 +28,11 @@ using ZLinq.Traversables;
 
 var test = new[] { 1, 10, 100 };
 
-var foo = test.AsValueEnumerable().ToFrozenSet();
+var seq = test.AsValueEnumerable3();
+foreach (var item in seq)
+{
+    Console.WriteLine(item);
+}
 
 // Enumerable.Range(1,10).to
 
