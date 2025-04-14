@@ -23,7 +23,7 @@ public class SelectFromEnumerableArray
     IEnumerable<int> enumerableArray = Enumerable.Range(1, 1000000).ToArray();
     IEnumerable<int> enumerableNotCollection = ForceNotCollection(Enumerable.Range(1, 1000000));
 
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     [BenchmarkCategory(Categories.LINQ)]
     public void LinqSelect()
     {
