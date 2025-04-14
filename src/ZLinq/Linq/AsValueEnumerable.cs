@@ -2,6 +2,7 @@
 using System.Buffers;
 #if NET8_0_OR_GREATER
 using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using System.Numerics;
 #endif
 
@@ -102,46 +103,46 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromEnumerable<T> : IValueEnumerator<T>
+    public struct FromEnumerable<T>(IEnumerable<T> source) : IValueEnumerator<T>
     {
-        CollectionIterator<T> iterator;
+        CollectionIterator<T>? iterator; // field instantiate must deferred
 
-        public FromEnumerable(IEnumerable<T> source)
+        CollectionIterator<T> CreateIterator()
         {
             if (source is T[] array)
             {
-                iterator = new ArrayIterator<T>(array);
+                return new ArrayIterator<T>(array);
             }
             else if (source is List<T> list)
             {
-                iterator = new ListIterator<T>(list);
+                return new ListIterator<T>(list);
             }
             else if (source is IReadOnlyList<T> readonlyList)
             {
-                iterator = new IReadOnlyListIterator<T>(readonlyList);
+                return new IReadOnlyListIterator<T>(readonlyList);
             }
             else if (source is IList<T> ilist)
             {
-                iterator = new IListIterator<T>(ilist);
+                return new IListIterator<T>(ilist);
             }
             else
             {
-                iterator = new EnumerableIterator<T>(source);
+                return new EnumerableIterator<T>(source);
             }
         }
 
         // for Contains, need to check ICollection of IEqualityComparer due to compatibility
-        internal IEnumerable<T> GetSource() => iterator.GetSource();
+        internal IEnumerable<T> GetSource() => (iterator ??= CreateIterator()).GetSource();
 
-        public bool TryGetNonEnumeratedCount(out int count) => iterator.TryGetNonEnumeratedCount(out count);
+        public bool TryGetNonEnumeratedCount(out int count) => (iterator ??= CreateIterator()).TryGetNonEnumeratedCount(out count);
 
-        public bool TryGetSpan(out ReadOnlySpan<T> span) => iterator.TryGetSpan(out span);
+        public bool TryGetSpan(out ReadOnlySpan<T> span) => (iterator ??= CreateIterator()).TryGetSpan(out span);
 
-        public bool TryCopyTo(Span<T> destination, Index offset) => iterator.TryCopyTo(destination, offset);
+        public bool TryCopyTo(Span<T> destination, Index offset) => (iterator ??= CreateIterator()).TryCopyTo(destination, offset);
 
-        public bool TryGetNext(out T current) => iterator.TryGetNext(out current);
+        public bool TryGetNext(out T current) => (iterator ??= CreateIterator()).TryGetNext(out current);
 
-        public void Dispose() => iterator.Dispose();
+        public void Dispose() => iterator?.Dispose();
     }
 
     // variation for FromEnumerable
