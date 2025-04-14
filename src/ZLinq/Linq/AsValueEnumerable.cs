@@ -312,6 +312,7 @@ namespace ZLinq.Linq
         public override void Dispose()
         {
             enumerator?.Dispose();
+            enumerator = null;
         }
     }
 
