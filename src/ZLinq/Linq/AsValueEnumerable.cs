@@ -106,51 +106,52 @@ namespace ZLinq.Linq
     public struct FromEnumerable<T>(IEnumerable<T> source) : IValueEnumerator<T>
     {
         CollectionIterator<T>? iterator; // field instantiate must deferred
+        int index;
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         CollectionIterator<T> CreateIterator()
         {
             if (source is T[] array)
             {
-                return new ArrayIterator<T>(array);
+                return ArrayIterator<T>.Instance;
             }
             else if (source is List<T> list)
             {
-                return new ListIterator<T>(list);
+                return ListIterator<T>.Instance;
             }
             else if (source is IReadOnlyList<T> readonlyList)
             {
-                return new IReadOnlyListIterator<T>(readonlyList);
+                return IReadOnlyListIterator<T>.Instance;
             }
             else if (source is IList<T> ilist)
             {
-                return new IListIterator<T>(ilist);
+                return IListIterator<T>.Instance;
             }
             else
             {
-                return new EnumerableIterator<T>(source);
+                return new EnumerableIterator<T>();
             }
         }
 
         // for Contains, need to check ICollection of IEqualityComparer due to compatibility
-        internal IEnumerable<T> GetSource() => (iterator ??= CreateIterator()).GetSource();
+        internal IEnumerable<T> GetSource() => source;
 
-        public bool TryGetNonEnumeratedCount(out int count) => (iterator ??= CreateIterator()).TryGetNonEnumeratedCount(out count);
+        public bool TryGetNonEnumeratedCount(out int count) => (iterator ??= CreateIterator()).TryGetNonEnumeratedCount(source, out count);
 
-        public bool TryGetSpan(out ReadOnlySpan<T> span) => (iterator ??= CreateIterator()).TryGetSpan(out span);
+        public bool TryGetSpan(out ReadOnlySpan<T> span) => (iterator ??= CreateIterator()).TryGetSpan(source, out span);
 
-        public bool TryCopyTo(Span<T> destination, Index offset) => (iterator ??= CreateIterator()).TryCopyTo(destination, offset);
+        public bool TryCopyTo(Span<T> destination, Index offset) => (iterator ??= CreateIterator()).TryCopyTo(source, destination, offset);
 
-        public bool TryGetNext(out T current) => (iterator ??= CreateIterator()).TryGetNext(out current);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryGetNext(out T current) => (iterator ??= CreateIterator()).TryGetNext(ref index, source, out current);
 
         public void Dispose() => iterator?.Dispose();
     }
 
     // variation for FromEnumerable
-    internal abstract class CollectionIterator<T>(IEnumerable<T> source) : IDisposable
+    internal abstract class CollectionIterator<T> : IDisposable
     {
-        public IEnumerable<T> GetSource() => source;
-
-        public bool TryGetNonEnumeratedCount(out int count)
+        public bool TryGetNonEnumeratedCount(IEnumerable<T> source, out int count)
         {
 #if NET8_0_OR_GREATER
             if (source.TryGetNonEnumeratedCount(out count)) // call System.Linq.Enumerable.TryGetNonEnumeratedCount
@@ -173,7 +174,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        public bool TryGetSpan(IEnumerable<T> source, out ReadOnlySpan<T> span)
         {
             if (source.GetType() == typeof(T[]))
             {
@@ -192,9 +193,9 @@ namespace ZLinq.Linq
             }
         }
 
-        public bool TryCopyTo(Span<T> destination, Index offset)
+        public bool TryCopyTo(IEnumerable<T> source, Span<T> destination, Index offset)
         {
-            if (TryGetSpan(out var span))
+            if (TryGetSpan(source, out var span))
             {
                 if (EnumeratorHelper.TryGetSlice<T>(span, offset, destination.Length, out var slice))
                 {
@@ -208,18 +209,19 @@ namespace ZLinq.Linq
 
         public virtual void Dispose() { }
 
-        public abstract bool TryGetNext(out T current);
+        public abstract bool TryGetNext(ref int index, IEnumerable<T> source, out T current);
     }
 
-    internal sealed class ArrayIterator<T>(T[] source) : CollectionIterator<T>(source)
+    internal sealed class ArrayIterator<T> : CollectionIterator<T>
     {
-        int index;
+        public static readonly ArrayIterator<T> Instance = new();
 
-        public override bool TryGetNext(out T current)
+        public override bool TryGetNext(ref int index, IEnumerable<T> source, out T current)
         {
-            if (index < source.Length)
+            var src = Unsafe.As<IEnumerable<T>, T[]>(ref source);
+            if (index < src.Length)
             {
-                current = source[index];
+                current = src[index];
                 index++;
                 return true;
             }
@@ -229,15 +231,16 @@ namespace ZLinq.Linq
         }
     }
 
-    internal sealed class ListIterator<T>(List<T> source) : CollectionIterator<T>(source)
+    internal sealed class ListIterator<T> : CollectionIterator<T>
     {
-        int index;
+        public static readonly ListIterator<T> Instance = new();
 
-        public override bool TryGetNext(out T current)
+        public override bool TryGetNext(ref int index, IEnumerable<T> source, out T current)
         {
-            if (index < source.Count)
+            var src = Unsafe.As<IEnumerable<T>, List<T>>(ref source);
+            if (index < src.Count)
             {
-                current = source[index];
+                current = src[index];
                 index++;
                 return true;
             }
@@ -247,15 +250,16 @@ namespace ZLinq.Linq
         }
     }
 
-    internal sealed class IListIterator<T>(IList<T> source) : CollectionIterator<T>(source)
+    internal sealed class IListIterator<T> : CollectionIterator<T>
     {
-        int index;
+        public static readonly IListIterator<T> Instance = new();
 
-        public override bool TryGetNext(out T current)
+        public override bool TryGetNext(ref int index, IEnumerable<T> source, out T current)
         {
-            if (index < source.Count)
+            var src = Unsafe.As<IEnumerable<T>, IList<T>>(ref source);
+            if (index < src.Count)
             {
-                current = source[index];
+                current = src[index];
                 index++;
                 return true;
             }
@@ -265,15 +269,16 @@ namespace ZLinq.Linq
         }
     }
 
-    internal sealed class IReadOnlyListIterator<T>(IReadOnlyList<T> source) : CollectionIterator<T>(source)
+    internal sealed class IReadOnlyListIterator<T> : CollectionIterator<T>
     {
-        int index;
+        public static readonly IReadOnlyListIterator<T> Instance = new();
 
-        public override bool TryGetNext(out T current)
+        public override bool TryGetNext(ref int index, IEnumerable<T> source, out T current)
         {
-            if (index < source.Count)
+            var src = Unsafe.As<IEnumerable<T>, IReadOnlyList<T>>(ref source);
+            if (index < src.Count)
             {
-                current = source[index];
+                current = src[index];
                 index++;
                 return true;
             }
@@ -283,13 +288,11 @@ namespace ZLinq.Linq
         }
     }
 
-#pragma warning disable CS9107 // Parameter is captured into the state of the enclosing type and its value is also passed to the base constructor. The value might be captured by the base class as well.
-    internal sealed class EnumerableIterator<T>(IEnumerable<T> source) : CollectionIterator<T>(source)
-#pragma warning restore CS9107
+    internal sealed class EnumerableIterator<T> : CollectionIterator<T>
     {
         IEnumerator<T>? enumerator = null;
 
-        public override bool TryGetNext(out T current)
+        public override bool TryGetNext(ref int _, IEnumerable<T> source, out T current)
         {
             if (enumerator == null)
             {
