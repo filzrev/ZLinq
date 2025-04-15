@@ -22,11 +22,8 @@ internal static class Program
     public static int Main(string[] args)
     {
 #if DEBUG
-        //var bench = new OrderBenchmark();
-        //bench.N = 100000;
-        //bench.Setup();
-        //bench.SortTakeLinq();
-        //bench.SortTakeZLinq();
+        var bench = new Benchmark.SelectFromEnumerableArray();
+        bench.ZLinqSelect_FromIReadOnlyListArray();
 
 
         return 0;

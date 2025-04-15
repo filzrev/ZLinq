@@ -12,13 +12,23 @@ namespace ConsoleAppNetFramework48
 {
     class Program
     {
-        static void Main(string[] args)
+        static unsafe void Main(string[] args)
         {
+            delegate* managed<int, int, int> p2 = &M;
+
+
+            var r = p2(10, 20);
+
+            Console.WriteLine(r);
+
+
             var seq = ValueEnumerable.Range(1, 10);
             foreach (var item in seq)
             {
                 Console.WriteLine(item);
             }
         }
+
+        public static int M(int x, int y) => x * y;
     }
 }

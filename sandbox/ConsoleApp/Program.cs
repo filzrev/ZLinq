@@ -26,21 +26,15 @@ using ZLinq.Traversables;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
+var test = new[] { 1, 10, 100 };
 
-var N = 100000;
-var M = 100;
-var array = new int[N];
-Random.Shared.NextBytes(MemoryMarshal.Cast<int, byte>(array));
-
-var src = array.AsValueEnumerable().OrderDescending().Take(M);
-
-using var e = src.Enumerator;
-while (e.TryGetNext(out var item))
+var seq = test.AsEnumerable().AsValueEnumerable();
+foreach (var item in seq)
 {
+    Console.WriteLine(item);
 }
 
-
-
+// Enumerable.Range(1,10).to
 
 
 //var srcFiles = new DirectoryInfo("../../../../../src/ZLinq/Linq/").GetFiles();
