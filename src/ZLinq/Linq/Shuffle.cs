@@ -29,7 +29,7 @@ namespace ZLinq.Linq
         , allows ref struct
 #endif
     {
-        internal TEnumerator source = source;
+        internal TEnumerator source = source; // for ShuffleSkipTake
         RentedArrayBox<TSource>? buffer;
         int index = 0;
 
@@ -75,7 +75,8 @@ namespace ZLinq.Linq
 
             if (index < buffer.Length)
             {
-                current = buffer.UnsafeGetAt(index++);
+                current = buffer.UnsafeGetAt(index);
+                index++;
                 return true;
             }
 

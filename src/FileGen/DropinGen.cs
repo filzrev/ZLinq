@@ -111,6 +111,11 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
+        if (methodInfo.Name is "Skip" or "Take" or "SkipLast" or "TakeLast" && methodInfo.ReturnType.ToString().Contains("ShuffleSkipTake"))
+        {
+            return null;
+        }
+
         if (methodInfo.Name is "Contains" && !methodInfo.GetGenericArguments().Any(x => x.Name == "TEnumerator"))
         {
             return null;

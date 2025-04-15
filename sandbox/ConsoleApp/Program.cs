@@ -26,9 +26,8 @@ using ZLinq.Traversables;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
-var test = new[] { 1, 10, 100 };
+var seq = Enumerable.Range(1, 100000).AsValueEnumerable().Shuffle().Take(10);
 
-var seq = test.AsEnumerable().AsValueEnumerable();
 foreach (var item in seq)
 {
     Console.WriteLine(item);

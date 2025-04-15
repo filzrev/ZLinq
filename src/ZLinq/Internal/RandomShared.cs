@@ -4,15 +4,6 @@ namespace ZLinq.Internal;
 
 internal static class RandomShared
 {
-    public static void Shuffle<T>(T[] array)
-    {
-#if NET8_0_OR_GREATER
-        Random.Shared.Shuffle(array.AsSpan());
-#else
-        Shared.Value.Shuffle(array.AsSpan());
-#endif
-    }
-
     public static void Shuffle<T>(Span<T> span)
     {
 #if NET8_0_OR_GREATER
@@ -22,21 +13,12 @@ internal static class RandomShared
 #endif
     }
 
-    public static void Shuffle<T>(T[] array, int count)
+    public static void PartialShuffle<T>(Span<T> span, int count)
     {
 #if NET8_0_OR_GREATER
-        Random.Shared.Shuffle(array.AsSpan(), count);
+        Random.Shared.PartialShuffle(span, count);
 #else
-        Shared.Value.Shuffle(array.AsSpan(), count);
-#endif
-    }
-
-    public static void Shuffle<T>(Span<T> span, int count)
-    {
-#if NET8_0_OR_GREATER
-        Random.Shared.Shuffle(span, count);
-#else
-        Shared.Value.Shuffle(span, count);
+        Shared.Value.PartialShuffle(span, count);
 #endif
     }
 
@@ -72,25 +54,20 @@ internal static class RandomShared
 
 #endif
 
-    static void Shuffle<T>(this Random random, Span<T> values, int count)
+    static void PartialShuffle<T>(this Random random, Span<T> values, int count)
     {
-        if (count <= 0)
-            return;
+        if (count <= 0) return;
 
-        int length = values.Length;
-        if (count > length)
-            count = length;
+        int n = Math.Min(values.Length, count);
 
-        int n = length;
-        if (n > count)
-            n = count;
-
-        if (n == length)
-            n--;  // exclude last item
-
-        for (int i = 0; i < n; i++)
+        if (n == values.Length)
         {
-            int j = random.Next(i, length);
+            n--;  // exclude last item, otherwise includes n
+        }
+
+        for (int i = 0; i < n; i++) // < n
+        {
+            int j = random.Next(i, values.Length); // shuffle based length
 
             if (j != i)
             {

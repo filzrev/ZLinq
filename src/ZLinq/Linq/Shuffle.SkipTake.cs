@@ -5,42 +5,42 @@ namespace ZLinq
 {
     partial class ValueEnumerableExtensions
     {
-        public static ValueEnumerable<SkipShuffle<TEnumerator, TSource>, TSource> Take<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
+        public static ValueEnumerable<ShuffleSkipTake<TEnumerator, TSource>, TSource> Take<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
             , allows ref struct
 #endif
         {
-            return new(new(source.Enumerator, count, false));
+            return new(new(source.Enumerator.source, skipCount: 0, takeCount: Math.Max(0, count)));
         }
 
-        public static ValueEnumerable<SkipShuffle<TEnumerator, TSource>, TSource> Skip<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
+        public static ValueEnumerable<ShuffleSkipTake<TEnumerator, TSource>, TSource> Skip<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
             , allows ref struct
 #endif
         {
-            return new(new(source.Enumerator, count, true));
+            return new(new(source.Enumerator.source, skipCount: Math.Max(0, count), takeCount: int.MaxValue));
         }
 
         // 'Last' variants are syntax sugar. just takes specified count of items randomly from source.
 
-        public static ValueEnumerable<SkipShuffle<TEnumerator, TSource>, TSource> TakeLast<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
+        public static ValueEnumerable<ShuffleSkipTake<TEnumerator, TSource>, TSource> TakeLast<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
             , allows ref struct
 #endif
         {
-            return new(new(source.Enumerator, count, false));
+            return new(new(source.Enumerator.source, skipCount: 0, takeCount: Math.Max(0, count)));
         }
 
-        public static ValueEnumerable<SkipShuffle<TEnumerator, TSource>, TSource> SkipLast<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
+        public static ValueEnumerable<ShuffleSkipTake<TEnumerator, TSource>, TSource> SkipLast<TEnumerator, TSource>(this ValueEnumerable<Shuffle<TEnumerator, TSource>, TSource> source, int count)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
             , allows ref struct
 #endif
         {
-            return new(new(source.Enumerator, count, true));
+            return new(new(source.Enumerator.source, skipCount: Math.Max(0, count), takeCount: int.MaxValue));
         }
     }
 }
@@ -54,28 +54,32 @@ namespace ZLinq.Linq
 #else
     public
 #endif
-    struct SkipShuffle<TEnumerator, TSource>(Shuffle<TEnumerator, TSource> shuffle, int count, bool skipOrTake)
+    struct ShuffleSkipTake<TEnumerator, TSource>(TEnumerator source, int skipCount, int takeCount)
         : IValueEnumerator<TSource>
         where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
         , allows ref struct
 #endif
     {
-        TEnumerator source = shuffle.source;
+        TEnumerator source = source;
+
+        // To keep implementation simple and allow for future extensibility (such as Take.Take, etc.),
+        // we will use a structure with two int fields.
+        readonly int skipCount = skipCount;
+        readonly int takeCount = takeCount;
+
         RentedArrayBox<TSource>? buffer;
         int index = 0;
-        readonly int count = count < 0 ? 0 : count;
-        readonly bool skipOrTake = skipOrTake;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
-            if (!source.TryGetNonEnumeratedCount(out count))
-                return false;
+            if (source.TryGetNonEnumeratedCount(out count))
+            {
+                count = GetLength(count);
+                return true;
+            }
 
-            InitBuffer();
-
-            count = buffer.Length;
-            return true;
+            return false;
         }
 
         public bool TryGetSpan(out ReadOnlySpan<TSource> span)
@@ -101,11 +105,14 @@ namespace ZLinq.Linq
         public bool TryGetNext(out TSource current)
         {
             if (buffer == null)
-                InitBuffer();
-
-            if (index < buffer.Length)  // use buffer.Length. 'this.count' may be greater.
             {
-                current = buffer.UnsafeGetAt(index++);
+                InitBuffer();
+            }
+
+            if (index < buffer.Length)
+            {
+                current = buffer.UnsafeGetAt(index);
+                index++;
                 return true;
             }
 
@@ -119,37 +126,32 @@ namespace ZLinq.Linq
             source.Dispose();
         }
 
+        int GetLength(int count)
+        {
+            var length = Math.Max(0, count - skipCount);
+            length = Math.Min(length, takeCount);
+            return length;
+        }
+
         [MemberNotNull(nameof(buffer))]
         [MethodImpl(MethodImplOptions.NoInlining)]
         void InitBuffer()
         {
             if (buffer == null)
             {
-                var (array, consumed) = new ValueEnumerable<TEnumerator, TSource>(source).ToArrayPool();
-                var count = consumed;
+                var (array, count) = new ValueEnumerable<TEnumerator, TSource>(source).ToArrayPool();
 
-                if (skipOrTake)
-                {
-                    count -= this.count;
-
-                    if (count < 0)
-                        count = 0;
-                }
-                else
-                {
-                    if (count > this.count)
-                        count = this.count;
-                }
-
-                if (count == 0)
+                // Extract only the counts and perform partial shuffling
+                var resultCount = GetLength(count);
+                if (resultCount == 0)
                 {
                     ArrayPool<TSource>.Shared.Return(array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<TSource>());
                     buffer = RentedArrayBox<TSource>.Empty;
                 }
                 else
                 {
-                    RandomShared.Shuffle(array.AsSpan(0, consumed), count);  // must slice by array pool consumed length!!
-                    buffer = new RentedArrayBox<TSource>(array, count);
+                    RandomShared.PartialShuffle(array.AsSpan(0, count), resultCount);
+                    buffer = new RentedArrayBox<TSource>(array, resultCount);
                 }
             }
         }
