@@ -1,7 +1,6 @@
 ﻿#if NET8_0_OR_GREATER
 
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -66,8 +65,6 @@ partial class ValueEnumerableExtensions
         }
     }
 
-    // TODO:...
-
     public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TEnumerator, TSource, TKey>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey>? comparer = null)
        where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
@@ -97,6 +94,200 @@ partial class ValueEnumerableExtensions
         return builder.ToImmutable();
     }
 
+    public static ImmutableDictionary<TKey, TValue> ToImmutableDictionary<TEnumerator, TSource, TKey, TValue>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector, IEqualityComparer<TKey>? keyComparer = null, IEqualityComparer<TValue>? valueComparer = null)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+        where TKey : notnull
+    {
+        using var e = source.Enumerator;
+
+        var builder = ImmutableDictionary.CreateBuilder<TKey, TValue>(keyComparer, valueComparer);
+
+        if (e.TryGetSpan(out var span))
+        {
+            foreach (var current in span)
+            {
+                builder.Add(keySelector(current), elementSelector(current));
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(keySelector(current), elementSelector(current));
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    public static ImmutableDictionary<TKey, TValue> ToImmutableDictionary<TEnumerator, TKey, TValue>(this ValueEnumerable<TEnumerator, KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey>? keyComparer = null, IEqualityComparer<TValue>? valueComparer = null)
+        where TEnumerator : struct, IValueEnumerator<KeyValuePair<TKey, TValue>>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+        where TKey : notnull
+    {
+        using var e = source.Enumerator;
+
+        var builder = ImmutableDictionary.CreateBuilder<TKey, TValue>(keyComparer, valueComparer);
+
+        if (e.TryGetSpan(out var span))
+        {
+            foreach (var current in span)
+            {
+                builder.Add(current.Key, current.Value);
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(current.Key, current.Value);
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    public static ImmutableSortedDictionary<TKey, TSource> ToImmutableSortedDictionary<TEnumerator, TSource, TKey>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer = null)
+       where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+       where TKey : notnull
+    {
+        using var e = source.Enumerator;
+
+        var builder = ImmutableSortedDictionary.CreateBuilder<TKey, TSource>(comparer);
+
+        if (e.TryGetSpan(out var span))
+        {
+            foreach (var current in span)
+            {
+                builder.Add(keySelector(current), current);
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(keySelector(current), current);
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    public static ImmutableSortedDictionary<TKey, TValue> ToImmutableSortedDictionary<TEnumerator, TSource, TKey, TValue>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector, IComparer<TKey>? keyComparer = null, IEqualityComparer<TValue>? valueComparer = null)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+        where TKey : notnull
+    {
+        using var e = source.Enumerator;
+
+        var builder = ImmutableSortedDictionary.CreateBuilder<TKey, TValue>(keyComparer, valueComparer);
+
+        if (e.TryGetSpan(out var span))
+        {
+            foreach (var current in span)
+            {
+                builder.Add(keySelector(current), elementSelector(current));
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(keySelector(current), elementSelector(current));
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    public static ImmutableSortedDictionary<TKey, TValue> ToImmutableSortedDictionary<TEnumerator, TKey, TValue>(this ValueEnumerable<TEnumerator, KeyValuePair<TKey, TValue>> source, IComparer<TKey>? keyComparer = null, IEqualityComparer<TValue>? valueComparer = null)
+        where TEnumerator : struct, IValueEnumerator<KeyValuePair<TKey, TValue>>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+        where TKey : notnull
+    {
+        using var e = source.Enumerator;
+
+        var builder = ImmutableSortedDictionary.CreateBuilder<TKey, TValue>(keyComparer, valueComparer);
+
+        if (e.TryGetSpan(out var span))
+        {
+            foreach (var current in span)
+            {
+                builder.Add(current.Key, current.Value);
+            }
+        }
+        else
+        {
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(current.Key, current.Value);
+            }
+        }
+
+        return builder.ToImmutable();
+    }
+
+    public static ImmutableHashSet<TSource> ToImmutableHashSet<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, IEqualityComparer<TSource>? equalityComparer = null)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var e = source.Enumerator;
+
+        if (e.TryGetSpan(out var span))
+        {
+            return ImmutableHashSet.Create(equalityComparer, span);
+        }
+        else
+        {
+            var builder = ImmutableHashSet.CreateBuilder<TSource>(equalityComparer);
+
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(current);
+            }
+
+            return builder.ToImmutable();
+        }
+    }
+
+    public static ImmutableSortedSet<TSource> ToImmutableSortedSet<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, IComparer<TSource>? comparer = null)
+        where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+        , allows ref struct
+#endif
+    {
+        using var e = source.Enumerator;
+
+        if (e.TryGetSpan(out var span))
+        {
+            return ImmutableSortedSet.Create(comparer, span);
+        }
+        else
+        {
+            var builder = ImmutableSortedSet.CreateBuilder<TSource>(comparer);
+
+            while (e.TryGetNext(out var current))
+            {
+                builder.Add(current);
+            }
+
+            return builder.ToImmutable();
+        }
+    }
 }
 
 #endif

@@ -106,7 +106,7 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
-        if(methodInfo.Name is "Skip" or "Take" && methodInfo.ReturnType.ToString().Contains("OrderBySkipTake"))
+        if (methodInfo.Name is "Skip" or "Take" && methodInfo.ReturnType.ToString().Contains("OrderBySkipTake"))
         {
             return null;
         }
@@ -131,6 +131,11 @@ internal static partial class ZLinqDropInExtensions
             {
                 return null;
             }
+        }
+
+        if (methodInfo.Name.StartsWith("ToFrozen") || methodInfo.Name.StartsWith("ToImmutable"))
+        {
+            return null;
         }
 
         // debugging stop condition

@@ -147,7 +147,6 @@ namespace ZLinq.Linq
 
         public bool TryCopyTo(Span<T> destination, Index offset) => iterator.TryCopyTo(source, destination, offset);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetNext(out T current) => iterator.TryGetNext(ref index, ref enumerator, source, out current);
 
         public void Dispose()
