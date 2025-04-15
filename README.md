@@ -114,6 +114,10 @@ System.Linq's `Average` and `Sum` are limited to certain primitive types, but ZL
 
 `Sum` is `checked`, but checking for overflow during SIMD execution creates performance overhead. `SumUnchecked` skips overflow checking to achieve maximum SIMD aggregation performance. Note that this requires `.NET 8` or higher, and SIMD-supported types are `sbyte`, `short`, `int`, `long`, `byte`, `ushort`, `uint`, `ulong`, `double`, and the source must be able to get a Span (`TryGetSpan` returns true).
 
+### `AggregateBy`, `CountBy` constraints
+
+.NET 9 `AggregateBy` and `CountBy` has `TKey : notnull` constraints. However, this is due to internal implementation considerations, and it lacks consistency with traditional operators such as Lookup and Join. Therefore, in ZLinq, the notnull constraint was removed.
+
 ### `int CopyTo(Span<T> destination)`, `void CopyTo(List<T> list)`
 
 `CopyTo` can be used to avoid allocation of the return collection unlike `ToArray` or `ToList`. `int CopyTo(Span<T> destination)` allows the destination to be smaller than the source, returning the number of elements copied. `void CopyTo(List<T> list)` clears the list and then fills it with elements from the source, so the destination size is list.Count.
@@ -612,6 +616,31 @@ using ZLinq;
 ```
 
 For more details about DropInGenerator, please refer to the [Drop-in replacement](#drop-in-replacement) section.
+
+This is not just about Unity, but using `AsValueEnumerable()` even if only for foreach on `IEnumerable<T>` can sometimes reduce allocations. If the actual implementation of `IEnumerable<T>` is a `T[]` or `List<T>`, ZLinq will process it appropriately without allocations.
+
+![](img/unityforeach.png)
+
+```csharp
+void IterateNormal(IEnumerable<int> source)
+{
+    // Normally there's an allocation when getting IEnumerator<T>.
+    foreach (var item in source)
+    {
+        
+    }
+}
+
+void IterateZLinq(IEnumerable<int> source)
+{
+    // Adding AsValueEnumerable results in 0 allocation.
+    // However, zero alloc only works when the actual implementation of IEnumerable<T> is an array [] or List<T>
+    foreach (var item in source.AsValueEnumerable())
+    {
+        
+    }
+}
+```
 
 Godot
 ---
