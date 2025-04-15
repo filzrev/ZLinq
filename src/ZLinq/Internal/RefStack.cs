@@ -6,9 +6,9 @@ namespace ZLinq.Internal;
 internal sealed class RefStack<T> where T : IDisposable
 {
     internal static readonly RefStack<T> DisposeSentinel = new(0);
-    static int gate = 0;
 
-    static RefStack<T>? Last = null;
+    static volatile int gate = 0;
+    static volatile RefStack<T>? Last = null;
 
     RefStack<T>? Prev = null; // pooling property
 
@@ -18,14 +18,14 @@ internal sealed class RefStack<T> where T : IDisposable
         {
             if (Last == null)
             {
-                Volatile.Write(ref gate, 0);
+                gate = 0;
                 return new RefStack<T>(4);
             }
 
             var rent = Last;
             Last = Last.Prev;
 
-            Volatile.Write(ref gate, 0);
+            gate = 0;
             return rent;
         }
 
@@ -39,7 +39,7 @@ internal sealed class RefStack<T> where T : IDisposable
         {
             stack.Prev = Last;
             Last = stack;
-            Volatile.Write(ref gate, 0);
+            gate = 0;
         }
     }
 
