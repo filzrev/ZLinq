@@ -29,7 +29,7 @@ namespace ZLinq.Linq
         , allows ref struct
 #endif
     {
-        TEnumerator source = source;
+        internal TEnumerator source = source;
         RentedArrayBox<TSource>? buffer;
         int index = 0;
 
