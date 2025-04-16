@@ -1,6 +1,7 @@
 ﻿#nullable enable
 #pragma warning disable
 
+using System.Collections;
 using Microsoft.DiagnosticsHub;
 using System.Linq;
 using System.Numerics;
@@ -14,6 +15,8 @@ using ZLinq;
 using ZLinq.Linq;
 using ZLinq.Simd;
 using ZLinq.Traversables;
+using System.Security;
+using System.Text.RegularExpressions;
 
 //Span<int> xs = stackalloc int[255];
 
@@ -26,9 +29,11 @@ using ZLinq.Traversables;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
-var seq = Enumerable.Range(1, 100000).AsValueEnumerable().Shuffle().Take(10);
+var foo = new MyList();
+var tako = foo.AsValueEnumerable();
 
-foreach (var item in seq)
+
+foreach (var item in tako.Take(100))
 {
     Console.WriteLine(item);
 }
@@ -178,7 +183,56 @@ class B : A;
 
 
 
+[ZLinqDropInExtension]
+public class MyList : IEnumerable<int> // IValueEnumerable<int, MyList.ValueEnumerator>
+{
+    public IEnumerator<int> GetEnumerator()
+    {
+        throw new NotImplementedException();
+    }
 
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    //public ValueEnumerable<FromValueEnumerable<int, ValueEnumerator>, int> AsValueEnumerable()
+    //{
+    //    return new(new(new ValueEnumerator()));
+    //}
+
+    public struct ValueEnumerator : IValueEnumerator<int>
+    {
+        int count;
+
+        public bool TryGetNext(out int current)
+        {
+            count += 10;
+            current = count;
+            return true;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        public bool TryCopyTo(scoped Span<int> destination, Index offset)
+        {
+            return false;
+        }
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<int> span)
+        {
+            span = default;
+            return false;
+        }
+    }
+}
 
 //foreach (var item in origin.Descendants().Where(x => x.Name == "hoge"))
 //{

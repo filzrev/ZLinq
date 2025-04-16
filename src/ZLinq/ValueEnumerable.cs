@@ -112,6 +112,29 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
         => new(valueEnumerable.Enumerator);
 }
 
+// for custom collection
+public interface IValueEnumerable<T, TEnumerator> where TEnumerator : IValueEnumerator<T>
+{
+    ValueEnumerable<FromValueEnumerable<T, TEnumerator>, T> AsValueEnumerable();
+}
+
+[StructLayout(LayoutKind.Auto)]
+public struct FromValueEnumerable<T, TEnumerator>(TEnumerator enumerator) : IValueEnumerator<T>
+    where TEnumerator : IValueEnumerator<T>
+{
+    TEnumerator enumerator = enumerator;
+
+    public bool TryGetNonEnumeratedCount(out int count) => enumerator.TryGetNonEnumeratedCount(out count);
+
+    public bool TryGetSpan(out ReadOnlySpan<T> span) => enumerator.TryGetSpan(out span);
+
+    public bool TryCopyTo(Span<T> destination, Index offset) => enumerator.TryCopyTo(destination, offset);
+
+    public bool TryGetNext(out T current) => enumerator.TryGetNext(out current);
+
+    public void Dispose() => enumerator.Dispose();
+}
+
 internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size
 {
 #if NET8_0_OR_GREATER

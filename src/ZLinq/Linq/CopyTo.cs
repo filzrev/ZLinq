@@ -6,8 +6,8 @@ partial class ValueEnumerableExtensions
     /// Unlike the semantics of normal CopyTo, this allows the destination to be smaller than the source.
     /// Returns the number of elements copied.
     /// </summary>
-    public static int CopyTo<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> source, Span<T> destination)
-        where TEnumerator : struct, IValueEnumerator<T>
+    public static int CopyTo<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, Span<TSource> destination)
+        where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
     , allows ref struct
 #endif
@@ -39,8 +39,8 @@ partial class ValueEnumerableExtensions
     /// <summary>
     /// List is cleared and then filled with the elements of the source. Destination size is list.Count.
     /// </summary>
-    public static void CopyTo<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> source, List<T> list)
-        where TEnumerator : struct, IValueEnumerator<T>
+    public static void CopyTo<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, List<TSource> list)
+        where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
     , allows ref struct
 #endif

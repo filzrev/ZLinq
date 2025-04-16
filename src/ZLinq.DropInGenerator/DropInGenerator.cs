@@ -1,5 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ZLinq;
 
@@ -8,6 +10,8 @@ public class DropInGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        // AssemblyAttribtue
+
         var generatorOptions = context.CompilationProvider.Select((compilation, token) =>
         {
             foreach (var attr in compilation.Assembly.GetAttributes())
@@ -39,6 +43,38 @@ public class DropInGenerator : IIncrementalGenerator
         });
 
         context.RegisterSourceOutput(generatorOptions, EmitSourceOutput);
+
+        // Extension per type
+
+        var extension = context.SyntaxProvider.ForAttributeWithMetadataName("ZLinq.ZLinqDropInExtensionAttribute",
+            (_, _) => true, // Class or Struct
+            (x, _) =>
+            {
+                //x.SemanticModel.GetSymbolInfo(
+                string? elementName = null;
+                bool isGenericType = false;
+                if (x.TargetSymbol is INamedTypeSymbol namedTypeSymbol)
+                {
+                    foreach (var item in namedTypeSymbol.AllInterfaces)
+                    {
+                        if (item.MetadataName is "IValueEnumerable`2" or "IEnumerable`1")
+                        {
+                            var typeArg = item.TypeArguments[0];
+                            elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                            break;
+                        }
+                    }
+                }
+
+                if (elementName == null)
+                {
+                    // report diagnostics
+                }
+
+                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, elementName, isGenericType, x.TargetSymbol.DeclaredAccessibility);
+            });
+
+        context.RegisterSourceOutput(extension, EmitDropInExtension);
     }
 
     void EmitSourceOutput(SourceProductionContext context, ZLinqDropInAttribute? attribute)
@@ -121,6 +157,97 @@ namespace {{attribute.GenerateNamespace}}
         }
     }
 
+    void EmitDropInExtension(SourceProductionContext context, DropInExtension extension)
+    {
+        if (extension.ElementName == null) return;
+
+        var sb = new StringBuilder();
+
+        // based Array Resource(this TSource[])
+        var thisAsm = typeof(DropInGenerator).Assembly;
+        using (var stream = thisAsm.GetManifestResourceStream("ZLinq.DropInGenerator.ResourceCodes.Array.cs"))
+        using (var sr = new StreamReader(stream!))
+        {
+            var code = sr.ReadToEnd();
+
+            var element = extension.ElementName;
+
+            // Repleace this TSource[] ...=> this CustomType
+            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeName);
+            code = Regex.Replace(code, "FromArray<[^>]+>", $"FromEnumerable<{element}>");
+
+            // element type fix
+            code = code.Replace("FromEnumerable<TSource>", $"FromEnumerable<{element}>");
+            code = code.Replace("IEnumerable<TSource>", $"IEnumerable<{element}>");
+            code = code.Replace("ValueEnumerable<TEnumerator2, TSource>", $"ValueEnumerable<TEnumerator2, {element}>");
+            code = code.Replace("IValueEnumerator<TSource>", $"IValueEnumerator<{element}>");
+            code = code.Replace("IEqualityComparer<TSource>", $"IEqualityComparer<{element}>");
+            code = code.Replace("IComparer<TSource>", $"IComparer<{element}>");
+            code = code.Replace("Span<TSource>", $"Span<{element}>");
+            code = code.Replace("List<TSource>", $"List<{element}>");
+            code = code.Replace("HashSet<TSource>", $"HashSet<{element}>");
+
+            // generic defnition fix
+            code = code.Replace("<TEnumerator2, TSource>", "<TEnumerator2>");
+            code = code.Replace("<TEnumerator2, TOuter, ", "<TEnumerator2, ");
+            code = code.Replace("Func<TOuter, TInner", $"Func<{element}, TInner");
+            code = code.Replace("Func<TOuter?, TInner", $"Func<{element}, TInner"); // is reference type or not?
+
+            code = code.Replace("<TOuter, TInner", "<TInner");
+            code = code.Replace("TOuter, ", $"{element}, ");
+
+            code = code.Replace("ToList<TSource>", $"ToList");
+            code = code.Replace("<TSource>", "");
+            code = Regex.Replace(code, "<(.*)TSource, (.+?)>\\(", x =>
+            {
+                if (string.IsNullOrEmpty(x.Groups[1].Value))
+                {
+                    return "<" + x.Groups[2].Value + ">(";
+                }
+                else
+                {
+                    return "<" + x.Groups[1].Value + x.Groups[2].Value + ">(";
+                }
+            });
+
+            // Replace TSource -> ElementType(for Func, etc...)
+            code = Regex.Replace(code, "TSource", extension.ElementName);
+
+            code.Replace("WhereArray", $"Where<FromEnumerable<{element}>, {element}>");
+
+            sb.AppendLine(code); // write code
+        }
+
+        // replace namespace
+        //        if (!string.IsNullOrWhiteSpace(attribute.GenerateNamespace))
+        //        {
+        //            sb.Replace("using ZLinq.Linq;", $$"""
+        //using ZLinq.Linq;
+        //namespace {{attribute.GenerateNamespace}}
+        //{
+        //""");
+        //        }
+
+        // replace accessibility
+        //if (attribute.GenerateAsPublic)
+        //{
+        //    sb.Replace("internal static partial class", "public static partial class");
+        //}
+
+
+        // namespace close
+        //if (!string.IsNullOrWhiteSpace(attribute.GenerateNamespace))
+        //{
+        //    sb.AppendLine("}");
+        //}
+
+        var fullType = extension.NamespaceName == "" ? extension.TypeName : (extension.NamespaceName + "." + extension.TypeName);
+        var hintName = "ZLinq.DropIn." + fullType + "Extensions.g.cs";
+
+
+        // context.AddSource(hintName, sb.ToString().ReplaceLineEndings());
+    }
+
     DropInGenerateTypes FromResourceName(string name)
     {
         switch (name)
@@ -136,6 +263,8 @@ namespace {{attribute.GenerateNamespace}}
         }
     }
 }
+
+record struct DropInExtension(string NamespaceName, string TypeName, string? ElementName, bool IsElementGenericType, Accessibility Accessibility);
 
 internal static class DiagnosticDescriptors
 {
