@@ -17,6 +17,8 @@ using ZLinq.Simd;
 using ZLinq.Traversables;
 using System.Security;
 using System.Text.RegularExpressions;
+using System;
+using System.Runtime.CompilerServices;
 
 //Span<int> xs = stackalloc int[255];
 
@@ -29,11 +31,12 @@ using System.Text.RegularExpressions;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
-var foo = new MyList();
-var tako = foo.AsValueEnumerable();
+var list = new AddOnlyIntList2();
+list.Add(10);
+list.Add(20);
+list.Add(30);
 
-
-foreach (var item in tako.Take(100))
+foreach (var item in list.Select(x => x * 100))
 {
     Console.WriteLine(item);
 }
@@ -184,9 +187,14 @@ class B : A;
 
 
 [ZLinqDropInExtension]
-public class MyList : IEnumerable<int> // IValueEnumerable<int, MyList.ValueEnumerator>
+public class MyList<T> : IEnumerable<T>, IValueEnumerable<T, MyList<T>.ValueEnumerator>
 {
-    public IEnumerator<int> GetEnumerator()
+    public ValueEnumerable<FromValueEnumerable<T, ValueEnumerator>, T> AsValueEnumerable()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IEnumerator<T> GetEnumerator()
     {
         throw new NotImplementedException();
     }
@@ -196,43 +204,146 @@ public class MyList : IEnumerable<int> // IValueEnumerable<int, MyList.ValueEnum
         return GetEnumerator();
     }
 
+    public struct ValueEnumerator : IValueEnumerator<T>
+    {
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     //public ValueEnumerable<FromValueEnumerable<int, ValueEnumerator>, int> AsValueEnumerable()
     //{
     //    return new(new(new ValueEnumerator()));
     //}
 
-    public struct ValueEnumerator : IValueEnumerator<int>
+    //public struct ValueEnumerator : IValueEnumerator<int>
+    //{
+    //    int count;
+
+    //    public bool TryGetNext(out int current)
+    //    {
+    //        count += 10;
+    //        current = count;
+    //        return true;
+    //    }
+
+    //    public void Dispose()
+    //    {
+    //    }
+
+    //    public bool TryCopyTo(scoped Span<int> destination, Index offset)
+    //    {
+    //        return false;
+    //    }
+    //    public bool TryGetNonEnumeratedCount(out int count)
+    //    {
+    //        count = 0;
+    //        return false;
+    //    }
+
+    //    public bool TryGetSpan(out ReadOnlySpan<int> span)
+    //    {
+    //        span = default;
+    //        return false;
+    //    }
+    //}
+}
+
+public class Takoyaki
+{
+
+}
+
+
+[ZLinqDropInExtension]
+public class AddOnlyIntList : IEnumerable<int>
+{
+    List<int> list = new List<int>();
+
+    public void Add(int x) => list.Add(x);
+
+    public IEnumerator<int> GetEnumerator() => list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
+}
+
+[ZLinqDropInExtension]
+public class AddOnlyIntList2 : IValueEnumerable<int, AddOnlyIntList2.Enumerator>
+{
+    List<int> list = new List<int>();
+
+    public void Add(int x) => list.Add(x);
+
+    public ValueEnumerable<FromValueEnumerable<int, Enumerator>, int> AsValueEnumerable()
     {
-        int count;
+        return new(new(new(list)));
+    }
 
-        public bool TryGetNext(out int current)
-        {
-            count += 10;
-            current = count;
-            return true;
-        }
+    public struct Enumerator(List<int> source) : IValueEnumerator<int>
+    {
+        int index;
 
-        public void Dispose()
-        {
-        }
-
-        public bool TryCopyTo(scoped Span<int> destination, Index offset)
-        {
-            return false;
-        }
         public bool TryGetNonEnumeratedCount(out int count)
         {
-            count = 0;
-            return false;
+            count = source.Count;
+            return true;
         }
 
         public bool TryGetSpan(out ReadOnlySpan<int> span)
         {
-            span = default;
+            span = CollectionsMarshal.AsSpan(source);
+            return true;
+        }
+
+        public bool TryCopyTo(scoped Span<int> destination, Index offset)
+        {
+            ReadOnlySpan<int> span = CollectionsMarshal.AsSpan(source);
+            if (ZLinq.Internal.EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
+            {
+                slice.CopyTo(destination);
+                return true;
+
+            }
             return false;
         }
+
+        public bool TryGetNext(out int current)
+        {
+            if (index < source.Count)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            current = default;
+            return false;
+        }
+
+        public void Dispose() { }
     }
 }
+
 
 //foreach (var item in origin.Descendants().Where(x => x.Name == "hoge"))
 //{
