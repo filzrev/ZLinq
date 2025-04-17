@@ -197,9 +197,9 @@ class B : A;
 
 
 [ZLinqDropInExtension]
-public class MyList<T> : IEnumerable<T>, IValueEnumerable<T, MyList<T>.ValueEnumerator>
+public class MyList<T> : IEnumerable<T>, IValueEnumerable<MyList<T>.ValueEnumerator, T>
 {
-    public ValueEnumerable<FromValueEnumerable<T, ValueEnumerator>, T> AsValueEnumerable()
+    public ValueEnumerable<FromValueEnumerable<ValueEnumerator, T>, T> AsValueEnumerable()
     {
         throw new NotImplementedException();
     }
@@ -298,17 +298,19 @@ public class AddOnlyIntList : IEnumerable<int>
 }
 
 [ZLinqDropInExtension]
-public class AddOnlyIntList2 : IValueEnumerable<int, AddOnlyIntList2.Enumerator>
+public class AddOnlyIntList2 : IValueEnumerable<AddOnlyIntList2.Enumerator, int>
 {
     List<int> list = new List<int>();
 
     public void Add(int x) => list.Add(x);
 
-    public ValueEnumerable<FromValueEnumerable<int, Enumerator>, int> AsValueEnumerable()
+    public ValueEnumerable<FromValueEnumerable<Enumerator, int>, int> AsValueEnumerable()
     {
+        // you need to write new(new(new())) magic.
         return new(new(new(list)));
     }
 
+    // `public` struct enumerator
     public struct Enumerator(List<int> source) : IValueEnumerator<int>
     {
         int index;
@@ -327,6 +329,7 @@ public class AddOnlyIntList2 : IValueEnumerable<int, AddOnlyIntList2.Enumerator>
 
         public bool TryCopyTo(scoped Span<int> destination, Index offset)
         {
+            // Optional path: if you can not write this, always return false is ok.
             ReadOnlySpan<int> span = CollectionsMarshal.AsSpan(source);
             if (ZLinq.Internal.EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
             {

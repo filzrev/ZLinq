@@ -113,14 +113,14 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
 }
 
 // for custom collection
-public interface IValueEnumerable<T, TEnumerator>
+public interface IValueEnumerable<TEnumerator, T>
     where TEnumerator : struct, IValueEnumerator<T>
 {
-    ValueEnumerable<FromValueEnumerable<T, TEnumerator>, T> AsValueEnumerable();
+    ValueEnumerable<FromValueEnumerable<TEnumerator, T>, T> AsValueEnumerable();
 }
 
 [StructLayout(LayoutKind.Auto)]
-public struct FromValueEnumerable<T, TEnumerator>(TEnumerator enumerator) : IValueEnumerator<T>
+public struct FromValueEnumerable<TEnumerator, T>(TEnumerator enumerator) : IValueEnumerator<T>
     where TEnumerator : IValueEnumerator<T>
 {
     TEnumerator enumerator = enumerator;

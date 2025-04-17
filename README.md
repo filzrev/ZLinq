@@ -277,6 +277,94 @@ public sealed class ZLinqDropInAttribute : Attribute
 }
 ```
 
+To use `[ZLinqDropInExtension]` for custom collection types that support DropIn, you can follow these approach:
+
+```csharp
+[ZLinqDropInExtension]
+public class AddOnlyIntList : IEnumerable<int>
+{
+    List<int> list = new List<int>();
+
+    public void Add(int x) => list.Add(x);
+
+    public IEnumerator<int> GetEnumerator() => list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
+}
+```
+
+This generates a `public static partial class AddOnlyIntListZLinqDropInExtensions` in the same namespace, overriding all LINQ operators with ZLinq. This works with generic types as well:
+
+```csharp
+[ZLinqDropInExtension]
+public class AddOnlyList<T> : IEnumerable<T>
+```
+
+While `[ZLinqDropInExtension]` works with classes implementing `IEnumerable<T>`, implementing `IValueEnumerable<TEnumerator, T>` provides zero-allocation optimization for ZLinq:
+
+```csharp
+[ZLinqDropInExtension]
+public class AddOnlyIntList2 : IValueEnumerable<AddOnlyIntList2.Enumerator, int>
+{
+    List<int> list = new List<int>();
+
+    public void Add(int x) => list.Add(x);
+
+    public ValueEnumerable<FromValueEnumerable<Enumerator, int>, int> AsValueEnumerable()
+    {
+        // you need to write new(new(new())) magic.
+        return new(new(new(list)));
+    }
+
+    // `public` struct enumerator
+    public struct Enumerator(List<int> source) : IValueEnumerator<int>
+    {
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<int> span)
+        {
+            span = CollectionsMarshal.AsSpan(source);
+            return true;
+        }
+
+        public bool TryCopyTo(scoped Span<int> destination, Index offset)
+        {
+            // Optional path: if you can not write this, always return false is ok.
+            ReadOnlySpan<int> span = CollectionsMarshal.AsSpan(source);
+            if (ZLinq.Internal.EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
+            {
+                slice.CopyTo(destination);
+                return true;
+
+            }
+            return false;
+        }
+
+        public bool TryGetNext(out int current)
+        {
+            if (index < source.Count)
+            {
+                current = source[index];
+                index++;
+                return true;
+            }
+
+            current = default;
+            return false;
+        }
+
+        public void Dispose() { }
+    }
+}
+```
+
+In this case, implementing `IEnumerable<T>` is not necessary. If a collection implements both `IEnumerable<T>` and `IValueEnumerable<TEnumerator, T>`, the latter takes precedence.
+
 LINQ to Tree
 ---
 LINQ to XML introduced the concept of querying around axes to C#. Even if you don't use XML, similar APIs are incorporated into Roslyn and effectively used for exploring SyntaxTrees. ZLinq extends this concept to make it applicable to anything that can be considered a Tree, allowing `Ancestors`, `Children`, `Descendants`, `BeforeSelf`, and `AfterSelf` to be applied.

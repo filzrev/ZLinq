@@ -63,10 +63,11 @@ public class DropInGenerator : IIncrementalGenerator
                     {
                         if (item.MetadataName is "IValueEnumerable`2")
                         {
-                            var typeArg = item.TypeArguments[0];
+                            // 0 = TEnumerator, 1 = TSource
+                            var typeArg = item.TypeArguments[1];
                             elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                             isValueType = typeArg.IsValueType;
-                            valueEnumeratorName = item.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                            valueEnumeratorName = item.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                             isValueEnumerable = true;
                             break;
                         }
@@ -206,7 +207,7 @@ namespace {{attribute.GenerateNamespace}}
             code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameToString); // ToString shows <T> if type is generics
             if (extension.IsValueEnumerable)
             {
-                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>");
+                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>");
             }
             else
             {
@@ -265,7 +266,7 @@ namespace {{attribute.GenerateNamespace}}
             {
                 if (extension.IsValueEnumerable)
                 {
-                    code = code.Replace("WhereArray", $"Where<FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>, {element}>");
+                    code = code.Replace("WhereArray", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
                 }
                 else
                 {
@@ -276,7 +277,7 @@ namespace {{attribute.GenerateNamespace}}
             {
                 if (extension.IsValueEnumerable)
                 {
-                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>, {element}>");
+                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
                 }
                 else
                 {
