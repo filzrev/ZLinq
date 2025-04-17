@@ -65,8 +65,6 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<Concat<FromList<TSource>, FromEnumerable<TSource>, TSource>, TSource> Concat<TSource>(this List<TSource> source, IEnumerable<TSource> second) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Concat(second);
     public static Boolean Contains<TSource>(this List<TSource> source, TSource value) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Contains(value);
     public static Boolean Contains<TSource>(this List<TSource> source, TSource value, IEqualityComparer<TSource>? comparer) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Contains(value, comparer);
-    public static Int32 CopyTo<TSource>(this List<TSource> source, Span<TSource> destination) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CopyTo(destination);
-    public static void CopyTo<TSource>(this List<TSource> source, List<TSource> list) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CopyTo(list);
     public static Int32 Count<TSource>(this List<TSource> source) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Count();
     public static Int32 Count<TSource>(this List<TSource> source, Func<TSource, Boolean> predicate) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().Count(predicate);
     public static ValueEnumerable<CountBy<FromList<TSource>, TSource, TKey>, KeyValuePair<TKey, Int32>> CountBy<TSource, TKey>(this List<TSource> source, Func<TSource, TKey> keySelector) => (source ?? throw new ArgumentNullException("source")).AsValueEnumerable().CountBy(keySelector);

@@ -100,6 +100,11 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
+        if (methodInfo.Name is "CopyTo")
+        {
+            return null; // CopyTo is exists in MemoryExtensions.CopyTo(this T[]) so avoid conflicts
+        }
+
         if (dropInType.Name == "ForExtension")
         {
             // Average and Sum is not supported

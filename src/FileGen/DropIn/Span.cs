@@ -65,8 +65,6 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<Concat<FromSpan<TSource>, FromEnumerable<TSource>, TSource>, TSource> Concat<TSource>(this Span<TSource> source, IEnumerable<TSource> second) => source.AsValueEnumerable().Concat(second);
     public static Boolean Contains<TSource>(this Span<TSource> source, TSource value) => source.AsValueEnumerable().Contains(value);
     public static Boolean Contains<TSource>(this Span<TSource> source, TSource value, IEqualityComparer<TSource>? comparer) => source.AsValueEnumerable().Contains(value, comparer);
-    public static Int32 CopyTo<TSource>(this Span<TSource> source, Span<TSource> destination) => source.AsValueEnumerable().CopyTo(destination);
-    public static void CopyTo<TSource>(this Span<TSource> source, List<TSource> list) => source.AsValueEnumerable().CopyTo(list);
     public static Int32 Count<TSource>(this Span<TSource> source) => source.AsValueEnumerable().Count();
     public static Int32 Count<TSource>(this Span<TSource> source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().Count(predicate);
     public static ValueEnumerable<CountBy<FromSpan<TSource>, TSource, TKey>, KeyValuePair<TKey, Int32>> CountBy<TSource, TKey>(this Span<TSource> source, Func<TSource, TKey> keySelector) => source.AsValueEnumerable().CountBy(keySelector);

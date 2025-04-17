@@ -19,6 +19,7 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System;
 using System.Runtime.CompilerServices;
+// using MyApp;
 
 //Span<int> xs = stackalloc int[255];
 
@@ -40,6 +41,15 @@ foreach (var item in list.Select(x => x * 100))
 {
     Console.WriteLine(item);
 }
+
+Span<int> foo = [1, 2, 3, 4, 5];
+
+Span<int> dest = new int[10];
+foo.CopyTo(dest);
+
+// dest.ToArray();
+foo.ToArray().CopyTo(dest);
+
 
 // Enumerable.Range(1,10).to
 
@@ -66,26 +76,26 @@ foreach (var item in list.Select(x => x * 100))
 
 return;
 
-var xssss = new[] { 1, 2, 3 };
+//var xssss = new[] { 1, 2, 3 };
 
-// ValueEnumerable.Range(1, 10).Zip(xssss, xssss);
+//// ValueEnumerable.Range(1, 10).Zip(xssss, xssss);
 
-var root = new DirectoryInfo("C:\\Program Files (x86)\\Steam");
+//var root = new DirectoryInfo("C:\\Program Files (x86)\\Steam");
 
-var allDlls = root
-    .Descendants()
-    .OfType<FileInfo>()
-    .Where(x => x.Extension == ".dll");
+//var allDlls = root
+//    .Descendants()
+//    .OfType<FileInfo>()
+//    .Where(x => x.Extension == ".dll");
 
-var grouped = allDlls
-    .GroupBy(x => x.Name)
-    .Select(x => new { FileName = x.Key, Count = x.Count() })
-    .OrderByDescending(x => x.Count);
+//var grouped = allDlls
+//    .GroupBy(x => x.Name)
+//    .Select(x => new { FileName = x.Key, Count = x.Count() })
+//    .OrderByDescending(x => x.Count);
 
-foreach (var item in grouped)
-{
-    Console.WriteLine(item);
-}
+//foreach (var item in grouped)
+//{
+//    Console.WriteLine(item);
+//}
 
 static IEnumerable<T> Iterate<T>(IEnumerable<T> source)
 {
