@@ -34,12 +34,17 @@ using My.Tako.Yaki;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
+[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1", "My.Tako.Yaki.FromMyCollection`1")]
 
-[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1")]
+// generateNamespace, sourceTypeFullyQualifiedMetadataName, enumeratorTypeFullyQualifiedMetadataName
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
 
 
-var mc = new MyCollection<string>();
-mc.Add("a");
+// System.Collections.Immutable.ImmutableArray
+
+
+var mc = new MyCollection<int>();
+mc.Add(1);
 
 var foobarbaz = mc.Select(x => x);
 
@@ -418,7 +423,55 @@ namespace ZLinq
 namespace My.Tako.Yaki
 {
     public class MyCollection<T> : Collection<T>
+        where T : struct
     {
 
+    }
+
+    public static class MyCollectionExtensions
+    {
+        public static ValueEnumerable<FromMyCollection<T>, T> AsValueEnumerable<T>(this MyCollection<T> source)
+            where T : struct
+        {
+            return new(new(source));
+        }
+    }
+
+    public struct FromMyCollection<T> : IValueEnumerator<T>
+        where T : struct
+    {
+        private readonly MyCollection<T> source;
+        private int index;
+        public FromMyCollection(MyCollection<T> source)
+        {
+            this.source = source;
+            index = -1;
+        }
+        public bool TryGetNext(out T current)
+        {
+            if (++index < source.Count)
+            {
+                current = source[index];
+                return true;
+            }
+            current = default;
+            return false;
+        }
+        public void Dispose() { }
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

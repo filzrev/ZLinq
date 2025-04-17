@@ -137,6 +137,35 @@ namespace AIU.EO.KA
         }
     }
 
+    [ZLinqDropInExtension]
+    public class ConstraintList<T> : IEnumerable<T>
+        where T : struct
+    {
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    [ZLinqDropInExtension]
+    public class ConstraintList2<T> : IEnumerable<T>
+        where T : class
+    {
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
 
     // error
     // [ZLinqDropInExtension]

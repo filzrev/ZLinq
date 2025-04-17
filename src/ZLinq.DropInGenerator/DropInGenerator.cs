@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System;
+using System.Collections.Immutable;
 using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -55,7 +56,8 @@ public class DropInGenerator : IIncrementalGenerator
                 string? valueEnumeratorName = null;
                 bool isElementGenericType = false;
                 bool isValueType = false;
-                if (x.TargetSymbol is INamedTypeSymbol namedTypeSymbol)
+                var namedTypeSymbol = x.TargetSymbol as INamedTypeSymbol;
+                if (namedTypeSymbol != null)
                 {
                     isElementGenericType = namedTypeSymbol.IsGenericType;
 
@@ -77,43 +79,44 @@ public class DropInGenerator : IIncrementalGenerator
                             isValueType = typeArg.IsValueType;
                         }
                     }
-
-                    if (elementName != null && isElementGenericType)
-                    {
-                        if (namedTypeSymbol.TypeArguments.Length != 1)
-                        {
-                            var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
-                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
-                            return new DropInExtension(diagnostic);
-                        }
-                    }
                 }
 
-                if (elementName == null)
+                if (namedTypeSymbol == null || elementName == null)
                 {
                     var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
                     var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ExtensionNotSupported, location);
                     return new DropInExtension(diagnostic);
                 }
 
-                var fullyQualified = x.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                if (isElementGenericType)
+                {
+                    if (namedTypeSymbol.TypeArguments.Length != 1)
+                    {
+                        var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
+                        return new DropInExtension(diagnostic);
+                    }
+                }
 
-                var constraint = ""; // TODO: require to set constraint?
-                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
+                var fullyQualified = x.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var fullNamespae = x.TargetSymbol.ContainingNamespace.IsGlobalNamespace ? "" : x.TargetSymbol.ContainingNamespace.ToDisplayString();
+                string constraint = FormatGenericConstraints(namedTypeSymbol);
+                return new DropInExtension(fullNamespae, x.TargetSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
             });
 
         context.RegisterSourceOutput(extension, EmitDropInExtension);
 
         // Extension per type from assembly
 
-        var externalExtensions = context.CompilationProvider.Select((compilation, token) =>
+        var externalExtensions = context.CompilationProvider.SelectMany((compilation, token) =>
         {
+            var list = new List<DropInExtension>();
             foreach (var attr in compilation.Assembly.GetAttributes())
             {
                 if (attr.AttributeClass?.Name is "ZLinqDropInExternalExtension" or "ZLinqDropInExternalExtensionAttribute")
                 {
                     var ctor = attr.ConstructorArguments;
-                    if (ctor.Length == 0) return null;
+                    if (ctor.Length == 0) continue;
 
                     // parse from attr
                     var generateNamespace = (string)ctor[0].Value!;
@@ -130,7 +133,7 @@ public class DropInGenerator : IIncrementalGenerator
                     if (namedTypeSymbol == null)
                     {
                         // TODO: diagnostics
-                        return null;
+                        continue;
                     }
 
                     string? elementName = null;
@@ -154,27 +157,56 @@ public class DropInGenerator : IIncrementalGenerator
                     else
                     {
                         // try to get value-enumerator
+                        var enumeratorTypeSymbol = compilation.GetTypeByMetadataName(enumeratorTypeFullyQualifiedMetadataName);
+                        if (enumeratorTypeSymbol == null)
+                        {
+                            // TODO: diagnostics
+                            continue;
+                        }
+
+                        foreach (var item in enumeratorTypeSymbol.AllInterfaces)
+                        {
+                            if (item.MetadataName is "IValueEnumerator`1")
+                            {
+                                // 0 = TEnumerator, 1 = TSource
+                                var typeArg = item.TypeArguments[0];
+                                elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                isValueType = typeArg.IsValueType;
+                                valueEnumeratorName = enumeratorTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                break;
+                            }
+                        }
                     }
 
-                    if (elementName != null && isElementGenericType)
+                    if (elementName == null)
+                    {
+                        var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ExtensionNotSupported, location); // TODO: other diagnostics
+                        list.Add(new DropInExtension(diagnostic));
+                        continue;
+                    }
+
+                    if (isElementGenericType)
                     {
                         if (namedTypeSymbol.TypeArguments.Length != 1)
                         {
                             var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
                             var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
-                            return new DropInExtension(diagnostic);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
                         }
                     }
 
                     var fullyQualified = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     var accessibility = generateAsPublic ? Accessibility.Public : Accessibility.Internal;
 
-                    string constraint = "";
-                    return new DropInExtension(generateNamespace, namedTypeSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, accessibility);
+                    string constraint = FormatGenericConstraints(namedTypeSymbol);
+                    var extension = new DropInExtension(generateNamespace, namedTypeSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, accessibility);
+                    list.Add(extension);
                 }
             }
 
-            return null;
+            return list;
         });
 
         context.RegisterSourceOutput(externalExtensions, EmitDropInExtension);
@@ -423,6 +455,65 @@ namespace {{extension.NamespaceName}}
             case "ZLinq.DropInGenerator.ResourceCodes.Span.cs": return DropInGenerateTypes.Span;
             default: return DropInGenerateTypes.None;
         }
+    }
+
+    static string FormatGenericConstraints(INamedTypeSymbol namedType)
+    {
+        if (!namedType.IsGenericType)
+        {
+            return "";
+        }
+
+        var builder = new StringBuilder();
+
+        foreach (var typeParameter in namedType.TypeParameters)
+        {
+            if (!HasAnyConstraints(typeParameter))
+            {
+                continue;
+            }
+
+            builder.Append($"where {typeParameter.Name} : ");
+
+            var constraints = new List<string>();
+
+            if (typeParameter.HasReferenceTypeConstraint)
+            {
+                constraints.Add("class");
+            }
+            else if (typeParameter.HasValueTypeConstraint)
+            {
+                constraints.Add("struct");
+            }
+
+            foreach (var constraintType in typeParameter.ConstraintTypes)
+            {
+                constraints.Add(constraintType.ToDisplayString());
+            }
+
+            if (typeParameter.HasNotNullConstraint)
+            {
+                constraints.Add("notnull");
+            }
+
+            if (typeParameter.HasConstructorConstraint)
+            {
+                constraints.Add("new()");
+            }
+
+            builder.Append(string.Join(", ", constraints));
+        }
+
+        return builder.ToString();
+    }
+
+    private static bool HasAnyConstraints(ITypeParameterSymbol typeParameter)
+    {
+        return typeParameter.HasReferenceTypeConstraint ||
+               typeParameter.HasValueTypeConstraint ||
+               typeParameter.HasNotNullConstraint ||
+               typeParameter.HasConstructorConstraint ||
+               typeParameter.ConstraintTypes.Any();
     }
 }
 
