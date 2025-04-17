@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ZLinq;
 
@@ -8,6 +9,8 @@ public class DropInGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        // AssemblyAttribtue
+
         var generatorOptions = context.CompilationProvider.Select((compilation, token) =>
         {
             foreach (var attr in compilation.Assembly.GetAttributes())
@@ -39,6 +42,65 @@ public class DropInGenerator : IIncrementalGenerator
         });
 
         context.RegisterSourceOutput(generatorOptions, EmitSourceOutput);
+
+        // Extension per type
+
+        var extension = context.SyntaxProvider.ForAttributeWithMetadataName("ZLinq.ZLinqDropInExtensionAttribute",
+            (_, _) => true, // Class or Struct
+            (x, _) =>
+            {
+                //x.SemanticModel.GetSymbolInfo(
+                string? elementName = null;
+                string? valueEnumeratorName = null;
+                bool isElementGenericType = false;
+                bool isValueEnumerable = false;
+                bool isValueType = false;
+                if (x.TargetSymbol is INamedTypeSymbol namedTypeSymbol)
+                {
+                    isElementGenericType = namedTypeSymbol.IsGenericType;
+
+                    foreach (var item in namedTypeSymbol.AllInterfaces)
+                    {
+                        if (item.MetadataName is "IValueEnumerable`2")
+                        {
+                            var typeArg = item.TypeArguments[0];
+                            elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                            isValueType = typeArg.IsValueType;
+                            valueEnumeratorName = item.TypeArguments[1].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                            isValueEnumerable = true;
+                            break;
+                        }
+                        else if (item.MetadataName is "IEnumerable`1")
+                        {
+                            var typeArg = item.TypeArguments[0];
+                            elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                            isValueType = typeArg.IsValueType;
+                        }
+                    }
+
+                    if (elementName != null && isElementGenericType)
+                    {
+                        if (namedTypeSymbol.TypeArguments.Length != 1)
+                        {
+                            var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
+                            return new DropInExtension(diagnostic);
+                        }
+                    }
+                }
+
+                if (elementName == null)
+                {
+                    var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                    var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ExtensionNotSupported, location);
+                    return new DropInExtension(diagnostic);
+                }
+
+
+                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, x.TargetSymbol.ToString(), isValueEnumerable, valueEnumeratorName, elementName, isElementGenericType, isValueType, x.TargetSymbol.DeclaredAccessibility);
+            });
+
+        context.RegisterSourceOutput(extension, EmitDropInExtension);
     }
 
     void EmitSourceOutput(SourceProductionContext context, ZLinqDropInAttribute? attribute)
@@ -61,7 +123,7 @@ public class DropInGenerator : IIncrementalGenerator
         foreach (var resourceName in resourceNames)
         {
             var dropinType = FromResourceName(resourceName);
-            if (!attribute.DropInGenerateTypes.HasFlag(dropinType))
+            if (dropinType == DropInGenerateTypes.None || !attribute.DropInGenerateTypes.HasFlag(dropinType))
             {
                 continue;
             }
@@ -121,6 +183,137 @@ namespace {{attribute.GenerateNamespace}}
         }
     }
 
+    void EmitDropInExtension(SourceProductionContext context, DropInExtension extension)
+    {
+        if (extension.Error != null)
+        {
+            context.ReportDiagnostic(extension.Error);
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("#define ENABLE_EXTENSION");
+
+        var thisAsm = typeof(DropInGenerator).Assembly;
+        using (var stream = thisAsm.GetManifestResourceStream("ZLinq.DropInGenerator.ResourceCodes.ForExtension.cs"))
+        using (var sr = new StreamReader(stream!))
+        {
+            var code = sr.ReadToEnd();
+
+            var element = extension.ElementName;
+
+            // Repleace this TSource[] ...=> this CustomType
+            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameToString); // ToString shows <T> if type is generics
+            if (extension.IsValueEnumerable)
+            {
+                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>");
+            }
+            else
+            {
+                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromEnumerable<{element}>");
+            }
+
+            // element type fix
+            code = code.Replace("FromEnumerable<TSource>", $"FromEnumerable<{element}>");
+            code = code.Replace("IEnumerable<TSource>", $"IEnumerable<{element}>");
+            code = code.Replace("ValueEnumerable<TEnumerator2, TSource>", $"ValueEnumerable<TEnumerator2, {element}>");
+            code = code.Replace("IValueEnumerator<TSource>", $"IValueEnumerator<{element}>");
+            code = code.Replace("IEqualityComparer<TSource>", $"IEqualityComparer<{element}>");
+            code = code.Replace("IComparer<TSource>", $"IComparer<{element}>");
+
+            // generic defnition fix
+            if (!extension.IsElementGenericType)
+            {
+                code = code.Replace("<TEnumerator2, TSource>", "<TEnumerator2>");
+                code = code.Replace("<TEnumerator2, TOuter, ", "<TEnumerator2, ");
+                code = code.Replace("Func<TOuter, TInner", $"Func<{element}, TInner");
+                code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
+                code = code.Replace("<TOuter, TInner", "<TInner");
+                code = code.Replace("TOuter, ", $"{element}, ");
+                code = code.Replace("<TEnumerator2, TFirst", "<TEnumerator2");
+                code = code.Replace("<TEnumerator2, TEnumerator3, TFirst", "<TEnumerator2, TEnumerator3");
+                code = code.Replace("Func<TFirst, TSecond", $"Func<{element}, TSecond");
+                code = code.Replace("<TFirst, TSecond", "<TSecond");
+                code = code.Replace("TFirst", $"{element}");
+                code = code.Replace("ToList<TSource>", $"ToList");
+                code = code.Replace("ToHashSet<TSource>", $"ToHashSet");
+                code = code.Replace("Span<TSource>", $"Span<{element}>");
+                code = code.Replace("List<TSource>", $"List<{element}>");
+                code = code.Replace("HashSet<TSource>", $"HashSet<{element}>");
+                code = code.Replace("<TSource>", "");
+                code = Regex.Replace(code, "<(.*)TSource, (.+?)>\\(", x =>
+                {
+                    if (string.IsNullOrEmpty(x.Groups[1].Value))
+                    {
+                        return "<" + x.Groups[2].Value + ">(";
+                    }
+                    else
+                    {
+                        return "<" + x.Groups[1].Value + x.Groups[2].Value + ">(";
+                    }
+                });
+            }
+            else
+            {
+                code = code.Replace("TOuter", element);
+                code = code.Replace("TFirst", element);
+            }
+
+            // Replace TSource -> ElementType(for Func, etc...)
+            code = Regex.Replace(code, "TSource", extension.ElementName);
+            if (!extension.IsElementGenericType)
+            {
+                if (extension.IsValueEnumerable)
+                {
+                    code = code.Replace("WhereArray", $"Where<FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>, {element}>");
+                }
+                else
+                {
+                    code = code.Replace("WhereArray", $"Where<FromEnumerable<{element}>, {element}>");
+                }
+            }
+            else
+            {
+                if (extension.IsValueEnumerable)
+                {
+                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromValueEnumerable<{element}, {extension.ValueEnumeratorName}>, {element}>");
+                }
+                else
+                {
+                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromEnumerable<{element}>, {element}>");
+                }
+            }
+
+            sb.AppendLine(code); // write code
+        }
+
+        // replace namespace
+        if (!string.IsNullOrWhiteSpace(extension.NamespaceName))
+        {
+            sb.Replace("using ZLinq.Linq;", $$"""
+using ZLinq.Linq;
+namespace {{extension.NamespaceName}}
+{
+""");
+        }
+
+        // replace accessibility
+        sb.Replace("internal static partial class", $"{extension.Accessibility.ToString().ToLower().Replace("and", " ").Replace("or", " ").Replace("friend", "internal")} static partial class");
+
+        // replace typename
+        sb.Replace("class ZLinqDropInExtensions", $"class {extension.TypeName}ZLinqDropInExtensions");
+
+        // namespace close
+        if (!string.IsNullOrWhiteSpace(extension.NamespaceName))
+        {
+            sb.AppendLine("}");
+        }
+
+        var fullType = extension.NamespaceName == "" ? extension.TypeName : (extension.NamespaceName + "." + extension.TypeName);
+        var hintName = "ZLinq.DropIn." + fullType + "Extensions.g.cs";
+        context.AddSource(hintName, sb.ToString().ReplaceLineEndings());
+    }
+
     DropInGenerateTypes FromResourceName(string name)
     {
         switch (name)
@@ -134,6 +327,25 @@ namespace {{attribute.GenerateNamespace}}
             case "ZLinq.DropInGenerator.ResourceCodes.Span.cs": return DropInGenerateTypes.Span;
             default: return DropInGenerateTypes.None;
         }
+    }
+}
+
+record class DropInExtension(
+    string NamespaceName,
+    string TypeName,
+    string TypeNameToString, // with generics
+    bool IsValueEnumerable,
+    string? ValueEnumeratorName,
+    string? ElementName,
+    bool IsElementGenericType,
+    bool IsElementValueType,
+    Accessibility Accessibility,
+    Diagnostic? Error = null)
+{
+
+    public DropInExtension(Diagnostic error)
+        : this(null!, null!, null!, false, null, null, false, false, Accessibility.Public, error)
+    {
     }
 }
 
@@ -166,6 +378,14 @@ internal static class DiagnosticDescriptors
     public static DiagnosticDescriptor AttributeNotFound { get; } = Create(
         1,
         "ZLinqDropIn AssemblyAttribute is not found, you need to add like [assembly: ZLinq.ZLinqDropInAttribute(\"ZLinq.DropIn\", ZLinq.DropInGenerateTypes.Array)].");
+
+    public static DiagnosticDescriptor ExtensionNotSupported { get; } = Create(
+        2,
+        "ZLinqDropInExtension requires implementation of IEnumerable<T> or IValueEnumerable<T, TEnumerator>.");
+
+    public static DiagnosticDescriptor GenericTypeArgumentTooMuch { get; } = Create(
+        3,
+        "ZLinqDropInExtension requires zero or one generic type argument.");
 }
 
 internal static class StringExtensions

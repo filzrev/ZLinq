@@ -36,36 +36,32 @@ namespace ZLinq
         {
             ArgumentNullException.ThrowIfNull(predicate);
 
-            using (var enumerator = source.Enumerator)
+            using var enumerator = source.Enumerator;
+
+            var count = 0;
+            if (enumerator.TryGetSpan(out var span))
             {
-                if (enumerator.TryGetSpan(out var span))
+                foreach (var current in span)
                 {
-                    var count = 0;
-                    foreach (var current in span)
+                    if (predicate(current))
                     {
-                        if (predicate(current))
-                        {
-                            count++; // no need to use checked
-                        }
+                        count++; // no need to use checked
                     }
-
-                    return count;
                 }
-                else
-                {
-                    var count = 0;
 
-                    while (enumerator.TryGetNext(out var current))
+            }
+            else
+            {
+                while (enumerator.TryGetNext(out var current))
+                {
+                    if (predicate(current))
                     {
-                        if (predicate(current))
-                        {
-                            checked { count++; }
-                        }
+                        checked { count++; }
                     }
-                    return count;
                 }
             }
-        }
 
+            return count;
+        }
     }
 }

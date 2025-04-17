@@ -105,7 +105,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public unsafe struct FromEnumerable<T> : IValueEnumerator<T>
+    public struct FromEnumerable<T> : IValueEnumerator<T>
     {
         readonly IEnumerable<T> source;
         readonly CollectionIterator<T> iterator;
