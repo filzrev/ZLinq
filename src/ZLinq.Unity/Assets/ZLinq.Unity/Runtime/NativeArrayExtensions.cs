@@ -52,11 +52,22 @@ namespace ZLinq
 
         public bool TryCopyTo(Span<T> destination, Index offset)
         {
+#if UNITY_2022_1_OR_NEWER
             if (EnumeratorHelper.TryGetSlice<T>(source, offset, destination.Length, out var slice))
             {
                 slice.CopyTo(destination);
                 return true;
             }
+#else
+            unsafe
+            {
+                if (EnumeratorHelper.TryGetSlice<T>(new ReadOnlySpan<T>(source.GetUnsafeReadOnlyPtr(), source.Length), offset, destination.Length, out var slice))
+                {
+                    slice.CopyTo(destination);
+                    return true;
+                }
+            }
+#endif
             return false;
         }
 
@@ -80,8 +91,16 @@ namespace ZLinq
 
         public bool TryGetSpan(out ReadOnlySpan<T> span)
         {
+#if UNITY_2022_1_OR_NEWER
             span = source;
             return true;
+#else
+            unsafe
+            {
+                span = new ReadOnlySpan<T>(source.GetUnsafeReadOnlyPtr(), source.Length);
+            }
+            return true;
+#endif
         }
     }
 
