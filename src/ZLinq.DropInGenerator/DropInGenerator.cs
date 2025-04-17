@@ -97,11 +97,50 @@ public class DropInGenerator : IIncrementalGenerator
                     return new DropInExtension(diagnostic);
                 }
 
-
-                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, x.TargetSymbol.ToString(), isValueEnumerable, valueEnumeratorName, elementName, isElementGenericType, isValueType, x.TargetSymbol.DeclaredAccessibility);
+                var constraint = ""; // TODO: require to set constraint?
+                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, x.TargetSymbol.ToString(), isValueEnumerable, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
             });
 
         context.RegisterSourceOutput(extension, EmitDropInExtension);
+
+        // Extension per type from assembly
+
+        var externalExtensions = context.CompilationProvider.Select((compilation, token) =>
+        {
+            foreach (var attr in compilation.Assembly.GetAttributes())
+            {
+                if (attr.AttributeClass?.Name is "ZLinqDropInExternalExtension" or "ZLinqDropInExternalExtensionAttribute")
+                {
+                    // (string generateNamespace, string sourceTypeName, string enumeratorTypeName, string elementName, bool isElementValueType, string elementConstraint, params string[] usingNamespaces)
+                    var ctor = attr.ConstructorArguments;
+                    if (ctor.Length == 0) return null;
+
+                    var generateNamespace = (string)ctor[0].Value!;
+                    var sourceTypeName = (string)ctor[1].Value!;
+                    var enumeratorTypeName = (string)ctor[2].Value!;
+                    var elementName = (string)ctor[3].Value!;
+                    var isElementValueType = (bool)ctor[4].Value!;
+                    var elementConstraint = (string)ctor[5].Value!;
+                    var usingNamespaces = ctor[6].Values.Select(x => (string)x.Value!).ToArray();
+
+                    var args = attr.NamedArguments;
+                    var generateAsPublic = args.FirstOrDefault(x => x.Key == "GenerateAsPublic").Value.Value as bool? ?? false;
+
+                    var isValueEnumerable = !enumeratorTypeName.Contains("IEnumerator");
+                    var isElementGenericType = sourceTypeName.Contains("<");
+                    var accessibility = generateAsPublic ? Accessibility.Public : Accessibility.Internal;
+
+                    var genericsStart = sourceTypeName.IndexOf("<");
+                    var trimGenerics = genericsStart == -1 ? sourceTypeName : sourceTypeName.Substring(0, genericsStart);
+
+                    return new DropInExtension(generateNamespace, trimGenerics, sourceTypeName, isValueEnumerable, enumeratorTypeName, elementName, isElementGenericType, isElementValueType, elementConstraint, accessibility, usingNamespaces);
+                }
+            }
+
+            return null;
+        });
+
+        context.RegisterSourceOutput(externalExtensions, EmitDropInExtension);
     }
 
     void EmitSourceOutput(SourceProductionContext context, ZLinqDropInAttribute? attribute)
@@ -184,8 +223,9 @@ namespace {{attribute.GenerateNamespace}}
         }
     }
 
-    void EmitDropInExtension(SourceProductionContext context, DropInExtension extension)
+    void EmitDropInExtension(SourceProductionContext context, DropInExtension? extension)
     {
+        if (extension == null) return;
         if (extension.Error != null)
         {
             context.ReportDiagnostic(extension.Error);
@@ -207,7 +247,7 @@ namespace {{attribute.GenerateNamespace}}
             code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameToString); // ToString shows <T> if type is generics
             if (extension.IsValueEnumerable)
             {
-                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>");
+                code = Regex.Replace(code, "FromArray<[^>]+>", $"{extension.ValueEnumeratorName}");
             }
             else
             {
@@ -228,7 +268,7 @@ namespace {{attribute.GenerateNamespace}}
                 code = code.Replace("<TEnumerator2, TSource>", "<TEnumerator2>");
                 code = code.Replace("<TEnumerator2, TOuter, ", "<TEnumerator2, ");
                 code = code.Replace("Func<TOuter, TInner", $"Func<{element}, TInner");
-                code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
+                code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner"); // for RightJoin
                 code = code.Replace("<TOuter, TInner", "<TInner");
                 code = code.Replace("TOuter, ", $"{element}, ");
                 code = code.Replace("<TEnumerator2, TFirst", "<TEnumerator2");
@@ -256,6 +296,12 @@ namespace {{attribute.GenerateNamespace}}
             }
             else
             {
+                // for RightJoin, remove ? annotation where T:struct
+                if (extension.ElementConstraint.Contains("struct"))
+                {
+                    code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
+                }
+
                 code = code.Replace("TOuter", element);
                 code = code.Replace("TFirst", element);
             }
@@ -266,7 +312,7 @@ namespace {{attribute.GenerateNamespace}}
             {
                 if (extension.IsValueEnumerable)
                 {
-                    code = code.Replace("WhereArray", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
+                    code = code.Replace("WhereArray", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
                 else
                 {
@@ -277,12 +323,18 @@ namespace {{attribute.GenerateNamespace}}
             {
                 if (extension.IsValueEnumerable)
                 {
-                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
+                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
                 else
                 {
                     code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromEnumerable<{element}>, {element}>");
                 }
+            }
+
+            // finally remove constraint
+            if (extension.ElementConstraint != "")
+            {
+                code = code.Replace("=>", $" {extension.ElementConstraint} =>");
             }
 
             sb.AppendLine(code); // write code
@@ -296,6 +348,12 @@ using ZLinq.Linq;
 namespace {{extension.NamespaceName}}
 {
 """);
+        }
+
+        if (extension.AdditionalUsingNamespaces != null && extension.AdditionalUsingNamespaces.Length > 0)
+        {
+            var usings = string.Join(Environment.NewLine, extension.AdditionalUsingNamespaces.Select(x => $"using {x};").Concat(["using ZLinq.Linq;"]));
+            sb.Replace("using ZLinq.Linq;", usings);
         }
 
         // replace accessibility
@@ -340,12 +398,14 @@ record class DropInExtension(
     string? ElementName,
     bool IsElementGenericType,
     bool IsElementValueType,
+    string ElementConstraint,
     Accessibility Accessibility,
+    string[]? AdditionalUsingNamespaces = null,
     Diagnostic? Error = null)
 {
 
     public DropInExtension(Diagnostic error)
-        : this(null!, null!, null!, false, null, null, false, false, Accessibility.Public, error)
+        : this(null!, null!, null!, false, null, null, false, false, null!, Accessibility.Public, null, error)
     {
     }
 }

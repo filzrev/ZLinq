@@ -19,7 +19,7 @@ public class GlobalList : IEnumerable<int>
 [ZLinqDropInExtension]
 internal class GlobalListVI : IEnumerable<int>, IValueEnumerable<GlobalListVI.Enumerator, int>
 {
-    public ValueEnumerable<FromValueEnumerable<Enumerator, int>, int> AsValueEnumerable()
+    public ValueEnumerable<Enumerator, int> AsValueEnumerable()
     {
         throw new NotImplementedException();
     }
@@ -103,7 +103,7 @@ namespace AIU.EO.KA
     [ZLinqDropInExtension]
     public class GenericList2<T> : IValueEnumerable<GenericList2<T>.Enumerator, T>
     {
-        public ValueEnumerable<FromValueEnumerable<Enumerator, T>, T> AsValueEnumerable()
+        public ValueEnumerable<Enumerator, T> AsValueEnumerable()
         {
             throw new NotImplementedException();
         }

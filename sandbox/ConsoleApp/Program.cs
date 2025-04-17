@@ -32,6 +32,10 @@ using System.Runtime.CompilerServices;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
+
+[assembly: ZLinq.ZLinqDropInExternalExtension("ZLinq", "NativeArray<T>", "FromNativeArray<T>", "T", false, /* using: */ "Unity", "Unity.Collections")]
+
+
 var list = new AddOnlyIntList2();
 list.Add(10);
 list.Add(20);
@@ -41,6 +45,7 @@ foreach (var item in list.Select(x => x * 100))
 {
     Console.WriteLine(item);
 }
+return;
 
 Span<int> foo = [1, 2, 3, 4, 5];
 
@@ -199,7 +204,7 @@ class B : A;
 [ZLinqDropInExtension]
 public class MyList<T> : IEnumerable<T>, IValueEnumerable<MyList<T>.ValueEnumerator, T>
 {
-    public ValueEnumerable<FromValueEnumerable<ValueEnumerator, T>, T> AsValueEnumerable()
+    public ValueEnumerable<ValueEnumerator, T> AsValueEnumerable()
     {
         throw new NotImplementedException();
     }
@@ -304,7 +309,7 @@ public class AddOnlyIntList2 : IValueEnumerable<AddOnlyIntList2.Enumerator, int>
 
     public void Add(int x) => list.Add(x);
 
-    public ValueEnumerable<FromValueEnumerable<Enumerator, int>, int> AsValueEnumerable()
+    public ValueEnumerable<Enumerator, int> AsValueEnumerable()
     {
         // you need to write new(new(new())) magic.
         return new(new(new(list)));
