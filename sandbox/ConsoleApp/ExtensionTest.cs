@@ -138,10 +138,10 @@ namespace AIU.EO.KA
     }
 
     [ZLinqDropInExtension]
-    public class ConstraintList<T> : IEnumerable<T>
-        where T : struct
+    public class ConstraintList<Toaru> : IEnumerable<Toaru>
+        where Toaru : struct
     {
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<Toaru> GetEnumerator()
         {
             throw new NotImplementedException();
         }
@@ -167,6 +167,67 @@ namespace AIU.EO.KA
         }
     }
 
+
+    [ZLinqDropInExtension]
+    public class UnamangedConstraintList<T> : IEnumerable<T>
+        where T : unmanaged
+    {
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+
+    [ZLinqDropInExtension]
+    public struct ConstraintStructList<Toaru> : IEnumerable<Toaru>, IValueEnumerable<ConstraintStructList<Toaru>.Enumerator, Toaru>
+        where Toaru : struct
+    {
+        public ValueEnumerable<Enumerator, Toaru> AsValueEnumerable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<Toaru> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public struct Enumerator : IValueEnumerator<Toaru>
+        {
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+            public bool TryCopyTo(scoped Span<Toaru> destination, Index offset)
+            {
+                throw new NotImplementedException();
+            }
+            public bool TryGetNext(out Toaru current)
+            {
+                throw new NotImplementedException();
+            }
+            public bool TryGetNonEnumeratedCount(out int count)
+            {
+                throw new NotImplementedException();
+            }
+            public bool TryGetSpan(out ReadOnlySpan<Toaru> span)
+            {
+                throw new NotImplementedException();
+            }
+        }
+    }
+
     // error
     // [ZLinqDropInExtension]
     public class Kankeinasu
@@ -179,6 +240,76 @@ namespace AIU.EO.KA
     public class Kankeiaru<TKK, TVV> : IEnumerable<KeyValuePair<TKK, TVV>>
     {
         public IEnumerator<KeyValuePair<TKK, TVV>> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+
+    [ZLinqDropInExtension]
+    public class NestedParent<T> : IEnumerable<T>
+    {
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        [ZLinqDropInExtension]
+        public class NestedChild : IEnumerable<T>
+        {
+            public IEnumerator<T> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+    }
+
+    [ZLinqDropInExtension]
+    public class NestedParent2<T> : IEnumerable<T>
+    {
+        public IEnumerator<T> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        [ZLinqDropInExtension]
+        public class NestedChild : IEnumerable<T>
+        {
+            public IEnumerator<T> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+    }
+
+    [ZLinqDropInExtension]
+    public class SetSet<T> : IEnumerable<T>
+        where T : unmanaged, IEquatable<T>
+    {
+        public IEnumerator<T> GetEnumerator()
         {
             throw new NotImplementedException();
         }

@@ -90,7 +90,7 @@ public class DropInGenerator : IIncrementalGenerator
 
                 if (isElementGenericType)
                 {
-                    if (namedTypeSymbol.TypeArguments.Length != 1)
+                    if (namedTypeSymbol.TypeArguments.Length >= 2)
                     {
                         var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
                         var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
@@ -188,7 +188,7 @@ public class DropInGenerator : IIncrementalGenerator
 
                     if (isElementGenericType)
                     {
-                        if (namedTypeSymbol.TypeArguments.Length != 1)
+                        if (namedTypeSymbol.TypeArguments.Length >= 2)
                         {
                             var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
                             var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
@@ -303,6 +303,22 @@ namespace {{attribute.GenerateNamespace}}
 
         var sb = new StringBuilder();
         sb.AppendLine("#define ENABLE_EXTENSION");
+        if (extension.IsElementGenericType)
+        {
+            if (extension.ElementConstraint is "")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+                sb.AppendLine("#define ENABLE_NULLABLE_SUM_AVERAGE");
+            }
+            else if (extension.ElementConstraint == $"where {extension.ElementName} : struct")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+            }
+            else if (extension.ElementConstraint == $"where {extension.ElementName} : unmanaged")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+            }
+        }
 
         var thisAsm = typeof(DropInGenerator).Assembly;
         using (var stream = thisAsm.GetManifestResourceStream("ZLinq.DropInGenerator.ResourceCodes.ForExtension.cs"))
@@ -311,6 +327,16 @@ namespace {{attribute.GenerateNamespace}}
             var code = sr.ReadToEnd();
 
             var element = extension.ElementName;
+
+            // fix first for sum and average
+            if (extension.IsElementGenericType)
+            {
+                code = code.Replace("Single[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Single>");
+                code = code.Replace("Nullable<Single>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Single?>");
+                code = code.Replace("Decimal[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Decimal>");
+                code = code.Replace("Nullable<Decimal>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Decimal?>");
+                code = code.Replace("Nullable<TSource>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<TSource?>");
+            }
 
             // Repleace this TSource[] ...=> this CustomType
             code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameFullyQualified); // ToString shows <T> if type is generics
@@ -366,7 +392,7 @@ namespace {{attribute.GenerateNamespace}}
             else
             {
                 // for RightJoin, remove ? annotation where T:struct
-                if (extension.ElementConstraint.Contains("struct"))
+                if (extension.ElementConstraint.Contains(": struct") || extension.ElementConstraint.Contains(": unmanaged"))
                 {
                     code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
                 }
@@ -403,7 +429,18 @@ namespace {{attribute.GenerateNamespace}}
             // finally remove constraint
             if (extension.ElementConstraint != "")
             {
-                code = code.Replace("=>", $" {extension.ElementConstraint} =>");
+                code = code.Replace("=>", $"{extension.ElementConstraint} =>");
+                // fix more
+                code = code.Replace($"<Single> source) {extension.ElementConstraint}", "<Single> source)");
+                code = code.Replace($"<Decimal> source) {extension.ElementConstraint}", "<Decimal> source)");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().Average();", " => source.AsValueEnumerable().Average();");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().Sum();", " => source.AsValueEnumerable().Sum();");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().SumUnchecked();", " => source.AsValueEnumerable().SumUnchecked();");
+
+                if (extension.ElementConstraint.Contains(": unmanaged"))
+                {
+                    code = code.Replace($"where {element} : struct", $"where {element} : unmanaged");
+                }
             }
 
             sb.AppendLine(code); // write code
@@ -437,7 +474,7 @@ namespace {{extension.NamespaceName}}
             sb.AppendLine("}");
         }
 
-        var fullType = extension.NamespaceName == "" ? extension.TypeName : (extension.NamespaceName + "." + extension.TypeName);
+        var fullType = extension.TypeNameFullyQualified.Replace("global::", "").Replace("<", "_").Replace(">", "_").Replace("+", "_").Replace(" ", "_");
         var hintName = "ZLinq.DropIn." + fullType + "Extensions.g.cs";
         context.AddSource(hintName, sb.ToString().ReplaceLineEndings());
     }
@@ -464,6 +501,16 @@ namespace {{extension.NamespaceName}}
             return "";
         }
 
+        if (namedType.TypeParameters.Length == 0) // nested type, get to root
+        {
+            do
+            {
+                namedType = namedType.ContainingType;
+            } while (namedType != null && namedType.TypeParameters.Length == 0);
+        }
+
+        if (namedType == null) return "";
+
         var builder = new StringBuilder();
 
         foreach (var typeParameter in namedType.TypeParameters)
@@ -480,6 +527,10 @@ namespace {{extension.NamespaceName}}
             if (typeParameter.HasReferenceTypeConstraint)
             {
                 constraints.Add("class");
+            }
+            else if (typeParameter.HasUnmanagedTypeConstraint)
+            {
+                constraints.Add("unmanaged");
             }
             else if (typeParameter.HasValueTypeConstraint)
             {
@@ -513,6 +564,7 @@ namespace {{extension.NamespaceName}}
                typeParameter.HasValueTypeConstraint ||
                typeParameter.HasNotNullConstraint ||
                typeParameter.HasConstructorConstraint ||
+               typeParameter.HasUnmanagedTypeConstraint ||
                typeParameter.ConstraintTypes.Any();
     }
 }
@@ -530,10 +582,22 @@ record class DropInExtension(
     string[]? AdditionalUsingNamespaces = null,
     Diagnostic? Error = null)
 {
-
     public DropInExtension(Diagnostic error)
         : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
     {
+    }
+
+    public string TypeNameFullyQualifiedWithoutGenerics
+    {
+        get
+        {
+            var index = TypeNameFullyQualified.IndexOf("<");
+            if (index == -1)
+            {
+                return TypeNameFullyQualified;
+            }
+            return TypeNameFullyQualified.Substring(0, index);
+        }
     }
 }
 

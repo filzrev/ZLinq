@@ -34,7 +34,11 @@ using My.Tako.Yaki;
 
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
+
 [assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1", "My.Tako.Yaki.FromMyCollection`1")]
+
+[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1+Child")]
+
 
 // generateNamespace, sourceTypeFullyQualifiedMetadataName, enumeratorTypeFullyQualifiedMetadataName
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
@@ -426,6 +430,18 @@ namespace My.Tako.Yaki
         where T : struct
     {
 
+        public class Child : IEnumerable<T>
+        {
+            public IEnumerator<T> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
     }
 
     public static class MyCollectionExtensions
@@ -474,4 +490,5 @@ namespace My.Tako.Yaki
             throw new NotImplementedException();
         }
     }
+
 }

@@ -5,11 +5,11 @@
 
 using System;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using ZLinq.Internal;
+using ZLinq.Linq;
 
 namespace ZLinq
 {
@@ -118,7 +118,10 @@ namespace ZLinq
             return new(new(source));
         }
     }
+}
 
+namespace ZLinq.Linq
+{
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromNativeList<T> : IValueEnumerator<T>

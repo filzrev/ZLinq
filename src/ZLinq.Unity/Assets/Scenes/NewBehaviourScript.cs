@@ -9,18 +9,48 @@ using UnityEngine;
 using ZLinq;
 using ZLinq.Linq;
 
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1", "ZLinq.Linq.FromNativeArray`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1+ReadOnly", "ZLinq.Linq.FromNativeArray`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeSlice`1", "ZLinq.Linq.FromNativeSlice`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeList`1", "ZLinq.Linq.FromNativeList`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeHashSet`1", "ZLinq.Linq.FromNativeHashSet`1")]
+
 public class NewBehaviourScript : MonoBehaviour
 {
     public GameObject Origin;
 
     void Start()
     {
-        for (int i = 0; i < 10000; i++)
+        var temparray = new NativeArray<int>(10, Allocator.Temp);
+        ValueEnumerable.Range(1, 10).CopyTo(temparray);
+
+        var xs = temparray.Select(x => x).Shuffle();
+        using var e = xs.Enumerator;
+        while (e.TryGetNext(out var current))
         {
-            if (i % 100 == 0) Debug.Log(i);
-            Enumerable.Range(1, i).AsValueEnumerable().ToList();
-            Enumerable.Range(1, i).ToArray().AsValueEnumerable().ToList();
+            Debug.Log(current);
         }
+
+        Debug.Log("----");
+
+        var templist = new NativeList<int>(10, Allocator.Temp);
+        templist.Resize(10, NativeArrayOptions.ClearMemory);
+        ValueEnumerable.Range(1, 10).CopyTo(templist.AsArray());
+
+        var xs2 = templist.Select(x => x).Shuffle();
+        using var e2 = xs2.Enumerator;
+        while (e2.TryGetNext(out var current))
+        {
+            Debug.Log(current);
+        }
+
+
+        //for (int i = 0; i < 10000; i++)
+        //{
+        //    if (i % 100 == 0) Debug.Log(i);
+        //    Enumerable.Range(1, i).AsValueEnumerable().ToList();
+        //    Enumerable.Range(1, i).ToArray().AsValueEnumerable().ToList();
+        //}
 
         //Test();
         //Test2();
@@ -73,81 +103,4 @@ public static class ZLinqExtensions
             }
         }
     }
-}
-
-internal static class CollectionsMarshal
-{
-    internal static readonly int ListSize;
-
-    static CollectionsMarshal()
-    {
-        try
-        {
-            ListSize = typeof(List<>).GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Length;
-        }
-        catch
-        {
-            ListSize = 3;
-        }
-    }
-
-    internal static Span<T> AsSpan<T>(this List<T>? list)
-    {
-        Span<T> span = default;
-        if (list is not null)
-        {
-            if (ListSize == 3)
-            {
-                var view = Unsafe.As<ListViewA<T>>(list);
-                T[] items = view._items;
-                span = items.AsSpan(0, list.Count);
-            }
-            else if (ListSize == 4)
-            {
-                var view = Unsafe.As<ListViewB<T>>(list);
-                T[] items = view._items;
-                span = items.AsSpan(0, list.Count);
-            }
-        }
-
-        return span;
-    }
-
-    // This is not polyfill.
-    // Unlike the original SetCount, this does not grow if the count is smaller.
-    // Therefore, the internal collection size of the List must always be greater than or equal to the count.
-    internal static void UnsafeSetCount<T>(this List<T> list, int count)
-    {
-        if (list is not null)
-        {
-            if (ListSize == 3)
-            {
-                var view = Unsafe.As<ListViewA<T>>(list);
-                view._size = count;
-            }
-            else if (ListSize == 4)
-            {
-                var view = Unsafe.As<ListViewB<T>>(list);
-
-                UnityEngine.Debug.Log("LIST COUNT: " + list.Count);
-                UnityEngine.Debug.Log("LISTVIEWB SIZE: " + view._size);
-                view._size = count;
-            }
-        }
-    }
-}
-
-internal class ListViewA<T>
-{
-    public T[] _items;
-    public int _size;
-    public int _version;
-}
-
-internal class ListViewB<T>
-{
-    public T[] _items;
-    public int _size;
-    public int _version;
-    private System.Object _syncRoot; // in .NET Framework
 }

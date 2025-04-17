@@ -24,6 +24,50 @@ internal static partial class ZLinqDropInExtensions
     public static Boolean Any<TSource>(this TSource[] source) => source.AsValueEnumerable().Any();
     public static Boolean Any<TSource>(this TSource[] source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().Any(predicate);
     public static ValueEnumerable<Append<FromArray<TSource>, TSource>, TSource> Append<TSource>(this TSource[] source, TSource element) => source.AsValueEnumerable().Append(element);
+#if ENABLE_SUM_AVERAGE
+    public static Single Average(this Single[] source) => source.AsValueEnumerable().Average();
+#endif
+#if ENABLE_NULLABLE_SUM_AVERAGE
+    public static Nullable<Single> Average(this Nullable<Single>[] source) => source.AsValueEnumerable().Average();
+#endif
+    public static Single Average<TSource>(this TSource[] source, Func<TSource, Single> selector) => source.AsValueEnumerable().Average(selector);
+    public static Nullable<Single> Average<TSource>(this TSource[] source, Func<TSource, Nullable<Single>> selector) => source.AsValueEnumerable().Average(selector);
+#if ENABLE_SUM_AVERAGE
+    public static Decimal Average(this Decimal[] source) => source.AsValueEnumerable().Average();
+#endif
+#if ENABLE_NULLABLE_SUM_AVERAGE
+    public static Nullable<Decimal> Average(this Nullable<Decimal>[] source) => source.AsValueEnumerable().Average();
+#endif
+    public static Decimal Average<TSource>(this TSource[] source, Func<TSource, Decimal> selector) => source.AsValueEnumerable().Average(selector);
+    public static Nullable<Decimal> Average<TSource>(this TSource[] source, Func<TSource, Nullable<Decimal>> selector) => source.AsValueEnumerable().Average(selector);
+#if ENABLE_SUM_AVERAGE
+    public static Double Average<TSource>(this TSource[] source)
+        where TSource : struct
+#if NET8_0_OR_GREATER
+        , INumber<TSource>
+#endif
+ => source.AsValueEnumerable().Average();
+#endif
+#if ENABLE_NULLABLE_SUM_AVERAGE
+    public static Nullable<Double> Average<TSource>(this Nullable<TSource>[] source)
+        where TSource : struct
+#if NET8_0_OR_GREATER
+        , INumber<TSource>
+#endif
+ => source.AsValueEnumerable().Average();
+#endif
+    public static Double Average<TSource, TResult>(this TSource[] source, Func<TSource, TResult> selector)
+        where TResult : struct
+#if NET8_0_OR_GREATER
+        , INumber<TResult>
+#endif
+ => source.AsValueEnumerable().Average(selector);
+    public static Nullable<Double> Average<TSource, TResult>(this TSource[] source, Func<TSource, Nullable<TResult>> selector)
+        where TResult : struct
+#if NET8_0_OR_GREATER
+        , INumber<TResult>
+#endif
+ => source.AsValueEnumerable().Average(selector);
     public static ValueEnumerable<Chunk<FromArray<TSource>, TSource>, TSource[]> Chunk<TSource>(this TSource[] source, Int32 size) => source.AsValueEnumerable().Chunk(size);
     public static ValueEnumerable<Concat<FromArray<TSource>, TEnumerator2, TSource>, TSource> Concat<TEnumerator2, TSource>(this TSource[] source, ValueEnumerable<TEnumerator2, TSource> second)
         where TEnumerator2 : struct, IValueEnumerator<TSource>
@@ -261,6 +305,44 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<SkipLast<FromArray<TSource>, TSource>, TSource> SkipLast<TSource>(this TSource[] source, Int32 count) => source.AsValueEnumerable().SkipLast(count);
     public static ValueEnumerable<SkipWhile<FromArray<TSource>, TSource>, TSource> SkipWhile<TSource>(this TSource[] source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().SkipWhile(predicate);
     public static ValueEnumerable<SkipWhile2<FromArray<TSource>, TSource>, TSource> SkipWhile<TSource>(this TSource[] source, Func<TSource, Int32, Boolean> predicate) => source.AsValueEnumerable().SkipWhile(predicate);
+    public static TResult Sum<TSource, TResult>(this TSource[] source, Func<TSource, TResult> selector)
+        where TResult : struct
+#if NET8_0_OR_GREATER
+        , INumber<TResult>
+#endif
+ => source.AsValueEnumerable().Sum(selector);
+    public static Nullable<TResult> Sum<TSource, TResult>(this TSource[] source, Func<TSource, Nullable<TResult>> selector)
+        where TResult : struct
+#if NET8_0_OR_GREATER
+        , INumber<TResult>
+#endif
+ => source.AsValueEnumerable().Sum(selector);
+#if ENABLE_NULLABLE_SUM_AVERAGE
+    public static Nullable<TSource> Sum<TSource>(this Nullable<TSource>[] source)
+        where TSource : struct
+#if NET8_0_OR_GREATER
+        , INumber<TSource>
+#endif
+ => source.AsValueEnumerable().Sum();
+#endif
+#if ENABLE_SUM_AVERAGE
+    public static TSource Sum<TSource>(this TSource[] source)
+        where TSource : struct
+#if NET8_0_OR_GREATER
+        , INumber<TSource>
+#endif
+ => source.AsValueEnumerable().Sum();
+#endif
+#if ENABLE_SUM_AVERAGE
+#if NET8_0_OR_GREATER
+    public static TSource SumUnchecked<TSource>(this TSource[] source)
+        where TSource : struct
+#if NET8_0_OR_GREATER
+        , INumber<TSource>
+#endif
+ => source.AsValueEnumerable().SumUnchecked();
+#endif
+#endif
     public static ValueEnumerable<Take<FromArray<TSource>, TSource>, TSource> Take<TSource>(this TSource[] source, Int32 count) => source.AsValueEnumerable().Take(count);
     public static ValueEnumerable<TakeRange<FromArray<TSource>, TSource>, TSource> Take<TSource>(this TSource[] source, Range range) => source.AsValueEnumerable().Take(range);
     public static ValueEnumerable<TakeLast<FromArray<TSource>, TSource>, TSource> TakeLast<TSource>(this TSource[] source, Int32 count) => source.AsValueEnumerable().TakeLast(count);
