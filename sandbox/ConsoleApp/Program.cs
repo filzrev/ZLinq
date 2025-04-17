@@ -19,6 +19,8 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System;
 using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
+using My.Tako.Yaki;
 // using MyApp;
 
 //Span<int> xs = stackalloc int[255];
@@ -33,7 +35,13 @@ using System.Runtime.CompilerServices;
 [assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
 
 
-[assembly: ZLinq.ZLinqDropInExternalExtension("ZLinq", "NativeArray<T>", "FromNativeArray<T>", "T", false, /* using: */ "Unity", "Unity.Collections")]
+[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1")]
+
+
+var mc = new MyCollection<string>();
+mc.Add("a");
+
+var foobarbaz = mc.Select(x => x);
 
 
 var list = new AddOnlyIntList2();
@@ -41,10 +49,10 @@ list.Add(10);
 list.Add(20);
 list.Add(30);
 
-foreach (var item in list.Select(x => x * 100))
-{
-    Console.WriteLine(item);
-}
+//foreach (var item in list.Select(x => x * 100))
+//{
+//    Console.WriteLine(item);
+//}
 return;
 
 Span<int> foo = [1, 2, 3, 4, 5];
@@ -402,6 +410,14 @@ namespace ZLinq
     }
 
     public static class Test
+    {
+
+    }
+}
+
+namespace My.Tako.Yaki
+{
+    public class MyCollection<T> : Collection<T>
     {
 
     }

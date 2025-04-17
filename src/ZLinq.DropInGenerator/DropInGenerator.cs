@@ -1,4 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
+using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -49,11 +51,9 @@ public class DropInGenerator : IIncrementalGenerator
             (_, _) => true, // Class or Struct
             (x, _) =>
             {
-                //x.SemanticModel.GetSymbolInfo(
                 string? elementName = null;
                 string? valueEnumeratorName = null;
                 bool isElementGenericType = false;
-                bool isValueEnumerable = false;
                 bool isValueType = false;
                 if (x.TargetSymbol is INamedTypeSymbol namedTypeSymbol)
                 {
@@ -68,7 +68,6 @@ public class DropInGenerator : IIncrementalGenerator
                             elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                             isValueType = typeArg.IsValueType;
                             valueEnumeratorName = item.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                            isValueEnumerable = true;
                             break;
                         }
                         else if (item.MetadataName is "IEnumerable`1")
@@ -97,8 +96,10 @@ public class DropInGenerator : IIncrementalGenerator
                     return new DropInExtension(diagnostic);
                 }
 
+                var fullyQualified = x.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
                 var constraint = ""; // TODO: require to set constraint?
-                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, x.TargetSymbol.ToString(), isValueEnumerable, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
+                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
             });
 
         context.RegisterSourceOutput(extension, EmitDropInExtension);
@@ -111,29 +112,65 @@ public class DropInGenerator : IIncrementalGenerator
             {
                 if (attr.AttributeClass?.Name is "ZLinqDropInExternalExtension" or "ZLinqDropInExternalExtensionAttribute")
                 {
-                    // (string generateNamespace, string sourceTypeName, string enumeratorTypeName, string elementName, bool isElementValueType, string elementConstraint, params string[] usingNamespaces)
                     var ctor = attr.ConstructorArguments;
                     if (ctor.Length == 0) return null;
 
+                    // parse from attr
                     var generateNamespace = (string)ctor[0].Value!;
-                    var sourceTypeName = (string)ctor[1].Value!;
-                    var enumeratorTypeName = (string)ctor[2].Value!;
-                    var elementName = (string)ctor[3].Value!;
-                    var isElementValueType = (bool)ctor[4].Value!;
-                    var elementConstraint = (string)ctor[5].Value!;
-                    var usingNamespaces = ctor[6].Values.Select(x => (string)x.Value!).ToArray();
+                    var sourceTypeFullyQualifiedMetadataName = (string)ctor[1].Value!;
+                    var enumeratorTypeFullyQualifiedMetadataName = (string?)ctor[2].Value!;
 
                     var args = attr.NamedArguments;
                     var generateAsPublic = args.FirstOrDefault(x => x.Key == "GenerateAsPublic").Value.Value as bool? ?? false;
 
-                    var isValueEnumerable = !enumeratorTypeName.Contains("IEnumerator");
-                    var isElementGenericType = sourceTypeName.Contains("<");
+                    // construct from compilation info
+
+                    var namedTypeSymbol = compilation.GetTypeByMetadataName(sourceTypeFullyQualifiedMetadataName);
+
+                    if (namedTypeSymbol == null)
+                    {
+                        // TODO: diagnostics
+                        return null;
+                    }
+
+                    string? elementName = null;
+                    string? valueEnumeratorName = null;
+                    bool isElementGenericType = namedTypeSymbol.IsGenericType;
+                    bool isValueType = false;
+
+                    if (enumeratorTypeFullyQualifiedMetadataName == null)
+                    {
+                        // try to get IEnumerable<T>
+                        foreach (var item in namedTypeSymbol.AllInterfaces)
+                        {
+                            if (item.MetadataName is "IEnumerable`1")
+                            {
+                                var typeArg = item.TypeArguments[0];
+                                elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                isValueType = typeArg.IsValueType;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // try to get value-enumerator
+                    }
+
+                    if (elementName != null && isElementGenericType)
+                    {
+                        if (namedTypeSymbol.TypeArguments.Length != 1)
+                        {
+                            var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
+                            return new DropInExtension(diagnostic);
+                        }
+                    }
+
+                    var fullyQualified = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     var accessibility = generateAsPublic ? Accessibility.Public : Accessibility.Internal;
 
-                    var genericsStart = sourceTypeName.IndexOf("<");
-                    var trimGenerics = genericsStart == -1 ? sourceTypeName : sourceTypeName.Substring(0, genericsStart);
-
-                    return new DropInExtension(generateNamespace, trimGenerics, sourceTypeName, isValueEnumerable, enumeratorTypeName, elementName, isElementGenericType, isElementValueType, elementConstraint, accessibility, usingNamespaces);
+                    string constraint = "";
+                    return new DropInExtension(generateNamespace, namedTypeSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, accessibility);
                 }
             }
 
@@ -244,8 +281,8 @@ namespace {{attribute.GenerateNamespace}}
             var element = extension.ElementName;
 
             // Repleace this TSource[] ...=> this CustomType
-            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameToString); // ToString shows <T> if type is generics
-            if (extension.IsValueEnumerable)
+            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameFullyQualified); // ToString shows <T> if type is generics
+            if (extension.ValueEnumeratorName != null)
             {
                 code = Regex.Replace(code, "FromArray<[^>]+>", $"{extension.ValueEnumeratorName}");
             }
@@ -310,7 +347,7 @@ namespace {{attribute.GenerateNamespace}}
             code = Regex.Replace(code, "TSource", extension.ElementName);
             if (!extension.IsElementGenericType)
             {
-                if (extension.IsValueEnumerable)
+                if (extension.ValueEnumeratorName != null)
                 {
                     code = code.Replace("WhereArray", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
@@ -321,7 +358,7 @@ namespace {{attribute.GenerateNamespace}}
             }
             else
             {
-                if (extension.IsValueEnumerable)
+                if (extension.ValueEnumeratorName != null)
                 {
                     code = Regex.Replace(code, "WhereArray<.+?>", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
@@ -392,8 +429,7 @@ namespace {{extension.NamespaceName}}
 record class DropInExtension(
     string NamespaceName,
     string TypeName,
-    string TypeNameToString, // with generics
-    bool IsValueEnumerable,
+    string TypeNameFullyQualified, // with generics
     string? ValueEnumeratorName,
     string? ElementName,
     bool IsElementGenericType,
@@ -405,7 +441,7 @@ record class DropInExtension(
 {
 
     public DropInExtension(Diagnostic error)
-        : this(null!, null!, null!, false, null, null, false, false, null!, Accessibility.Public, null, error)
+        : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
     {
     }
 }
