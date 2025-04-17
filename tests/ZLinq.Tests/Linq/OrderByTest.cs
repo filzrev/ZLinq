@@ -318,7 +318,8 @@ public class OrderByTest
         var xs = new int[] { 5, 2, 8, 1, 9 };
 
         var ordered = xs.AsValueEnumerable().OrderBy(x => x);
-        ordered.TryGetSpan(out var span).ShouldBeTrue();
+        using var e = ordered.Enumerator;
+        e.TryGetSpan(out var span).ShouldBeTrue();
         span.ToArray().ShouldBe([1, 2, 5, 8, 9]);
     }
 
