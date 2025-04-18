@@ -350,6 +350,18 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<TakeWhile2<FromArray<TSource>, TSource>, TSource> TakeWhile<TSource>(this TSource[] source, Func<TSource, Int32, Boolean> predicate) => source.AsValueEnumerable().TakeWhile(predicate);
     public static TSource[] ToArray<TSource>(this TSource[] source) => source.AsValueEnumerable().ToArray();
     public static (TSource[] Array, int Size) ToArrayPool<TSource>(this TSource[] source) => source.AsValueEnumerable().ToArrayPool();
+#if ENABLE_TKEY_TVALUE_TODICTIONARY
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this KeyValuePair<TKey, TValue>[] source) where TKey : notnull => source.AsValueEnumerable().ToDictionary();
+#endif
+#if ENABLE_TKEY_TVALUE_TODICTIONARY
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this KeyValuePair<TKey, TValue>[] source, IEqualityComparer<TKey>? comparer) where TKey : notnull => source.AsValueEnumerable().ToDictionary(comparer);
+#endif
+#if ENABLE_TKEY_TVALUE_TODICTIONARY
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this (TKey Key, TValue Value)[] source) where TKey : notnull => source.AsValueEnumerable().ToDictionary();
+#endif
+#if ENABLE_TKEY_TVALUE_TODICTIONARY
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this (TKey Key, TValue Value)[] source, IEqualityComparer<TKey>? comparer) where TKey : notnull => source.AsValueEnumerable().ToDictionary(comparer);
+#endif
     public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this TSource[] source, Func<TSource, TKey> keySelector) where TKey : notnull => source.AsValueEnumerable().ToDictionary(keySelector);
     public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this TSource[] source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey>? comparer) where TKey : notnull => source.AsValueEnumerable().ToDictionary(keySelector, comparer);
     public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(this TSource[] source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull => source.AsValueEnumerable().ToDictionary(keySelector, elementSelector);

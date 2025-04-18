@@ -309,6 +309,7 @@ namespace {{attribute.GenerateNamespace}}
             {
                 sb.AppendLine("#define ENABLE_SUM_AVERAGE");
                 sb.AppendLine("#define ENABLE_NULLABLE_SUM_AVERAGE");
+                sb.AppendLine("#define ENABLE_TKEY_TVALUE_TODICTIONARY");
             }
             else if (extension.ElementConstraint == $"where {extension.ElementName} : struct")
             {
@@ -328,14 +329,16 @@ namespace {{attribute.GenerateNamespace}}
 
             var element = extension.ElementName;
 
-            // fix first for sum and average
+            // fix first for sum and average, todictionary
             if (extension.IsElementGenericType)
             {
-                code = code.Replace("Single[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Single>");
-                code = code.Replace("Nullable<Single>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Single?>");
-                code = code.Replace("Decimal[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Decimal>");
-                code = code.Replace("Nullable<Decimal>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<Decimal?>");
-                code = code.Replace("Nullable<TSource>[]", $"{extension.TypeNameFullyQualifiedWithoutGenerics}<TSource?>");
+                code = code.Replace("Single[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Single>"));
+                code = code.Replace("Nullable<Single>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Single?>"));
+                code = code.Replace("Decimal[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Decimal>"));
+                code = code.Replace("Nullable<Decimal>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Decimal?>"));
+                code = code.Replace("Nullable<TSource>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<TSource?>"));
+                code = code.Replace("KeyValuePair<TKey, TValue>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<KeyValuePair<TKey, TValue>>"));
+                code = code.Replace("(TKey Key, TValue Value)[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<(TKey Key, TValue Value)>"));
             }
 
             // Repleace this TSource[] ...=> this CustomType
@@ -585,19 +588,6 @@ record class DropInExtension(
     public DropInExtension(Diagnostic error)
         : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
     {
-    }
-
-    public string TypeNameFullyQualifiedWithoutGenerics
-    {
-        get
-        {
-            var index = TypeNameFullyQualified.IndexOf("<");
-            if (index == -1)
-            {
-                return TypeNameFullyQualified;
-            }
-            return TypeNameFullyQualified.Substring(0, index);
-        }
     }
 }
 

@@ -47,6 +47,8 @@ using My.Tako.Yaki;
 // System.Collections.Immutable.ImmutableArray
 
 
+
+
 var mc = new MyCollection<int>();
 mc.Add(1);
 
