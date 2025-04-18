@@ -466,12 +466,6 @@ namespace {{extension.NamespaceName}}
 """);
         }
 
-        if (extension.AdditionalUsingNamespaces != null && extension.AdditionalUsingNamespaces.Length > 0)
-        {
-            var usings = string.Join(Environment.NewLine, extension.AdditionalUsingNamespaces.Select(x => $"using {x};").Concat(["using ZLinq.Linq;"]));
-            sb.Replace("using ZLinq.Linq;", usings);
-        }
-
         // replace accessibility
         sb.Replace("internal static partial class", $"{extension.Accessibility.ToString().ToLower().Replace("and", " ").Replace("or", " ").Replace("friend", "internal")} static partial class");
 
@@ -515,11 +509,10 @@ record class DropInExtension(
     bool IsElementValueType,
     string ElementConstraint,
     Accessibility Accessibility,
-    string[]? AdditionalUsingNamespaces = null,
     Diagnostic? Error = null)
 {
     public DropInExtension(Diagnostic error)
-        : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
+        : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, error)
     {
     }
 }
