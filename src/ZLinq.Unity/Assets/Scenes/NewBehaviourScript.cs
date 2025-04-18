@@ -9,11 +9,34 @@ using UnityEngine;
 using ZLinq;
 using ZLinq.Linq;
 
+[assembly: ZLinqDropInAttribute("ZLinq", ZLinq.DropInGenerateTypes.Collection)]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyCollection`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyList`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1", "ZLinq.Linq.FromNativeArray`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1+ReadOnly", "ZLinq.Linq.FromNativeArray`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeSlice`1", "ZLinq.Linq.FromNativeSlice`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeList`1", "ZLinq.Linq.FromNativeList`1")]
-[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeHashSet`1", "ZLinq.Linq.FromNativeHashSet`1")]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 public class NewBehaviourScript : MonoBehaviour
 {

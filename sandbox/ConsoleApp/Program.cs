@@ -32,7 +32,12 @@ using My.Tako.Yaki;
 //byte.MaxValue
 // 2147483647
 
-[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
+[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
+
+
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyCollection`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyList`1")]
+
 
 
 [assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1", "My.Tako.Yaki.FromMyCollection`1")]
@@ -47,6 +52,8 @@ using My.Tako.Yaki;
 // System.Collections.Immutable.ImmutableArray
 
 
+IReadOnlyCollection<int> xs = new[] { 1, 2, 3, 4, 5 };
+xs.Select(x => x * x);
 
 
 var mc = new MyCollection<int>();
