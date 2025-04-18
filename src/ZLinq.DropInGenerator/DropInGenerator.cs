@@ -1,4 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -49,13 +50,12 @@ public class DropInGenerator : IIncrementalGenerator
             (_, _) => true, // Class or Struct
             (x, _) =>
             {
-                //x.SemanticModel.GetSymbolInfo(
                 string? elementName = null;
                 string? valueEnumeratorName = null;
                 bool isElementGenericType = false;
-                bool isValueEnumerable = false;
                 bool isValueType = false;
-                if (x.TargetSymbol is INamedTypeSymbol namedTypeSymbol)
+                var namedTypeSymbol = x.TargetSymbol as INamedTypeSymbol;
+                if (namedTypeSymbol != null)
                 {
                     isElementGenericType = namedTypeSymbol.IsGenericType;
 
@@ -68,7 +68,6 @@ public class DropInGenerator : IIncrementalGenerator
                             elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                             isValueType = typeArg.IsValueType;
                             valueEnumeratorName = item.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-                            isValueEnumerable = true;
                             break;
                         }
                         else if (item.MetadataName is "IEnumerable`1")
@@ -78,30 +77,146 @@ public class DropInGenerator : IIncrementalGenerator
                             isValueType = typeArg.IsValueType;
                         }
                     }
-
-                    if (elementName != null && isElementGenericType)
-                    {
-                        if (namedTypeSymbol.TypeArguments.Length != 1)
-                        {
-                            var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
-                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
-                            return new DropInExtension(diagnostic);
-                        }
-                    }
                 }
 
-                if (elementName == null)
+                if (namedTypeSymbol == null || elementName == null)
                 {
                     var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
                     var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ExtensionNotSupported, location);
                     return new DropInExtension(diagnostic);
                 }
 
+                if (isElementGenericType)
+                {
+                    if (namedTypeSymbol.TypeArguments.Length >= 2)
+                    {
+                        var location = x.Attributes[0].ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
+                        return new DropInExtension(diagnostic);
+                    }
+                }
 
-                return new DropInExtension(x.TargetSymbol.ContainingNamespace.Name, x.TargetSymbol.Name, x.TargetSymbol.ToString(), isValueEnumerable, valueEnumeratorName, elementName, isElementGenericType, isValueType, x.TargetSymbol.DeclaredAccessibility);
+                var fullyQualified = x.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                var fullNamespae = x.TargetSymbol.ContainingNamespace.IsGlobalNamespace ? "" : x.TargetSymbol.ContainingNamespace.ToDisplayString();
+                string constraint = namedTypeSymbol.FormatGenericConstraints();
+                return new DropInExtension(fullNamespae, x.TargetSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
             });
 
         context.RegisterSourceOutput(extension, EmitDropInExtension);
+
+        // Extension per type from assembly
+
+        var externalExtensions = context.CompilationProvider.SelectMany((compilation, token) =>
+        {
+            var list = new List<DropInExtension>();
+            foreach (var attr in compilation.Assembly.GetAttributes())
+            {
+                if (attr.AttributeClass?.Name is "ZLinqDropInExternalExtension" or "ZLinqDropInExternalExtensionAttribute")
+                {
+                    var ctor = attr.ConstructorArguments;
+                    if (ctor.Length == 0) continue;
+
+                    // parse from attr
+                    var generateNamespace = (string)ctor[0].Value!;
+                    var sourceTypeFullyQualifiedMetadataName = (string)ctor[1].Value!;
+                    var enumeratorTypeFullyQualifiedMetadataName = (string?)ctor[2].Value!;
+
+                    var args = attr.NamedArguments;
+                    var generateAsPublic = args.FirstOrDefault(x => x.Key == "GenerateAsPublic").Value.Value as bool? ?? false;
+
+                    // construct from compilation info
+
+                    var namedTypeSymbol = compilation.GetTypeByMetadataName(sourceTypeFullyQualifiedMetadataName);
+
+                    if (namedTypeSymbol == null)
+                    {
+                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SourceTypeNotFound, attr.GetConstructorParameterLocation(1), sourceTypeFullyQualifiedMetadataName);
+                        list.Add(new DropInExtension(diagnostic));
+                        continue;
+                    }
+
+                    string? elementName = null;
+                    string? valueEnumeratorName = null;
+                    bool isElementGenericType = namedTypeSymbol.IsGenericType;
+                    bool isValueType = false;
+
+                    if (enumeratorTypeFullyQualifiedMetadataName == null)
+                    {
+                        // try to get IEnumerable<T>
+                        foreach (var item in namedTypeSymbol.AllInterfaces)
+                        {
+                            if (item.MetadataName is "IEnumerable`1")
+                            {
+                                var typeArg = item.TypeArguments[0];
+                                elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                isValueType = typeArg.IsValueType;
+                            }
+                        }
+
+                        if (elementName == null)
+                        {
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ElementNotFoundInSourceType, attr.GetConstructorParameterLocation(1), sourceTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        // try to get value-enumerator
+                        var enumeratorTypeSymbol = compilation.GetTypeByMetadataName(enumeratorTypeFullyQualifiedMetadataName);
+                        if (enumeratorTypeSymbol == null)
+                        {
+                            var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.EnumeratorTypeNotFound, attr.GetConstructorParameterLocation(2), enumeratorTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
+
+                        foreach (var item in enumeratorTypeSymbol.AllInterfaces)
+                        {
+                            if (item.MetadataName is "IValueEnumerator`1")
+                            {
+                                // 0 = TEnumerator, 1 = TSource
+                                var typeArg = item.TypeArguments[0];
+                                elementName = typeArg.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                isValueType = typeArg.IsValueType;
+                                valueEnumeratorName = enumeratorTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                                break;
+                            }
+                        }
+
+                        if (elementName == null)
+                        {
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ElementNotFoundInEnumeratorType, attr.GetConstructorParameterLocation(2), enumeratorTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
+                    }
+
+                    if (isElementGenericType)
+                    {
+                        if (namedTypeSymbol.TypeArguments.Length >= 2)
+                        {
+                            var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.GenericTypeArgumentTooMuch, location);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
+                    }
+
+                    var fullyQualified = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+                    var accessibility = generateAsPublic ? Accessibility.Public : Accessibility.Internal;
+
+                    string constraint = namedTypeSymbol.FormatGenericConstraints();
+                    var extension = new DropInExtension(generateNamespace, namedTypeSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, accessibility);
+                    list.Add(extension);
+                }
+            }
+
+            return list;
+        });
+
+        context.RegisterSourceOutput(externalExtensions, EmitDropInExtension);
     }
 
     void EmitSourceOutput(SourceProductionContext context, ZLinqDropInAttribute? attribute)
@@ -184,8 +299,9 @@ namespace {{attribute.GenerateNamespace}}
         }
     }
 
-    void EmitDropInExtension(SourceProductionContext context, DropInExtension extension)
+    void EmitDropInExtension(SourceProductionContext context, DropInExtension? extension)
     {
+        if (extension == null) return;
         if (extension.Error != null)
         {
             context.ReportDiagnostic(extension.Error);
@@ -194,6 +310,23 @@ namespace {{attribute.GenerateNamespace}}
 
         var sb = new StringBuilder();
         sb.AppendLine("#define ENABLE_EXTENSION");
+        if (extension.IsElementGenericType)
+        {
+            if (extension.ElementConstraint is "")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+                sb.AppendLine("#define ENABLE_NULLABLE_SUM_AVERAGE");
+                sb.AppendLine("#define ENABLE_TKEY_TVALUE_TODICTIONARY");
+            }
+            else if (extension.ElementConstraint == $"where {extension.ElementName} : struct")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+            }
+            else if (extension.ElementConstraint == $"where {extension.ElementName} : unmanaged")
+            {
+                sb.AppendLine("#define ENABLE_SUM_AVERAGE");
+            }
+        }
 
         var thisAsm = typeof(DropInGenerator).Assembly;
         using (var stream = thisAsm.GetManifestResourceStream("ZLinq.DropInGenerator.ResourceCodes.ForExtension.cs"))
@@ -203,11 +336,23 @@ namespace {{attribute.GenerateNamespace}}
 
             var element = extension.ElementName;
 
-            // Repleace this TSource[] ...=> this CustomType
-            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameToString); // ToString shows <T> if type is generics
-            if (extension.IsValueEnumerable)
+            // fix first for sum and average, todictionary
+            if (extension.IsElementGenericType)
             {
-                code = Regex.Replace(code, "FromArray<[^>]+>", $"FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>");
+                code = code.Replace("Single[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Single>"));
+                code = code.Replace("Nullable<Single>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Single?>"));
+                code = code.Replace("Decimal[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Decimal>"));
+                code = code.Replace("Nullable<Decimal>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<Decimal?>"));
+                code = code.Replace("Nullable<TSource>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<TSource?>"));
+                code = code.Replace("KeyValuePair<TKey, TValue>[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<KeyValuePair<TKey, TValue>>"));
+                code = code.Replace("(TKey Key, TValue Value)[]", extension.TypeNameFullyQualified.Replace($"<{element}>", "<(TKey Key, TValue Value)>"));
+            }
+
+            // Repleace this TSource[] ...=> this CustomType
+            code = Regex.Replace(code, "this .+\\[\\]", x => "this " + extension.TypeNameFullyQualified); // ToString shows <T> if type is generics
+            if (extension.ValueEnumeratorName != null)
+            {
+                code = Regex.Replace(code, "FromArray<[^>]+>", $"{extension.ValueEnumeratorName}");
             }
             else
             {
@@ -228,7 +373,7 @@ namespace {{attribute.GenerateNamespace}}
                 code = code.Replace("<TEnumerator2, TSource>", "<TEnumerator2>");
                 code = code.Replace("<TEnumerator2, TOuter, ", "<TEnumerator2, ");
                 code = code.Replace("Func<TOuter, TInner", $"Func<{element}, TInner");
-                code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
+                code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner"); // for RightJoin
                 code = code.Replace("<TOuter, TInner", "<TInner");
                 code = code.Replace("TOuter, ", $"{element}, ");
                 code = code.Replace("<TEnumerator2, TFirst", "<TEnumerator2");
@@ -256,6 +401,12 @@ namespace {{attribute.GenerateNamespace}}
             }
             else
             {
+                // for RightJoin, remove ? annotation where T:struct
+                if (extension.ElementConstraint.Contains(": struct") || extension.ElementConstraint.Contains(": unmanaged"))
+                {
+                    code = code.Replace("Func<TOuter?, TInner", $"Func<{element}{(extension.IsElementValueType ? "" : "?")}, TInner");
+                }
+
                 code = code.Replace("TOuter", element);
                 code = code.Replace("TFirst", element);
             }
@@ -264,9 +415,9 @@ namespace {{attribute.GenerateNamespace}}
             code = Regex.Replace(code, "TSource", extension.ElementName);
             if (!extension.IsElementGenericType)
             {
-                if (extension.IsValueEnumerable)
+                if (extension.ValueEnumeratorName != null)
                 {
-                    code = code.Replace("WhereArray", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
+                    code = code.Replace("WhereArray", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
                 else
                 {
@@ -275,13 +426,30 @@ namespace {{attribute.GenerateNamespace}}
             }
             else
             {
-                if (extension.IsValueEnumerable)
+                if (extension.ValueEnumeratorName != null)
                 {
-                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromValueEnumerable<{extension.ValueEnumeratorName}, {element}>, {element}>");
+                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<{extension.ValueEnumeratorName}, {element}>");
                 }
                 else
                 {
                     code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromEnumerable<{element}>, {element}>");
+                }
+            }
+
+            // finally remove constraint
+            if (extension.ElementConstraint != "")
+            {
+                code = code.Replace("=>", $"{extension.ElementConstraint} =>");
+                // fix more
+                code = code.Replace($"<Single> source) {extension.ElementConstraint}", "<Single> source)");
+                code = code.Replace($"<Decimal> source) {extension.ElementConstraint}", "<Decimal> source)");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().Average();", " => source.AsValueEnumerable().Average();");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().Sum();", " => source.AsValueEnumerable().Sum();");
+                code = code.Replace($"{extension.ElementConstraint} => source.AsValueEnumerable().SumUnchecked();", " => source.AsValueEnumerable().SumUnchecked();");
+
+                if (extension.ElementConstraint.Contains(": unmanaged"))
+                {
+                    code = code.Replace($"where {element} : struct", $"where {element} : unmanaged");
                 }
             }
 
@@ -298,6 +466,12 @@ namespace {{extension.NamespaceName}}
 """);
         }
 
+        if (extension.AdditionalUsingNamespaces != null && extension.AdditionalUsingNamespaces.Length > 0)
+        {
+            var usings = string.Join(Environment.NewLine, extension.AdditionalUsingNamespaces.Select(x => $"using {x};").Concat(["using ZLinq.Linq;"]));
+            sb.Replace("using ZLinq.Linq;", usings);
+        }
+
         // replace accessibility
         sb.Replace("internal static partial class", $"{extension.Accessibility.ToString().ToLower().Replace("and", " ").Replace("or", " ").Replace("friend", "internal")} static partial class");
 
@@ -310,7 +484,7 @@ namespace {{extension.NamespaceName}}
             sb.AppendLine("}");
         }
 
-        var fullType = extension.NamespaceName == "" ? extension.TypeName : (extension.NamespaceName + "." + extension.TypeName);
+        var fullType = extension.TypeNameFullyQualified.Replace("global::", "").Replace("<", "_").Replace(">", "_").Replace("+", "_").Replace(" ", "_");
         var hintName = "ZLinq.DropIn." + fullType + "Extensions.g.cs";
         context.AddSource(hintName, sb.ToString().ReplaceLineEndings());
     }
@@ -334,77 +508,18 @@ namespace {{extension.NamespaceName}}
 record class DropInExtension(
     string NamespaceName,
     string TypeName,
-    string TypeNameToString, // with generics
-    bool IsValueEnumerable,
+    string TypeNameFullyQualified, // with generics
     string? ValueEnumeratorName,
     string? ElementName,
     bool IsElementGenericType,
     bool IsElementValueType,
+    string ElementConstraint,
     Accessibility Accessibility,
+    string[]? AdditionalUsingNamespaces = null,
     Diagnostic? Error = null)
 {
-
     public DropInExtension(Diagnostic error)
-        : this(null!, null!, null!, false, null, null, false, false, Accessibility.Public, error)
+        : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
     {
-    }
-}
-
-internal static class DiagnosticDescriptors
-{
-    const string Category = "ZLinqDropInGenerator";
-
-    public static void ReportDiagnostic(this SourceProductionContext context, DiagnosticDescriptor diagnosticDescriptor, Location location, params object?[]? messageArgs)
-    {
-        var diagnostic = Diagnostic.Create(diagnosticDescriptor, location, messageArgs);
-        context.ReportDiagnostic(diagnostic);
-    }
-
-    public static DiagnosticDescriptor Create(int id, string message)
-    {
-        return Create(id, message, message);
-    }
-
-    public static DiagnosticDescriptor Create(int id, string title, string messageFormat)
-    {
-        return new DiagnosticDescriptor(
-            id: "ZL" + id.ToString("000"),
-            title: title,
-            messageFormat: messageFormat,
-            category: Category,
-            defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
-    }
-
-    public static DiagnosticDescriptor AttributeNotFound { get; } = Create(
-        1,
-        "ZLinqDropIn AssemblyAttribute is not found, you need to add like [assembly: ZLinq.ZLinqDropInAttribute(\"ZLinq.DropIn\", ZLinq.DropInGenerateTypes.Array)].");
-
-    public static DiagnosticDescriptor ExtensionNotSupported { get; } = Create(
-        2,
-        "ZLinqDropInExtension requires implementation of IEnumerable<T> or IValueEnumerable<T, TEnumerator>.");
-
-    public static DiagnosticDescriptor GenericTypeArgumentTooMuch { get; } = Create(
-        3,
-        "ZLinqDropInExtension requires zero or one generic type argument.");
-}
-
-internal static class StringExtensions
-{
-    public static string ReplaceLineEndings(this string input)
-    {
-#pragma warning disable RS1035
-        return ReplaceLineEndings(input, Environment.NewLine);
-#pragma warning restore RS1035
-    }
-
-    public static string ReplaceLineEndings(this string text, string replacementText)
-    {
-        text = text.Replace("\r\n", "\n");
-
-        if (replacementText != "\n")
-            text = text.Replace("\n", replacementText);
-
-        return text;
     }
 }

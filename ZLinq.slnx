@@ -11,7 +11,6 @@
     <Project Path="src/ZLinq.FileSystem/ZLinq.FileSystem.csproj" />
     <Project Path="src/ZLinq.Godot/ZLinq.Godot.csproj" />
     <Project Path="src/ZLinq.Json/ZLinq.Json.csproj" />
-    <Project Path="src/ZLinq.__Unity/ZLinq.__Unity.csproj" />
     <Project Path="src/ZLinq/ZLinq.csproj" />
   </Folder>
   <Folder Name="/tests/">

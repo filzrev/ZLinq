@@ -4,8 +4,6 @@ using System.Text;
 
 namespace ZLinq;
 
-// This struct is wrapper for enumerator(enumerable) to improve type inference in C# compiler.
-// C# constraint inference issue: https://github.com/dotnet/csharplang/discussions/6930
 [StructLayout(LayoutKind.Auto)]
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 [DebuggerTypeProxy(typeof(ValueEnumerableDebugView<,>))]
@@ -116,24 +114,11 @@ public static partial class ValueEnumerableExtensions // keep `public static` pa
 public interface IValueEnumerable<TEnumerator, T>
     where TEnumerator : struct, IValueEnumerator<T>
 {
-    ValueEnumerable<FromValueEnumerable<TEnumerator, T>, T> AsValueEnumerable();
-}
-
-[StructLayout(LayoutKind.Auto)]
-public struct FromValueEnumerable<TEnumerator, T>(TEnumerator enumerator) : IValueEnumerator<T>
-    where TEnumerator : IValueEnumerator<T>
-{
-    TEnumerator enumerator = enumerator;
-
-    public bool TryGetNonEnumeratedCount(out int count) => enumerator.TryGetNonEnumeratedCount(out count);
-
-    public bool TryGetSpan(out ReadOnlySpan<T> span) => enumerator.TryGetSpan(out span);
-
-    public bool TryCopyTo(Span<T> destination, Index offset) => enumerator.TryCopyTo(destination, offset);
-
-    public bool TryGetNext(out T current) => enumerator.TryGetNext(out current);
-
-    public void Dispose() => enumerator.Dispose();
+    // GetValueEnumerator + extension method AsValueEnumerable causes issues
+    // with type inference, or conflicts with IEnumerable<T>'s AsValueEnumerable.
+    // Since there's no compiler support for foreach,
+    // it's more logical to include AsValueEnumerable in the interface.
+    ValueEnumerable<TEnumerator, T> AsValueEnumerable();
 }
 
 internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for assembly size

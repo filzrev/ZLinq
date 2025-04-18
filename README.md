@@ -158,19 +158,13 @@ It works by using a Source Generator to add extension methods for each type that
 After installing the package, you need to configure it with an assembly attribute.
 
 ```csharp
-[assembly: ZLinq.ZLinqDropInAttribute("ZLinq.DropIn", ZLinq.DropInGenerateTypes.Array)]
+[assembly: ZLinq.ZLinqDropInAttribute("ZLinq", ZLinq.DropInGenerateTypes.Array)]
 ```
 
 `generateNamespace` is the namespace for the generated code, and `DropInGenerateTypes` selects the target types. 
 `DropInGenerateTypes` allows you to choose from `Array`, `Span` (Span/ReadOnlySpan), `Memory` (Memory/ReadOnlyMemory), `List`, and `Enumerable` (IEnumerable). 
 These are Flags, so you can combine them, such as `DropInGenerateTypes.Array | DropInGenerateTypes.Span`. 
 There are also predefined combinations: `Collection = Array | Span | Memory | List` and `Everything = Array | Span | Memory | List | Enumerable`.
-
-You can enable it for all files by global using the generated namespace:
-
-```csharp
-global using ZLinq.DropIn;
-```
 
 When using `DropInGenerateTypes.Enumerable`, which generates extension methods for `IEnumerable<T>`, you need to make `generateNamespace` global as a namespace priority. 
 For example:
@@ -277,7 +271,23 @@ public sealed class ZLinqDropInAttribute : Attribute
 }
 ```
 
-To use `[ZLinqDropInExtension]` for custom collection types that support DropIn, you can follow these approach:
+To support DropIn types other than `DropInGenerateTypes`, you can use `ZLinqDropInExternalExtensionAttribute`. This attribute allows you to generate DropIn for any type by specifying its fully qualified name. For example, to add support for `IReadOnlyCollection<T>` and `IReadOnlyList<T>`, write:
+
+```csharp
+// T must be written as `1 (metadata-name). For nested types, connect with +
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyCollection`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyList`1")]
+```
+
+For types that support `IValueEnumerator<T>` through `AsValueEnumerable()`, specify the ValueEnumerator type name as the second argument. For example, with `ImmutableArray<T>`:
+
+```csharp
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
+```
+
+This allows all operators to be processed by ZLinq using an optimized type.
+
+If you want to make your custom collection types DropIn compatible, you can embed them in your assembly using `[ZLinqDropInExtension]`.
 
 ```csharp
 [ZLinqDropInExtension]
@@ -704,6 +714,15 @@ using ZLinq;
 ```
 
 For more details about DropInGenerator, please refer to the [Drop-in replacement](#drop-in-replacement) section.
+
+To support Native Collections in addition to regular DropIn types, you can use `ZLinqDropInExternalExtension` as follows:
+
+```csharp
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1", "ZLinq.Linq.FromNativeArray`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1+ReadOnly", "ZLinq.Linq.FromNativeArray`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeSlice`1", "ZLinq.Linq.FromNativeSlice`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeList`1", "ZLinq.Linq.FromNativeList`1")]
+```
 
 This is not just about Unity, but using `AsValueEnumerable()` even if only for foreach on `IEnumerable<T>` can sometimes reduce allocations. If the actual implementation of `IEnumerable<T>` is a `T[]` or `List<T>`, ZLinq will process it appropriately without allocations.
 

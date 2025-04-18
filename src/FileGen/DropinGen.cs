@@ -105,14 +105,6 @@ internal static partial class ZLinqDropInExtensions
             return null; // CopyTo is exists in MemoryExtensions.CopyTo(this T[]) so avoid conflicts
         }
 
-        if (dropInType.Name == "ForExtension")
-        {
-            // Average and Sum is not supported
-            if (methodInfo.Name is "Sum" or "SumUnchecked" or "Average") return null;
-            // ToDictionary no args is not supported
-            if (methodInfo.Name is "ToDictionary" && methodInfo.GetGenericArguments().Any(x => x.Name == "TValue")) return null;
-        }
-
         // ignore some optimize chain
 
         if (methodInfo.Name is "Where" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("SelectWhere") || x.Name.Contains("WhereArray")))
@@ -209,6 +201,41 @@ internal static partial class ZLinqDropInExtensions
 #endif
 """;
         }
+
+        if (dropInType.Name == "ForExtension")
+        {
+            // ToDictionary no args is not supported
+            if (methodInfo.Name is "ToDictionary" && methodInfo.GetGenericArguments().Any(x => x.Name == "TValue"))
+            {
+                signature = $$"""
+#if ENABLE_TKEY_TVALUE_TODICTIONARY
+{{signature}}
+#endif
+""";
+            }
+
+            // Average and Sum support is restricted
+            if (methodInfo.Name is "Sum" or "SumUnchecked" or "Average" && !methodInfo.GetParameters().Any(x => x.ParameterType.Name.Contains("Func")))
+            {
+                if (methodInfo.ReturnType.Name.Contains("Nullable"))
+                {
+                    signature = $$"""
+#if ENABLE_NULLABLE_SUM_AVERAGE
+{{signature}}
+#endif
+""";
+                }
+                else
+                {
+                    signature = $$"""
+#if ENABLE_SUM_AVERAGE
+{{signature}}
+#endif
+""";
+                }
+            }
+        }
+
 
         return signature;
     }

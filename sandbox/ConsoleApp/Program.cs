@@ -19,6 +19,8 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System;
 using System.Runtime.CompilerServices;
+using System.Collections.ObjectModel;
+using My.Tako.Yaki;
 // using MyApp;
 
 //Span<int> xs = stackalloc int[255];
@@ -30,17 +32,46 @@ using System.Runtime.CompilerServices;
 //byte.MaxValue
 // 2147483647
 
-[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = false)]
+[assembly: ZLinq.ZLinqDropInAttribute("MyApp", ZLinq.DropInGenerateTypes.Everything, DisableEmitSource = true)]
+
+
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyCollection`1")]
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyList`1")]
+
+
+
+[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1", "My.Tako.Yaki.FromMyCollection`1")]
+
+[assembly: ZLinq.ZLinqDropInExternalExtension("My.Tako.Yaki", "My.Tako.Yaki.MyCollection`1+Child")]
+
+
+// generateNamespace, sourceTypeFullyQualifiedMetadataName, enumeratorTypeFullyQualifiedMetadataName
+[assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
+
+
+// System.Collections.Immutable.ImmutableArray
+
+
+IReadOnlyCollection<int> xs = new[] { 1, 2, 3, 4, 5 };
+xs.Select(x => x * x);
+
+
+var mc = new MyCollection<int>();
+mc.Add(1);
+
+var foobarbaz = mc.Select(x => x);
+
 
 var list = new AddOnlyIntList2();
 list.Add(10);
 list.Add(20);
 list.Add(30);
 
-foreach (var item in list.Select(x => x * 100))
-{
-    Console.WriteLine(item);
-}
+//foreach (var item in list.Select(x => x * 100))
+//{
+//    Console.WriteLine(item);
+//}
+return;
 
 Span<int> foo = [1, 2, 3, 4, 5];
 
@@ -199,7 +230,7 @@ class B : A;
 [ZLinqDropInExtension]
 public class MyList<T> : IEnumerable<T>, IValueEnumerable<MyList<T>.ValueEnumerator, T>
 {
-    public ValueEnumerable<FromValueEnumerable<ValueEnumerator, T>, T> AsValueEnumerable()
+    public ValueEnumerable<ValueEnumerator, T> AsValueEnumerable()
     {
         throw new NotImplementedException();
     }
@@ -304,7 +335,7 @@ public class AddOnlyIntList2 : IValueEnumerable<AddOnlyIntList2.Enumerator, int>
 
     public void Add(int x) => list.Add(x);
 
-    public ValueEnumerable<FromValueEnumerable<Enumerator, int>, int> AsValueEnumerable()
+    public ValueEnumerable<Enumerator, int> AsValueEnumerable()
     {
         // you need to write new(new(new())) magic.
         return new(new(new(list)));
@@ -400,4 +431,73 @@ namespace ZLinq
     {
 
     }
+}
+
+namespace My.Tako.Yaki
+{
+    public class MyCollection<T> : Collection<T>
+        where T : struct
+    {
+
+        public class Child : IEnumerable<T>
+        {
+            public IEnumerator<T> GetEnumerator()
+            {
+                throw new NotImplementedException();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+        }
+    }
+
+    public static class MyCollectionExtensions
+    {
+        public static ValueEnumerable<FromMyCollection<T>, T> AsValueEnumerable<T>(this MyCollection<T> source)
+            where T : struct
+        {
+            return new(new(source));
+        }
+    }
+
+    public struct FromMyCollection<T> : IValueEnumerator<T>
+        where T : struct
+    {
+        private readonly MyCollection<T> source;
+        private int index;
+        public FromMyCollection(MyCollection<T> source)
+        {
+            this.source = source;
+            index = -1;
+        }
+        public bool TryGetNext(out T current)
+        {
+            if (++index < source.Count)
+            {
+                current = source[index];
+                return true;
+            }
+            current = default;
+            return false;
+        }
+        public void Dispose() { }
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }
