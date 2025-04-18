@@ -1,7 +1,5 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
-using System.Collections.Immutable;
-using System.Data;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -100,7 +98,7 @@ public class DropInGenerator : IIncrementalGenerator
 
                 var fullyQualified = x.TargetSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                 var fullNamespae = x.TargetSymbol.ContainingNamespace.IsGlobalNamespace ? "" : x.TargetSymbol.ContainingNamespace.ToDisplayString();
-                string constraint = FormatGenericConstraints(namedTypeSymbol);
+                string constraint = namedTypeSymbol.FormatGenericConstraints();
                 return new DropInExtension(fullNamespae, x.TargetSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, x.TargetSymbol.DeclaredAccessibility);
             });
 
@@ -132,7 +130,8 @@ public class DropInGenerator : IIncrementalGenerator
 
                     if (namedTypeSymbol == null)
                     {
-                        // TODO: diagnostics
+                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.SourceTypeNotFound, attr.GetConstructorParameterLocation(1), sourceTypeFullyQualifiedMetadataName);
+                        list.Add(new DropInExtension(diagnostic));
                         continue;
                     }
 
@@ -153,6 +152,13 @@ public class DropInGenerator : IIncrementalGenerator
                                 isValueType = typeArg.IsValueType;
                             }
                         }
+
+                        if (elementName == null)
+                        {
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ElementNotFoundInSourceType, attr.GetConstructorParameterLocation(1), sourceTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
                     }
                     else
                     {
@@ -160,7 +166,9 @@ public class DropInGenerator : IIncrementalGenerator
                         var enumeratorTypeSymbol = compilation.GetTypeByMetadataName(enumeratorTypeFullyQualifiedMetadataName);
                         if (enumeratorTypeSymbol == null)
                         {
-                            // TODO: diagnostics
+                            var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.EnumeratorTypeNotFound, attr.GetConstructorParameterLocation(2), enumeratorTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
                             continue;
                         }
 
@@ -176,14 +184,13 @@ public class DropInGenerator : IIncrementalGenerator
                                 break;
                             }
                         }
-                    }
 
-                    if (elementName == null)
-                    {
-                        var location = attr.ApplicationSyntaxReference?.GetSyntax()?.GetLocation();
-                        var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ExtensionNotSupported, location); // TODO: other diagnostics
-                        list.Add(new DropInExtension(diagnostic));
-                        continue;
+                        if (elementName == null)
+                        {
+                            var diagnostic = Diagnostic.Create(DiagnosticDescriptors.ElementNotFoundInEnumeratorType, attr.GetConstructorParameterLocation(2), enumeratorTypeFullyQualifiedMetadataName);
+                            list.Add(new DropInExtension(diagnostic));
+                            continue;
+                        }
                     }
 
                     if (isElementGenericType)
@@ -200,7 +207,7 @@ public class DropInGenerator : IIncrementalGenerator
                     var fullyQualified = namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     var accessibility = generateAsPublic ? Accessibility.Public : Accessibility.Internal;
 
-                    string constraint = FormatGenericConstraints(namedTypeSymbol);
+                    string constraint = namedTypeSymbol.FormatGenericConstraints();
                     var extension = new DropInExtension(generateNamespace, namedTypeSymbol.Name, fullyQualified, valueEnumeratorName, elementName, isElementGenericType, isValueType, constraint, accessibility);
                     list.Add(extension);
                 }
@@ -496,80 +503,6 @@ namespace {{extension.NamespaceName}}
             default: return DropInGenerateTypes.None;
         }
     }
-
-    static string FormatGenericConstraints(INamedTypeSymbol namedType)
-    {
-        if (!namedType.IsGenericType)
-        {
-            return "";
-        }
-
-        if (namedType.TypeParameters.Length == 0) // nested type, get to root
-        {
-            do
-            {
-                namedType = namedType.ContainingType;
-            } while (namedType != null && namedType.TypeParameters.Length == 0);
-        }
-
-        if (namedType == null) return "";
-
-        var builder = new StringBuilder();
-
-        foreach (var typeParameter in namedType.TypeParameters)
-        {
-            if (!HasAnyConstraints(typeParameter))
-            {
-                continue;
-            }
-
-            builder.Append($"where {typeParameter.Name} : ");
-
-            var constraints = new List<string>();
-
-            if (typeParameter.HasReferenceTypeConstraint)
-            {
-                constraints.Add("class");
-            }
-            else if (typeParameter.HasUnmanagedTypeConstraint)
-            {
-                constraints.Add("unmanaged");
-            }
-            else if (typeParameter.HasValueTypeConstraint)
-            {
-                constraints.Add("struct");
-            }
-
-            foreach (var constraintType in typeParameter.ConstraintTypes)
-            {
-                constraints.Add(constraintType.ToDisplayString());
-            }
-
-            if (typeParameter.HasNotNullConstraint)
-            {
-                constraints.Add("notnull");
-            }
-
-            if (typeParameter.HasConstructorConstraint)
-            {
-                constraints.Add("new()");
-            }
-
-            builder.Append(string.Join(", ", constraints));
-        }
-
-        return builder.ToString();
-    }
-
-    private static bool HasAnyConstraints(ITypeParameterSymbol typeParameter)
-    {
-        return typeParameter.HasReferenceTypeConstraint ||
-               typeParameter.HasValueTypeConstraint ||
-               typeParameter.HasNotNullConstraint ||
-               typeParameter.HasConstructorConstraint ||
-               typeParameter.HasUnmanagedTypeConstraint ||
-               typeParameter.ConstraintTypes.Any();
-    }
 }
 
 record class DropInExtension(
@@ -588,64 +521,5 @@ record class DropInExtension(
     public DropInExtension(Diagnostic error)
         : this(null!, null!, null!, null, null, false, false, null!, Accessibility.Public, null, error)
     {
-    }
-}
-
-internal static class DiagnosticDescriptors
-{
-    const string Category = "ZLinqDropInGenerator";
-
-    public static void ReportDiagnostic(this SourceProductionContext context, DiagnosticDescriptor diagnosticDescriptor, Location location, params object?[]? messageArgs)
-    {
-        var diagnostic = Diagnostic.Create(diagnosticDescriptor, location, messageArgs);
-        context.ReportDiagnostic(diagnostic);
-    }
-
-    public static DiagnosticDescriptor Create(int id, string message)
-    {
-        return Create(id, message, message);
-    }
-
-    public static DiagnosticDescriptor Create(int id, string title, string messageFormat)
-    {
-        return new DiagnosticDescriptor(
-            id: "ZL" + id.ToString("000"),
-            title: title,
-            messageFormat: messageFormat,
-            category: Category,
-            defaultSeverity: DiagnosticSeverity.Error,
-            isEnabledByDefault: true);
-    }
-
-    public static DiagnosticDescriptor AttributeNotFound { get; } = Create(
-        1,
-        "ZLinqDropIn AssemblyAttribute is not found, you need to add like [assembly: ZLinq.ZLinqDropInAttribute(\"ZLinq.DropIn\", ZLinq.DropInGenerateTypes.Array)].");
-
-    public static DiagnosticDescriptor ExtensionNotSupported { get; } = Create(
-        2,
-        "ZLinqDropInExtension requires implementation of IEnumerable<T> or IValueEnumerable<T, TEnumerator>.");
-
-    public static DiagnosticDescriptor GenericTypeArgumentTooMuch { get; } = Create(
-        3,
-        "ZLinqDropInExtension requires zero or one generic type argument.");
-}
-
-internal static class StringExtensions
-{
-    public static string ReplaceLineEndings(this string input)
-    {
-#pragma warning disable RS1035
-        return ReplaceLineEndings(input, Environment.NewLine);
-#pragma warning restore RS1035
-    }
-
-    public static string ReplaceLineEndings(this string text, string replacementText)
-    {
-        text = text.Replace("\r\n", "\n");
-
-        if (replacementText != "\n")
-            text = text.Replace("\n", replacementText);
-
-        return text;
     }
 }
