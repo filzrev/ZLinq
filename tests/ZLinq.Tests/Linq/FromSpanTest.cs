@@ -24,8 +24,8 @@ public class FromSpanTest
     {
         ReadOnlySpan<int> source = [1, 2, 3, 4, 5];
         var valueEnumerable = source.AsValueEnumerable();
-
-        valueEnumerable.TryGetSpan(out var span).ShouldBeTrue();
+        using var e = valueEnumerable.Enumerator;
+        e.TryGetSpan(out var span).ShouldBeTrue();
 
         IsSameSpan(source, span).ShouldBeTrue();
 

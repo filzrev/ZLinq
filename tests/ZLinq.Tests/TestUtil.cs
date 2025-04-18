@@ -49,9 +49,9 @@ public static class TestUtil
 
     public static T[] IterateToArray<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> enumerable)
         where TEnumerator : struct, IValueEnumerator<T>
-    #if NET9_0_OR_GREATER
+#if NET9_0_OR_GREATER
         , allows ref struct
-    #endif
+#endif
     {
         var list = new List<T>();
         using var e = enumerable.Enumerator;
@@ -91,7 +91,16 @@ public static class TestUtil
 #endif
     {
         using var e = enumerable.Enumerator;
-        return e.TryGetSpan(out span);
+        var result = e.TryGetSpan(out var enumeratorSpan);
+        if (result)
+        {
+            span = enumeratorSpan.ToArray(); // after enumerator dispose, sometimes span is return to arraypool.
+        }
+        else
+        {
+            span = default;
+        }
+        return result;
     }
 
     public static bool TryCopyTo<TEnumerator, T>(this ValueEnumerable<TEnumerator, T> enumerable, scoped Span<T> destination, Index offset = default)
