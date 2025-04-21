@@ -348,8 +348,7 @@ namespace ZLinq.Linq
         {
             if (index < source.Length)
             {
-                current = selector(source[index]);
-                index++;
+                current = selector(source[index++]); // must be index++
                 return true;
             }
 
@@ -402,8 +401,7 @@ namespace ZLinq.Linq
         {
             while (index < source.Length)
             {
-                current = selector(source[index]);
-                index++;
+                current = selector(source[index++]);
                 if (predicate(current))
                 {
                     return true;
@@ -462,8 +460,7 @@ namespace ZLinq.Linq
         {
             if (index < source.Count)
             {
-                current = selector(source[index]);
-                index++;
+                current = selector(source[index++]);
                 return true;
             }
 
@@ -517,8 +514,7 @@ namespace ZLinq.Linq
             var span = CollectionsMarshal.AsSpan(source);
             while (index < span.Length)
             {
-                current = selector(span[index]);
-                index++;
+                current = selector(span[index++]);
                 if (predicate(current))
                 {
                     return true;
