@@ -102,14 +102,14 @@ public static partial class Assert
 
     internal static void Equal<T>(
         ValueEnumerable<Take<FromArray<T>, T>, T> expected,
-        ValueEnumerable<WhereArray<T>, T> actual)
+        ValueEnumerable<ArrayWhere<T>, T> actual)
     {
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
 
     internal static void Equal<T>(
         ValueEnumerable<Skip<FromArray<T>, T>, T> expected,
-        ValueEnumerable<WhereArray<T>, T> actual)
+        ValueEnumerable<ArrayWhere<T>, T> actual)
     {
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
@@ -183,6 +183,13 @@ public static partial class Assert
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
 
+    internal static void Equal<T>(
+        ValueEnumerable<ArraySelect<T, T>, T> expected,
+        IEnumerable<T> actual)
+    {
+        Xunit.Assert.Equal(expected.ToArray(), actual);
+    }
+
     #region Append/Prepend
 
     internal static void Equal<T>(
@@ -204,6 +211,13 @@ public static partial class Assert
         ValueEnumerable<Append<Select<TEnumerator, T, T>, T>, T> expected,
         ValueEnumerable<Concat<Select<TEnumerator, T, T>, FromEnumerable<T>, T>, T> actual)
                 where TEnumerator : struct, IValueEnumerator<T>
+    {
+        Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
+    }
+
+    internal static void Equal<T>(
+        ValueEnumerable<Append<ArraySelect<T, T>, T>, T> expected,
+        ValueEnumerable<Concat<ArraySelect<T, T>, FromEnumerable<T>, T>, T> actual)
     {
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
@@ -236,6 +250,14 @@ public static partial class Assert
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
 
+    // ValueEnumerable<Concat<ArraySelect<T, T>, FromEnumerable<T>, T>, T> actual)
+    internal static void Equal<T>(
+        ValueEnumerable<Prepend<ArraySelect<T, T>, T>, T> expected,
+        ValueEnumerable<Concat<FromArray<T>, ArraySelect<T, T>, T>, T> actual)
+    {
+        Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
+    }
+
     internal static void Equal<TEnumerator, T>(
         ValueEnumerable<Prepend<Select<TEnumerator, T, T>, T>, T> expected,
         ValueEnumerable<Prepend<TEnumerator, T>, T> actual)
@@ -243,6 +265,23 @@ public static partial class Assert
     {
         Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
     }
+
+    internal static void Equal<TEnumerator, T>(
+        ValueEnumerable<Prepend<ArraySelect<T, T>, T>, T> expected,
+        ValueEnumerable<Prepend<TEnumerator, T>, T> actual)
+        where TEnumerator : struct, IValueEnumerator<T>
+    {
+        Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
+    }
+
+    internal static void Equal<TEnumerator, T>(
+        ValueEnumerable<Prepend<ListSelect<T, T>, T>, T> expected,
+        ValueEnumerable<Prepend<TEnumerator, T>, T> actual)
+        where TEnumerator : struct, IValueEnumerator<T>
+    {
+        Xunit.Assert.Equal(expected.ToArray(), actual.ToArray());
+    }
+
     #endregion
 
     internal static void Equal<T>(
