@@ -26,10 +26,18 @@ namespace ZLinq
 #endif
             => new(source.Enumerator.Select(Throws.IfNull(selector)));
 
-        public static ValueEnumerable<WhereArray<TSource>, TSource> Where<TSource>(this ValueEnumerable<FromArray<TSource>, TSource> source, Func<TSource, Boolean> predicate)
+        // Optimize variations
+
+        public static ValueEnumerable<ArrayWhere<TSource>, TSource> Where<TSource>(this ValueEnumerable<FromArray<TSource>, TSource> source, Func<TSource, Boolean> predicate)
             => new(new(source.Enumerator, Throws.IfNull(predicate)));
 
-        public static ValueEnumerable<WhereArraySelect<TSource, TResult>, TResult> Select<TSource, TResult>(this ValueEnumerable<WhereArray<TSource>, TSource> source, Func<TSource, TResult> selector)
+        public static ValueEnumerable<ArrayWhereSelect<TSource, TResult>, TResult> Select<TSource, TResult>(this ValueEnumerable<ArrayWhere<TSource>, TSource> source, Func<TSource, TResult> selector)
+            => new(source.Enumerator.Select(Throws.IfNull(selector)));
+
+        public static ValueEnumerable<ListWhere<TSource>, TSource> Where<TSource>(this ValueEnumerable<FromList<TSource>, TSource> source, Func<TSource, Boolean> predicate)
+            => new(new(source.Enumerator, Throws.IfNull(predicate)));
+
+        public static ValueEnumerable<ListWhereSelect<TSource, TResult>, TResult> Select<TSource, TResult>(this ValueEnumerable<ListWhere<TSource>, TSource> source, Func<TSource, TResult> selector)
             => new(source.Enumerator.Select(Throws.IfNull(selector)));
     }
 }
@@ -202,7 +210,7 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct WhereArray<TSource>(FromArray<TSource> source, Func<TSource, Boolean> predicate) : IValueEnumerator<TSource>
+    public struct ArrayWhere<TSource>(FromArray<TSource> source, Func<TSource, Boolean> predicate) : IValueEnumerator<TSource>
     {
         TSource[] source = source.GetSource();
         internal TSource[] GetSource() => source;
@@ -245,7 +253,7 @@ namespace ZLinq.Linq
         }
 
         // Optimize for common pattern: Where().Select()
-        public WhereArraySelect<TSource, TResult> Select<TResult>(Func<TSource, TResult> selector)
+        public ArrayWhereSelect<TSource, TResult> Select<TResult>(Func<TSource, TResult> selector)
             => new(source, predicate, selector);
     }
 
@@ -256,7 +264,7 @@ namespace ZLinq.Linq
 #else
     public
 #endif
-    struct WhereArraySelect<TSource, TResult>(TSource[] source, Func<TSource, Boolean> predicate, Func<TSource, TResult> selector)
+    struct ArrayWhereSelect<TSource, TResult>(TSource[] source, Func<TSource, Boolean> predicate, Func<TSource, TResult> selector)
         : IValueEnumerator<TResult>
     {
         int index;
@@ -284,6 +292,109 @@ namespace ZLinq.Linq
             while (index < source.Length)
             {
                 var value = source[index];
+                index++;
+                if (predicate(value))
+                {
+                    current = selector(value);
+                    return true;
+                }
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct ListWhere<TSource>(FromList<TSource> source, Func<TSource, Boolean> predicate) : IValueEnumerator<TSource>
+    {
+        List<TSource> source = source.GetSource();
+        internal List<TSource> GetSource() => source;
+        internal Func<TSource, bool> Predicate => predicate;
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = default;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TSource> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TSource> destination, Index offset) => false;
+
+        public bool TryGetNext(out TSource current)
+        {
+            var span = CollectionsMarshal.AsSpan(source);
+            while (index < span.Length)
+            {
+                var value = span[index];
+                index++;
+                if (predicate(value))
+                {
+                    current = value;
+                    return true;
+                }
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        // Optimize for common pattern: Where().Select()
+        public ListWhereSelect<TSource, TResult> Select<TResult>(Func<TSource, TResult> selector)
+            => new(source, predicate, selector);
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct ListWhereSelect<TSource, TResult>(List<TSource> source, Func<TSource, Boolean> predicate, Func<TSource, TResult> selector)
+        : IValueEnumerator<TResult>
+    {
+        int index;
+        List<TSource> source = source;
+        internal List<TSource> GetSource() => source;
+        internal Func<TSource, bool> Predicate => predicate;
+        internal Func<TSource, TResult> Selector => selector;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = default;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TResult> destination, Index offset) => false;
+
+        public bool TryGetNext(out TResult current)
+        {
+            var span = CollectionsMarshal.AsSpan(source);
+            while (index < span.Length)
+            {
+                var value = span[index];
                 index++;
                 if (predicate(value))
                 {

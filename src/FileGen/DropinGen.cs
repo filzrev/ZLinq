@@ -107,12 +107,12 @@ internal static partial class ZLinqDropInExtensions
 
         // ignore some optimize chain
 
-        if (methodInfo.Name is "Where" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("SelectWhere") || x.Name.Contains("WhereArray")))
+        if (methodInfo.Name is "Where" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("SelectWhere") || x.Name.Contains("ArrayWhere") || x.Name.Contains("ListWhere")))
         {
             return null;
         }
 
-        if (methodInfo.Name is "Select" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("WhereSelect") || x.Name.Contains("WhereArraySelect") || x.Name.Contains("RangeSelect")))
+        if (methodInfo.Name is "Select" && methodInfo.ReturnType.GetGenericArguments().Any(x => x.Name.Contains("WhereSelect") || x.Name.Contains("ArrayWhereSelect") || x.Name.Contains("RangeSelect") || x.Name.Contains("ArraySelect") || x.Name.Contains("ArraySelectWhere") || x.Name.Contains("ListSelect") || x.Name.Contains("ListSelectWhere")))
         {
             return null;
         }
@@ -191,7 +191,19 @@ internal static partial class ZLinqDropInExtensions
         }
         else if (signature.Contains("Where<FromArray<TSource>, TSource>"))
         {
-            signature = signature.Replace("Where<FromArray<TSource>, TSource>", "WhereArray<TSource>");
+            signature = signature.Replace("Where<FromArray<TSource>, TSource>", "ArrayWhere<TSource>");
+        }
+        else if (signature.Contains("Select<FromArray<TSource>, TSource, TResult>"))
+        {
+            signature = signature.Replace("Select<FromArray<TSource>, TSource, TResult>", "ArraySelect<TSource, TResult>");
+        }
+        else if (signature.Contains("Where<FromList<TSource>, TSource>"))
+        {
+            signature = signature.Replace("Where<FromList<TSource>, TSource>", "ListWhere<TSource>");
+        }
+        else if (signature.Contains("Select<FromList<TSource>, TSource, TResult>"))
+        {
+            signature = signature.Replace("Select<FromList<TSource>, TSource, TResult>", "ListSelect<TSource, TResult>");
         }
         else if (methodInfo.Name == "SumUnchecked")
         {

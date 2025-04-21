@@ -1,4 +1,4 @@
-using BenchmarkDotNet.Engines;
+﻿using BenchmarkDotNet.Engines;
 using ZLinq;
 using ZLinq.Linq;
 
@@ -36,8 +36,23 @@ internal static partial class ConsumerExtensions
             consumer.Consume(in item);
     }
 
-    // Select FromArray
-    public static void Consume<T>(this ValueEnumerable<Select<FromArray<T>, T, T>, T> source, Consumer consumer)
+    // Select FromList/FromArray
+
+    public static void Consume<T>(this ValueEnumerable<ListSelect<T, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    public static void Consume<T>(this ValueEnumerable<ArraySelect<T, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    public static void Consume<T>(this ValueEnumerable<Select<ArraySelect<T, T>, T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
         while (e.TryGetNext(out var item))
@@ -53,7 +68,7 @@ internal static partial class ConsumerExtensions
     }
 
     // Select x2 FromArray
-    public static void Consume<T>(this ValueEnumerable<Select<Select<FromArray<T>, T, T>, T, T>, T> source, Consumer consumer)
+    public static void Consume<T>(this ValueEnumerable<Select<Select<ArraySelect<T, T>, T, T>, T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
         while (e.TryGetNext(out var item))
@@ -61,7 +76,7 @@ internal static partial class ConsumerExtensions
     }
 
     // Select x3 FromArray
-    public static void Consume<T>(this ValueEnumerable<Select<Select<Select<FromArray<T>, T, T>, T, T>, T, T>, T> source, Consumer consumer)
+    public static void Consume<T>(this ValueEnumerable<Select<Select<Select<ArraySelect<T, T>, T, T>, T, T>, T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
         while (e.TryGetNext(out var item))
@@ -69,7 +84,7 @@ internal static partial class ConsumerExtensions
     }
 
     // Select x4 FromArray
-    public static void Consume<T>(this ValueEnumerable<Select<Select<Select<Select<FromArray<T>, T, T>, T, T>, T, T>, T, T>, T> source, Consumer consumer)
+    public static void Consume<T>(this ValueEnumerable<Select<Select<Select<Select<ArraySelect<T, T>, T, T>, T, T>, T, T>, T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
         while (e.TryGetNext(out var item))

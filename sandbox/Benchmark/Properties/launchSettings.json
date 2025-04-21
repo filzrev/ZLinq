@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.SelectFromSourceTypes* -- Default",
+      "commandLineArgs": "--filter Benchmark.LinqPerfBenchmarks.Count00* -- Default",
 
       // Available config
       // 1. Default

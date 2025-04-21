@@ -1,4 +1,4 @@
-using BenchmarkDotNet.Attributes;
+﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Engines;
 using ZLinq;
@@ -6,6 +6,7 @@ using ZLinq;
 namespace Benchmark;
 
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+[GenericTypeArguments(typeof(int))]
 [GenericTypeArguments(typeof(string))]
 public class SelectFromSourceTypes<T> where T : notnull
 {

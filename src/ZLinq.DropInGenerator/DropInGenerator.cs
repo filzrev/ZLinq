@@ -417,22 +417,26 @@ namespace {{attribute.GenerateNamespace}}
             {
                 if (extension.ValueEnumeratorName != null)
                 {
-                    code = code.Replace("WhereArray", $"Where<{extension.ValueEnumeratorName}, {element}>");
+                    code = code.Replace("ArrayWhere", $"Where<{extension.ValueEnumeratorName}, {element}>");
+                    code = Regex.Replace(code, "ArraySelect<.+?>", $"Select<{extension.ValueEnumeratorName}, {element}, TResult>");
                 }
                 else
                 {
-                    code = code.Replace("WhereArray", $"Where<FromEnumerable<{element}>, {element}>");
+                    code = code.Replace("ArrayWhere", $"Where<FromEnumerable<{element}>, {element}>");
+                    code = Regex.Replace(code, "ArraySelect<.+?>", $"Select<FromEnumerable<{element}>, {element}, TResult>");
                 }
             }
             else
             {
                 if (extension.ValueEnumeratorName != null)
                 {
-                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<{extension.ValueEnumeratorName}, {element}>");
+                    code = Regex.Replace(code, "ArrayWhere<.+?>", $"Where<{extension.ValueEnumeratorName}, {element}>");
+                    code = Regex.Replace(code, "ArraySelect<.+?>", $"Select<{extension.ValueEnumeratorName}, {element}, TResult>");
                 }
                 else
                 {
-                    code = Regex.Replace(code, "WhereArray<.+?>", $"Where<FromEnumerable<{element}>, {element}>");
+                    code = Regex.Replace(code, "ArrayWhere<.+?>", $"Where<FromEnumerable<{element}>, {element}>");
+                    code = Regex.Replace(code, "ArraySelect<.+?>", $"Select<FromEnumerable<{element}>, {element}, TResult>");
                 }
             }
 

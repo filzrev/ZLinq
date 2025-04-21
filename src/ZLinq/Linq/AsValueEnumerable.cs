@@ -489,6 +489,8 @@ namespace ZLinq.Linq
     {
         int index;
 
+        internal List<T> GetSource() => source;
+
         public bool TryGetNonEnumeratedCount(out int count)
         {
             count = source.Count;

@@ -168,5 +168,47 @@
 
             return list;
         }
+
+        public static List<TResult> ToList<TSource, TResult>(this ValueEnumerable<ArraySelect<TSource, TResult>, TResult> source)
+        {
+            var sourceArray = source.Enumerator.source;
+            var selector = source.Enumerator.selector;
+
+            var list = new List<TResult>(sourceArray.Length);
+#if NET8_0_OR_GREATER
+            CollectionsMarshal.SetCount(list, sourceArray.Length);
+#else
+            CollectionsMarshal.UnsafeSetCount(list, sourceArray.Length);
+#endif
+            var span = CollectionsMarshal.AsSpan(list);
+
+            for (int i = 0; i < sourceArray.Length; i++)
+            {
+                span[i] = selector(sourceArray[i]);
+            }
+
+            return list;
+        }
+
+        public static List<TResult> ToList<TSource, TResult>(this ValueEnumerable<ListSelect<TSource, TResult>, TResult> source)
+        {
+            var sourceArray = CollectionsMarshal.AsSpan(source.Enumerator.source);
+            var selector = source.Enumerator.selector;
+
+            var list = new List<TResult>(sourceArray.Length);
+#if NET8_0_OR_GREATER
+            CollectionsMarshal.SetCount(list, sourceArray.Length);
+#else
+            CollectionsMarshal.UnsafeSetCount(list, sourceArray.Length);
+#endif
+            var span = CollectionsMarshal.AsSpan(list);
+
+            for (int i = 0; i < sourceArray.Length; i++)
+            {
+                span[i] = selector(sourceArray[i]);
+            }
+
+            return list;
+        }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-
-namespace ZLinq
+﻿namespace ZLinq
 {
     partial class ValueEnumerableExtensions
     {
@@ -27,6 +24,18 @@ namespace ZLinq
 #if NET9_0_OR_GREATER
             , allows ref struct
 #endif
+            => new(source.Enumerator.Where(Throws.IfNull(predicate)));
+
+        public static ValueEnumerable<ArraySelect<TSource, TResult>, TResult> Select<TSource, TResult>(this ValueEnumerable<FromArray<TSource>, TSource> source, Func<TSource, TResult> selector)
+            => new(new(source.Enumerator.GetSource(), Throws.IfNull(selector)));
+
+        public static ValueEnumerable<ArraySelectWhere<TSource, TResult>, TResult> Where<TSource, TResult>(this ValueEnumerable<ArraySelect<TSource, TResult>, TResult> source, Func<TResult, bool> predicate)
+            => new(source.Enumerator.Where(Throws.IfNull(predicate)));
+
+        public static ValueEnumerable<ListSelect<TSource, TResult>, TResult> Select<TSource, TResult>(this ValueEnumerable<FromList<TSource>, TSource> source, Func<TSource, TResult> selector)
+            => new(new(source.Enumerator.GetSource(), Throws.IfNull(selector)));
+
+        public static ValueEnumerable<ListSelectWhere<TSource, TResult>, TResult> Where<TSource, TResult>(this ValueEnumerable<ListSelect<TSource, TResult>, TResult> source, Func<TResult, bool> predicate)
             => new(source.Enumerator.Where(Throws.IfNull(predicate)));
     }
 }
@@ -290,4 +299,238 @@ namespace ZLinq.Linq
         }
     }
 
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct ArraySelect<TSource, TResult>(TSource[] source, Func<TSource, TResult> selector) : IValueEnumerator<TResult>
+    {
+        internal TSource[] source = source;
+        internal readonly Func<TSource, TResult> selector = selector;
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Length;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        {
+            // AsSpan is failed by array variance
+            if (!typeof(TSource).IsValueType && source.GetType() != typeof(TSource[]))
+            {
+                return false;
+            }
+
+            if (EnumeratorHelper.TryGetSlice<TSource>(source.AsSpan(), offset, destination.Length, out var slice))
+            {
+                for (var i = 0; i < slice.Length; i++)
+                {
+                    destination[i] = selector(slice[i]);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetNext(out TResult current)
+        {
+            if (index < source.Length)
+            {
+                current = selector(source[index]);
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        internal ArraySelectWhere<TSource, TResult> Where(Func<TResult, bool> predicate)
+        {
+            return new ArraySelectWhere<TSource, TResult>(source, selector, predicate);
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct ArraySelectWhere<TSource, TResult>(TSource[] source, Func<TSource, TResult> selector, Func<TResult, bool> predicate) : IValueEnumerator<TResult>
+    {
+        TSource[] source = source;
+        readonly Func<TSource, TResult> selector = selector;
+        Func<TResult, bool> predicate = predicate;
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out TResult current)
+        {
+            while (index < source.Length)
+            {
+                current = selector(source[index]);
+                index++;
+                if (predicate(current))
+                {
+                    return true;
+                }
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct ListSelect<TSource, TResult>(List<TSource> source, Func<TSource, TResult> selector) : IValueEnumerator<TResult>
+    {
+        internal List<TSource> source = source;
+        internal readonly Func<TSource, TResult> selector = selector;
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        {
+            if (EnumeratorHelper.TryGetSlice<TSource>(CollectionsMarshal.AsSpan(source), offset, destination.Length, out var slice))
+            {
+                for (var i = 0; i < slice.Length; i++)
+                {
+                    destination[i] = selector(slice[i]);
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetNext(out TResult current)
+        {
+            if (index < source.Count)
+            {
+                current = selector(source[index]);
+                index++;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+
+        internal ListSelectWhere<TSource, TResult> Where(Func<TResult, bool> predicate)
+        {
+            return new ListSelectWhere<TSource, TResult>(source, selector, predicate);
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+#if NET9_0_OR_GREATER
+    public ref
+#else
+    public
+#endif
+    struct ListSelectWhere<TSource, TResult>(List<TSource> source, Func<TSource, TResult> selector, Func<TResult, bool> predicate) : IValueEnumerator<TResult>
+    {
+        List<TSource> source = source;
+        readonly Func<TSource, TResult> selector = selector;
+        Func<TResult, bool> predicate = predicate;
+        int index;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<TResult> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out TResult current)
+        {
+            var span = CollectionsMarshal.AsSpan(source);
+            while (index < span.Length)
+            {
+                current = selector(span[index]);
+                index++;
+                if (predicate(current))
+                {
+                    return true;
+                }
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
 }
