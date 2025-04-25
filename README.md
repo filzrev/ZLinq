@@ -129,6 +129,7 @@ The returned array is rented from `ArrayPool<TSource>.Shared`. `PooledArray<TSou
 ```csharp
 using var array = ValueEnumerable.Range(1, 1000).ToArrayPool();
 
+var size = array.Size; // same as Length/Count in other types
 var span = array.Span;
 var memory = array.Memory;
 var arraySegment = array.ArraySegment;
