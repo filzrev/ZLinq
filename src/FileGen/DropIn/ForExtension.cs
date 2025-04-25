@@ -349,7 +349,7 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<TakeWhile<FromArray<TSource>, TSource>, TSource> TakeWhile<TSource>(this TSource[] source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().TakeWhile(predicate);
     public static ValueEnumerable<TakeWhile2<FromArray<TSource>, TSource>, TSource> TakeWhile<TSource>(this TSource[] source, Func<TSource, Int32, Boolean> predicate) => source.AsValueEnumerable().TakeWhile(predicate);
     public static TSource[] ToArray<TSource>(this TSource[] source) => source.AsValueEnumerable().ToArray();
-    public static (TSource[] Array, int Size) ToArrayPool<TSource>(this TSource[] source) => source.AsValueEnumerable().ToArrayPool();
+    public static PooledArray<TSource> ToArrayPool<TSource>(this TSource[] source) => source.AsValueEnumerable().ToArrayPool();
 #if ENABLE_TKEY_TVALUE_TODICTIONARY
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this KeyValuePair<TKey, TValue>[] source) where TKey : notnull => source.AsValueEnumerable().ToDictionary();
 #endif

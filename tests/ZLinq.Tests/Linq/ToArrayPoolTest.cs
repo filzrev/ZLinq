@@ -4,15 +4,6 @@ namespace ZLinq.Tests.Linq;
 
 public class ToArrayPoolTest
 {
-    // Helper to properly return arrays to the pool after tests
-    private void ReturnToPool<T>((T[] Array, int Size) result)
-    {
-        if (result.Array != null && result.Array.Length > 0 && result.Array != Array.Empty<T>())
-        {
-            ArrayPool<T>.Shared.Return(result.Array);
-        }
-    }
-
 #if !NET48
 
     [Fact]
@@ -28,7 +19,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result1);
+            result1.Dispose();
         }
 
         // Empty Range source
@@ -40,7 +31,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result2);
+            result2.Dispose();
         }
 
         // Empty Selected source
@@ -52,7 +43,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result3);
+            result3.Dispose();
         }
 
         // Empty Iterator source
@@ -64,7 +55,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result4);
+            result4.Dispose();
         }
     }
 
@@ -87,7 +78,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 
@@ -109,7 +100,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 
@@ -131,7 +122,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 
@@ -155,7 +146,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 
@@ -177,7 +168,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(stringResult);
+            stringResult.Dispose();
         }
 
         // Custom object array
@@ -199,7 +190,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(objectResult);
+            objectResult.Dispose();
         }
     }
 
@@ -221,7 +212,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 
@@ -242,7 +233,7 @@ public class ToArrayPoolTest
         }
         finally
         {
-            ReturnToPool(result);
+            result.Dispose();
         }
     }
 

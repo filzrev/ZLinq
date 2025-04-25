@@ -49,6 +49,21 @@ using My.Tako.Yaki;
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
 
 
+var tes = Enumerable.Range(1, 1000).ToArray();
+
+
+
+using var array = ValueEnumerable.Range(1, 1000).ToArrayPool();
+
+var span = array.Span;
+var memory = array.Memory;
+var arraySegment = array.ArraySegment;
+var enumerable = array.AsEnumerable();
+var valueEnumerable = array.AsValueEnumerable();
+
+
+
+
 // System.Collections.Immutable.ImmutableArray
 
 

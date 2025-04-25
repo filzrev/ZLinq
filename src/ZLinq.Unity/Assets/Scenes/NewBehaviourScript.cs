@@ -9,7 +9,7 @@ using UnityEngine;
 using ZLinq;
 using ZLinq.Linq;
 
-[assembly: ZLinqDropInAttribute("ZLinq", ZLinq.DropInGenerateTypes.Collection)]
+[assembly: ZLinqDropInAttribute("ZLinq", ZLinq.DropInGenerateTypes.Everything)]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyCollection`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Generic.IReadOnlyList`1")]
 [assembly: ZLinqDropInExternalExtension("ZLinq", "Unity.Collections.NativeArray`1", "ZLinq.Linq.FromNativeArray`1")]

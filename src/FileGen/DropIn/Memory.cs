@@ -330,7 +330,7 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<TakeWhile<FromMemory<TSource>, TSource>, TSource> TakeWhile<TSource>(this Memory<TSource> source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().TakeWhile(predicate);
     public static ValueEnumerable<TakeWhile2<FromMemory<TSource>, TSource>, TSource> TakeWhile<TSource>(this Memory<TSource> source, Func<TSource, Int32, Boolean> predicate) => source.AsValueEnumerable().TakeWhile(predicate);
     public static TSource[] ToArray<TSource>(this Memory<TSource> source) => source.AsValueEnumerable().ToArray();
-    public static (TSource[] Array, int Size) ToArrayPool<TSource>(this Memory<TSource> source) => source.AsValueEnumerable().ToArrayPool();
+    public static PooledArray<TSource> ToArrayPool<TSource>(this Memory<TSource> source) => source.AsValueEnumerable().ToArrayPool();
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this Memory<KeyValuePair<TKey, TValue>> source) where TKey : notnull => source.AsValueEnumerable().ToDictionary();
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this Memory<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey>? comparer) where TKey : notnull => source.AsValueEnumerable().ToDictionary(comparer);
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this Memory<(TKey Key, TValue Value)> source) where TKey : notnull => source.AsValueEnumerable().ToDictionary();

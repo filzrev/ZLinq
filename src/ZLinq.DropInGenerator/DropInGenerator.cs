@@ -386,6 +386,7 @@ namespace {{attribute.GenerateNamespace}}
                 code = code.Replace("Span<TSource>", $"Span<{element}>");
                 code = code.Replace("List<TSource>", $"List<{element}>");
                 code = code.Replace("HashSet<TSource>", $"HashSet<{element}>");
+                code = code.Replace("PooledArray<TSource>", $"PooledArray<{element}>");
                 code = code.Replace("<TSource>", "");
                 code = Regex.Replace(code, "<(.*)TSource, (.+?)>\\(", x =>
                 {

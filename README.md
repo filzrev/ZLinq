@@ -122,9 +122,23 @@ System.Linq's `Average` and `Sum` are limited to certain primitive types, but ZL
 
 `CopyTo` can be used to avoid allocation of the return collection unlike `ToArray` or `ToList`. `int CopyTo(Span<T> destination)` allows the destination to be smaller than the source, returning the number of elements copied. `void CopyTo(List<T> list)` clears the list and then fills it with elements from the source, so the destination size is list.Count.
 
-### `(TSource[] Array, int Size) ToArrayPool()`
+### `PooledArray<TSource> ToArrayPool()`
 
-The returned array is rented from `ArrayPool<TSource>.Shared`. When using it, you need to create a slice of elements using `Array.AsSpan(0, Size)` or similar. Also, after use, you must return it with `ArrayPool<TSource>.Shared.Rent(Array)`. If `TSource` is a reference type, set `clearArray: true` to prevent memory leaks.
+The returned array is rented from `ArrayPool<TSource>.Shared`. `PooledArray<TSource>` defines `.Span`, `.Memory`, `.AsEnumerable()` and other methods. These allow you to pass a `ValueEnumerable` to another method while minimizing allocations. Additionally, through `.AsValueEnumerable()`, you can call `ZLinq` methods, which is useful for temporarily materializing computationally expensive operations. Being `IDisposable`, you can return the borrowed array to `ArrayPool<TSource>.Shared` using the `using` statement.
+
+```csharp
+using var array = ValueEnumerable.Range(1, 1000).ToArrayPool();
+
+var span = array.Span;
+var memory = array.Memory;
+var arraySegment = array.ArraySegment;
+var enumerable = array.AsEnumerable();
+var valueEnumerable = array.AsValueEnumerable();
+```
+
+For performance reasons to reduce allocations, `PooledArray<TSource>` is a `struct`. This creates a risk of returning the same array multiple times due to boxing or copying. Also, ArrayPool is not suitable for long-term array storage. It is recommended to simply use `ToArrayPool()` with `using` and keep the lifetime short.
+
+If you absolutely need the raw internal array, you can `Deconstruct` it to `(T[] Array, int Size)`. After deconstructing, ownership is considered transferred, and all methods of `PooledArray<TSource>` become unavailable.
 
 ### `JoinToString(char|string seperator)`
 
@@ -134,7 +148,7 @@ Difference and Limitation
 ---
 For .NET 9 and above, `ValueEnumerable<T>` is a `ref struct` and cannot be converted to `IEnumerable<T>`. To ensure compatibility when upgrading, `AsEnumerable` is not provided by default even for versions prior to .NET 9.
 
-Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to methods that require `IEnumerable<T>`. It's also difficult to pass it to other methods due to the complex type signatures required by generics (implementation is explained in the [Custom Extensions](#custom-extensions) section). Using `ToArray()` is one solution, but this can cause unnecessary allocations in some cases.
+Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to methods that require `IEnumerable<T>`. It's also difficult to pass it to other methods due to the complex type signatures required by generics (implementation is explained in the [Custom Extensions](#custom-extensions) section). Using `ToArray()` is one solution, but this can cause unnecessary allocations in some cases. For temporary use, you can call `ToArrayPool` to pass to methods that require `IEnumerable<T>` without allocations. However, be careful that this `IEnumerable<T>` will be returned within the using scope, so you must ensure it doesn't leak outside the scope (storing it in a field is not allowed).
 
 `String.Join` has overloads for both `IEnumerable<string>` and `params object[]`. Passing `ValueEnumerable<T>` directly will select the `object[]` overload, which may not give the desired result. In this case, use the `JoinToString` operator instead.
 
