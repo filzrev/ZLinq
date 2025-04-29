@@ -1,4 +1,6 @@
-﻿namespace ZLinq
+﻿using System;
+
+namespace ZLinq
 {
     partial class ValueEnumerableExtensions
     {
@@ -50,6 +52,44 @@
                     }
                 }
 
+                return false;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Boolean Any<TSource>(this ValueEnumerable<FromArray<TSource>, TSource> source, Func<TSource, Boolean> predicate)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+
+            var array = source.Enumerator.GetSource();
+            if (array.GetType() != typeof(TSource[]))
+            {
+                return Any(array, predicate);
+            }
+
+            // The assembly output differs slightly when iterating through array and span.
+            // According to microbenckmark results, iterating through span was faster for the logic passed to predicate.
+            var span = (ReadOnlySpan<TSource>)array;
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            static Boolean Any(TSource[] array, Func<TSource, Boolean> predicate)
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (predicate(array[i]))
+                    {
+                        return true;
+                    }
+                }
                 return false;
             }
         }

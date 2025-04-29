@@ -368,6 +368,7 @@ namespace ZLinq.Linq
         int index;
 
         // becareful, don't call AsSpan
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal T[] GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -379,7 +380,7 @@ namespace ZLinq.Linq
         public bool TryGetSpan(out ReadOnlySpan<T> span)
         {
             // AsSpan is failed by array variance
-            if (!typeof(T).IsValueType && source.GetType() != typeof(T[]))
+            if (source.GetType() != typeof(T[]))
             {
                 span = default;
                 return false;
@@ -489,6 +490,7 @@ namespace ZLinq.Linq
     {
         int index;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal List<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)

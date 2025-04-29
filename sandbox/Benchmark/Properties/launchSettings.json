@@ -2,7 +2,7 @@
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.LinqPerfBenchmarks.Count00* -- Default",
+      "commandLineArgs": "--filter Benchmark.AllPredicateWithCapturedLambda* -- Default",
 
       // Available config
       // 1. Default
@@ -64,6 +64,7 @@
       // "commandLineArgs": "--filter Benchmark.SimdCount.*",
       // "commandLineArgs": "--filter Benchmark.Net80OptimizedBenchmark.*",
       // "commandLineArgs": "--filter Benchmark.Net90OptimizedBenchmark.*",
+      // "commandLineArgs": "--filter Benchmark.AnyPredicate* -- Default",
       "workingDirectory": "."
     },
     "Select Benchmark": {
