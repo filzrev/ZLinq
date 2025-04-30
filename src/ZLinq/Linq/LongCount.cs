@@ -60,5 +60,44 @@
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Int64 LongCount<TSource>(this ValueEnumerable<FromArray<TSource>, TSource> source, Func<TSource, Boolean> predicate)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+
+            var array = source.Enumerator.GetSource();
+            if (array.GetType() != typeof(TSource[]))
+            {
+                return LongCount(array, predicate);
+            }
+
+            var longcount = 0;
+
+            var span = (ReadOnlySpan<TSource>)array;
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    longcount++;
+                }
+            }
+
+            return longcount;
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            static Int64 LongCount(TSource[] array, Func<TSource, Boolean> predicate)
+            {
+                var longCount = 0;
+                for (int i = 0; i < array.Length; i++)
+                {
+                    if (predicate(array[i]))
+                    {
+                        longCount++;
+                    }
+                }
+                return longCount;
+            }
+        }
+
     }
 }
