@@ -71,18 +71,18 @@
                 return LongCount(array, predicate);
             }
 
-            var longcount = 0;
+            var longCount = 0;
 
             var span = (ReadOnlySpan<TSource>)array;
             for (int i = 0; i < span.Length; i++)
             {
                 if (predicate(span[i]))
                 {
-                    longcount++;
+                    longCount++;
                 }
             }
 
-            return longcount;
+            return longCount;
 
             [MethodImpl(MethodImplOptions.NoInlining)]
             static Int64 LongCount(TSource[] array, Func<TSource, Boolean> predicate)
