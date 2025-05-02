@@ -57,7 +57,7 @@ public interface IValueEnumerator<T> : IDisposable
     // Optimization helper
     bool TryGetNonEnumeratedCount(out int count);
     bool TryGetSpan(out ReadOnlySpan<T> span);
-    bool TryCopyTo(Span<T> destination, Index offset);
+    bool TryCopyTo(scoped Span<T> destination, Index offset);
 }
 ```
 
