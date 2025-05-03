@@ -4,13 +4,13 @@
 using System.Linq.Tests;
 
 // Original code:
-// https://github.com/dotnet/runtime/blob/v9.0.3/src/libraries/Common/tests/System/Linq/MinTests.cs
-// https://github.com/dotnet/runtime/blob/v9.0.3/src/libraries/Common/tests/System/Linq/MaxTests.cs
+// https://github.com/dotnet/runtime/blob/v10.0.0-preview.2.25163.2/src/libraries/System.Linq/tests/MinTests.cs
+// https://github.com/dotnet/runtime/blob/v10.0.0-preview.2.25163.2/src/libraries/System.Linq/tests/MaxTests.cs
 
 namespace System.Linq;
 
 // This class is used to share test data between System.Linq/ZLinq tests.
-// Note: It need to use `Shuffler.Shuffle` to show indivisualtest cases on Test Explorer.
+// Note: It need to use `Shuffler.Shuffle` to show indivisual test cases on Test Explorer.
 public class MinMaxTestData
 {
     public static IEnumerable<object[]> Min_AllTypes_TestData()

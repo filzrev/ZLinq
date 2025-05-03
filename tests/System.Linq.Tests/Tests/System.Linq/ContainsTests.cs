@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Xunit;
 
+#pragma warning disable xUnit2017
+
 namespace System.Linq.Tests
 {
     public class ContainsTests : EnumerableTests
