@@ -110,3 +110,34 @@ public class CountPredicateWithCapturedLambda
         return _nums.Count(i => i <= _target);
     }
 }
+
+[GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+public class LongCountPredicateWithCapturedLambda
+{
+    [Params(10, 100, 1000, 10000)]
+    public int N;
+
+    int[] _nums = default!;
+    int _target;
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        _nums = Enumerable.Range(1, N).ToArray();
+        _target = N;
+    }
+
+    [Benchmark]
+    [BenchmarkCategory(Categories.ZLinq)]
+    public long ZLinq()
+    {
+        return _nums.AsValueEnumerable().LongCount(i => i <= _target);
+    }
+
+    [Benchmark]
+    [BenchmarkCategory(Categories.LINQ)]
+    public long Linq()
+    {
+        return _nums.LongCount(i => i <= _target);
+    }
+}
