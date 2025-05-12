@@ -143,8 +143,13 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
     {
         if (type.IsGenericType)
         {
-            BuildCore(sb, type.GenericTypeArguments[0]);
-            sb.Append(".");
+            var parent = type.GenericTypeArguments[0];
+            if (parent.IsGenericType || parent.Name == "FromRange")
+            {
+                BuildCore(sb, parent);
+                sb.Append(".");
+            }
+
             var genericsStart = type.Name.IndexOf('`');
             if (genericsStart != -1) // always come here
             {
@@ -155,12 +160,26 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
             {
                 sb.Append(type.Name);
             }
+
+            if (!parent.IsGenericType && parent.Name != "FromRange")
+            {
+                sb.Append("<");
+                sb.Append(parent.Name);
+                sb.Append(">");
+            }
             return;
         }
 
-        sb.Append("<");
-        sb.Append(type.Name);
-        sb.Append(">");
+        if (type.Name == "FromRange")
+        {
+            sb.Append("FromRange<Int32>");
+        }
+        else
+        {
+            sb.Append("<");
+            sb.Append(type.Name);
+            sb.Append(">");
+        }
     }
 }
 

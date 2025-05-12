@@ -16,6 +16,23 @@ namespace ZLinq
 
             return new(new(start, count));
         }
+
+
+#if NET8_0_OR_GREATER
+
+        public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
+            where T : INumber<T>
+        {
+            return new(new(start, count, T.One));
+        }
+
+        public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
+            where T : IAdditionOperators<T, TStep, T>
+        {
+            return new(new(start, count, step));
+        }
+
+#endif
     }
 }
 
@@ -116,4 +133,61 @@ namespace ZLinq.Linq
             }
         }
     }
+
+#if NET8_0_OR_GREATER
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRange<T, TStep>(T start, int count, TStep step) : IValueEnumerator<T>
+        where T : IAdditionOperators<T, TStep, T>
+    {
+        readonly int count = count;
+        readonly TStep step = step;
+
+        T value = start;
+        int index = 0;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(T)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+#endif
 }

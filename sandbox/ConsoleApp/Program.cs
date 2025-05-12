@@ -21,6 +21,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using My.Tako.Yaki;
+using System.Diagnostics.CodeAnalysis;
 // using MyApp;
 
 //Span<int> xs = stackalloc int[255];
@@ -49,22 +50,31 @@ using My.Tako.Yaki;
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
 
 
-var tes = Enumerable.Range(1, 1000).ToArray();
+
+var dates = ValueEnumerable.Range((ArithmeticDateTime)DateTime.Now, 7, TimeSpan.FromDays(-1)).Select(x => (DateTime)x).ToArray();
 
 
+var array = ValueEnumerable.Range(1, 1000).Where(x => x % 2 == 1);
 
-using var array = ValueEnumerable.Range(1, 1000).ToArrayPool();
+//((object)array).GetType();
 
-var span = array.Span;
-var memory = array.Memory;
-var arraySegment = array.ArraySegment;
-var enumerable = array.AsEnumerable();
-var valueEnumerable = array.AsValueEnumerable();
+// IValueEnumerator
 
-
-
-
+// From
+//var foo = ValueEnumerableDebuggerDisplayHelper.BuildDisplayText(typeof(Select<Where<FromArray<int>, int>, int, string>));
+//var bar = ValueEnumerableDebuggerDisplayHelper.BuildDisplayText(typeof(Select<Where<FromRange, int>, int, string>));
+//Console.WriteLine(foo);
+//Console.WriteLine(bar);
 // System.Collections.Immutable.ImmutableArray
+
+
+
+
+var tako = ValueEnumerable.Range(int.MaxValue - 10, 99, (int)3);
+foreach (var item in tako)
+{
+    Console.WriteLine(item);
+}
 
 
 IReadOnlyCollection<int> xs = new[] { 1, 2, 3, 4, 5 };
@@ -87,14 +97,6 @@ list.Add(30);
 //    Console.WriteLine(item);
 //}
 return;
-
-Span<int> foo = [1, 2, 3, 4, 5];
-
-Span<int> dest = new int[10];
-foo.CopyTo(dest);
-
-// dest.ToArray();
-foo.ToArray().CopyTo(dest);
 
 
 // Enumerable.Range(1,10).to
@@ -324,6 +326,21 @@ public class MyList<T> : IEnumerable<T>, IValueEnumerable<MyList<T>.ValueEnumera
     //        return false;
     //    }
     //}
+}
+
+public readonly struct ArithmeticDateTime(DateTime dateTime)
+    : IAdditionOperators<ArithmeticDateTime, TimeSpan, ArithmeticDateTime>,
+      ISubtractionOperators<ArithmeticDateTime, TimeSpan, ArithmeticDateTime>
+{
+    readonly DateTime dateTime = dateTime;
+
+    public static implicit operator ArithmeticDateTime(DateTime dateTime) => new(dateTime);
+    public static implicit operator DateTime(ArithmeticDateTime dateTime) => dateTime.dateTime;
+
+    public static ArithmeticDateTime operator +(ArithmeticDateTime left, TimeSpan right) => left.dateTime + right;
+    public static ArithmeticDateTime operator -(ArithmeticDateTime left, TimeSpan right) => left.dateTime - right;
+
+    public override string ToString() => dateTime.ToString();
 }
 
 public class Takoyaki
