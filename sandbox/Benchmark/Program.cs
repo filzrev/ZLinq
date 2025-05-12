@@ -22,13 +22,13 @@ internal static class Program
     public static int Main(string[] args)
     {
 #if DEBUG
-        var bench = new Benchmark.AnyPredicate();
-        bench.N = 1000;
-        bench.Setup();
+        //var bench = new Benchmark.AnyPredicate();
+        //bench.N = 1000;
+        //bench.Setup();
 
-        bench.ArrayExists();
-        bench.Linq();
-        bench.ZLinq();
+        //bench.ArrayExists();
+        //bench.Linq();
+        //bench.ZLinq();
 
 
         return 0;

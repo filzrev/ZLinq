@@ -53,6 +53,17 @@ using System.Diagnostics.CodeAnalysis;
 
 var dates = ValueEnumerable.Range((ArithmeticDateTime)DateTime.Now, 7, TimeSpan.FromDays(-1)).Select(x => (DateTime)x).ToArray();
 
+var now = DateTime.Now;
+var calendarOfThisMonth = ValueEnumerable.Range((ArithmeticDateTime)new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
+var calendarOfThisMonth2 = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
+
+
+var weeks = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1));
+
+
+var foobar = ValueEnumerable.Range(now, now.AddDays(7.0), TimeSpan.FromDays(1), RightBound.Inclusive).Select(x => x).Take(100);
+
+
 
 var array = ValueEnumerable.Range(1, 1000).Where(x => x % 2 == 1);
 

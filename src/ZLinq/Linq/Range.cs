@@ -4,6 +4,12 @@ using System.Numerics;
 
 namespace ZLinq
 {
+    public enum RightBound
+    {
+        Inclusive,
+        Exclusive
+    }
+
     public static partial class ValueEnumerable
     {
         public static ValueEnumerable<FromRange, int> Range(int start, int count)
@@ -21,7 +27,7 @@ namespace ZLinq
 #if NET8_0_OR_GREATER
 
         public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
-            where T : INumber<T>
+            where T : INumberBase<T>
         {
             return new(new(start, count, T.One));
         }
@@ -32,7 +38,26 @@ namespace ZLinq
             return new(new(start, count, step));
         }
 
+        public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
+            where T : INumberBase<T>, IComparisonOperators<T, T, bool>
+        {
+            return new(new(start, end, T.One, rightBound));
+        }
+
+        public static ValueEnumerable<FromRangeTo<T, TStep>, T> Range<T, TStep>(T start, T end, TStep step, RightBound rightBound)
+            where T : IAdditionOperators<T, TStep, T>, IComparisonOperators<T, T, bool>
+        {
+            return new(new(start, end, step, rightBound));
+        }
+
 #endif
+
+        // Currently DateTime is not implemented IAdditionalOperators<DateTime, TimeSpan, DateTime>
+
+        // TODO: DateTimeOffset
+
+        public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
+        public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
     }
 }
 
@@ -189,5 +214,224 @@ namespace ZLinq.Linq
         }
     }
 
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeTo<T, TStep>(T start, T end, TStep step, RightBound rightBound) : IValueEnumerator<T>
+        where T : IAdditionOperators<T, TStep, T>, IComparisonOperators<T, T, bool>
+    {
+        readonly T end = end;
+        readonly TStep step = step;
+        readonly RightBound rightBound = rightBound;
+
+        T value = start;
+        bool first = true;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            if (first)
+            {
+                current = value;
+                first = false;
+                return true;
+            }
+
+            checked
+            {
+                value += step;
+            }
+
+            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            {
+                current = value;
+                return true;
+            }
+
+            current = default(T)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
 #endif
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTime(DateTime start, int count, TimeSpan step) : IValueEnumerator<DateTime>
+    {
+        readonly int count = count;
+        readonly TimeSpan timeSpan = step;
+
+        int index = 0;
+        DateTime value = start;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTime> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTime> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTime current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(DateTime)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTimeOffset(DateTimeOffset start, int count, TimeSpan step) : IValueEnumerator<DateTimeOffset>
+    {
+        readonly int count = count;
+        readonly TimeSpan timeSpan = step;
+
+        int index = 0;
+        DateTimeOffset value = start;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTimeOffset> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTimeOffset> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTimeOffset current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(DateTimeOffset)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTimeTo(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) : IValueEnumerator<DateTime>
+    {
+        readonly DateTime end = end;
+        readonly TimeSpan step = step;
+        readonly RightBound rightBound = rightBound;
+
+        DateTime value = start;
+        bool first = true;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTime> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTime> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTime current)
+        {
+            if (first)
+            {
+                current = value;
+                first = false;
+                return true;
+            }
+
+            checked
+            {
+                value += step;
+            }
+
+            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            {
+                current = value;
+                return true;
+            }
+
+            current = default(DateTime)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
 }
