@@ -21,6 +21,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using My.Tako.Yaki;
+using System.Diagnostics.CodeAnalysis;
 // using MyApp;
 
 //Span<int> xs = stackalloc int[255];
@@ -49,22 +50,70 @@ using My.Tako.Yaki;
 [assembly: ZLinqDropInExternalExtension("ZLinq", "System.Collections.Immutable.ImmutableArray`1", "ZLinq.Linq.FromImmutableArray`1")]
 
 
-var tes = Enumerable.Range(1, 1000).ToArray();
 
-
-
-using var array = ValueEnumerable.Range(1, 1000).ToArrayPool();
-
-var span = array.Span;
-var memory = array.Memory;
-var arraySegment = array.ArraySegment;
-var enumerable = array.AsEnumerable();
-var valueEnumerable = array.AsValueEnumerable();
+var dates = ValueEnumerable.Range((ArithmeticDateTime)DateTime.Now, 7, TimeSpan.FromDays(-1)).Select(x => (DateTime)x).ToArray();
 
 
 
 
-// System.Collections.Immutable.ImmutableArray
+// 95, 96, 97, 98, 99
+var range1 = ValueEnumerable.Range(95..100);
+
+// 95, 96, 97, 98, 99, 100
+var range2 = ValueEnumerable.Range(95..100, RightBound.Inclusive);
+
+// 10, 12, 14, 16, 18
+var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
+
+// 10, 9, 8, 7, 6
+var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
+
+// 0, 1,.........
+var infinite = ValueEnumerable.Range(..);
+
+// a, b, c,..., z
+var alphabets = ValueEnumerable.Range(start: 'a', end: 'z', RightBound.Inclusive);
+
+// 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
+var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1)); ;
+
+// 5/1, 5/2,...,5/31
+var now = DateTime.Now;
+var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
+
+
+
+
+
+
+
+//((object)array).GetType();
+
+// IValueEnumerator
+
+
+
+var foo = ValueEnumerable.Range(start: 10, end: 14, step: 2, RightBound.Inclusive);
+foreach (var item in foo)
+{
+    Console.WriteLine(item);
+}
+
+ValueEnumerable.Range(..); // infinite loop
+
+
+
+
+
+
+
+
+
+var tako = ValueEnumerable.Range(int.MaxValue - 10, 99, (int)3);
+foreach (var item in tako)
+{
+    Console.WriteLine(item);
+}
 
 
 IReadOnlyCollection<int> xs = new[] { 1, 2, 3, 4, 5 };
@@ -87,14 +136,6 @@ list.Add(30);
 //    Console.WriteLine(item);
 //}
 return;
-
-Span<int> foo = [1, 2, 3, 4, 5];
-
-Span<int> dest = new int[10];
-foo.CopyTo(dest);
-
-// dest.ToArray();
-foo.ToArray().CopyTo(dest);
 
 
 // Enumerable.Range(1,10).to
@@ -324,6 +365,21 @@ public class MyList<T> : IEnumerable<T>, IValueEnumerable<MyList<T>.ValueEnumera
     //        return false;
     //    }
     //}
+}
+
+public readonly struct ArithmeticDateTime(DateTime dateTime)
+    : IAdditionOperators<ArithmeticDateTime, TimeSpan, ArithmeticDateTime>,
+      ISubtractionOperators<ArithmeticDateTime, TimeSpan, ArithmeticDateTime>
+{
+    readonly DateTime dateTime = dateTime;
+
+    public static implicit operator ArithmeticDateTime(DateTime dateTime) => new(dateTime);
+    public static implicit operator DateTime(ArithmeticDateTime dateTime) => dateTime.dateTime;
+
+    public static ArithmeticDateTime operator +(ArithmeticDateTime left, TimeSpan right) => left.dateTime + right;
+    public static ArithmeticDateTime operator -(ArithmeticDateTime left, TimeSpan right) => left.dateTime - right;
+
+    public override string ToString() => dateTime.ToString();
 }
 
 public class Takoyaki

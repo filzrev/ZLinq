@@ -57,7 +57,7 @@ public interface IValueEnumerator<T> : IDisposable
     // Optimization helper
     bool TryGetNonEnumeratedCount(out int count);
     bool TryGetSpan(out ReadOnlySpan<T> span);
-    bool TryCopyTo(Span<T> destination, Index offset);
+    bool TryCopyTo(scoped Span<T> destination, Index offset);
 }
 ```
 
@@ -109,7 +109,7 @@ Converts existing collections to a type that can be chained with ZLinq. Any `IEn
 
 ### `ValueEnumerable.Range()`, `ValueEnumerable.Repeat()`, `ValueEnumerable.Empty()`
 
-`ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`.
+`ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`. The Range can also handle `System.Range`, step increments, `IAdditionOperators<T>`, `DateTime`, and more. Please refer to the [Range](#range) section for details.
 
 ### `Average() : where INumber<T>`, `Sum() : where INumber<T>`
 
@@ -149,6 +149,79 @@ If you absolutely need the raw internal array, you can `Deconstruct` it to `(T[]
 ### `JoinToString(char|string seperator)`
 
 Since `ZLinq` is not `IEnumerable<T>`, it cannot be passed to `String.Join`. `JoinToString` provides the same functionality as `String.Join`, returning a string joined with the separator.
+
+Range
+---
+`Range` is not only compatible with System.Linq's `Range(int start, int count)` but also has many additional overloads such as `System.Range` and `DateTime`.
+
+```csharp
+// 95, 96, 97, 98, 99
+var range1 = ValueEnumerable.Range(95..100);
+
+// 95, 96, 97, 98, 99, 100
+var range2 = ValueEnumerable.Range(95..100, RightBound.Inclusive);
+
+// 10, 12, 14, 16, 18
+var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
+
+// 10, 9, 8, 7, 6
+var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
+
+// 0, 1,.........
+var infinite = ValueEnumerable.Range(..);
+
+// a, b, c,..., z
+var alphabets = ValueEnumerable.Range(start: 'a', end: 'z', RightBound.Inclusive);
+
+// 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
+var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1)); ;
+
+// 5/1, 5/2,...,5/31
+var now = DateTime.Now;
+var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
+```
+
+Passing `..` as Range creates an infinite stream. Range is Exclusive by default, but you can also run it as Inclusive by specifying `RightBound.Inclusive/Exclusive`. Also, in .NET 8 or later, it supports `IAdditionOperators<T>`, allowing you to generate not only int but also `char`, `float`, etc. In addition, it supports more generic generation with not only count but also `T end` specification and `TStep step`.
+
+It supports `DateTime`, `DateTimeOffset` + `TimeSpan` for all platforms. [Unfortunately, `DateTime` and `DateTimeOffset` do not support Generic Math](https://github.com/dotnet/runtime/issues/76225), but we have prepared our own implementation that provides functionality equivalent to `IAdditionOperators<T>` support. This makes it easy to generate date sequences.
+
+The complete list of Range APIs is as follows.
+
+```csharp
+public enum RightBound
+{
+    Inclusive,
+    Exclusive
+}
+
+public static partial class ValueEnumerable
+{
+    public static ValueEnumerable<FromRange, int> Range(int start, int count)
+
+    public static ValueEnumerable<FromRange2, int> Range(Range range, RightBound rightBound = RightBound.Exclusive)
+
+#if NET8_0_OR_GREATER
+
+    public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
+        where T : INumberBase<T>
+
+    public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
+        where T : IAdditionOperators<T, TStep, T>
+
+    public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
+        where T : INumberBase<T>, IComparisonOperators<T, T, bool>
+
+    public static ValueEnumerable<FromRangeTo<T, TStep>, T> Range<T, TStep>(T start, T end, TStep step, RightBound rightBound)
+        where T : IAdditionOperators<T, TStep, T>, IComparisonOperators<T, T, bool>
+
+#endif
+
+    public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step)
+    public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound)
+    public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step)
+    public static ValueEnumerable<FromRangeDateTimeOffsetTo, DateTimeOffset> Range(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound)
+}
+```
 
 Difference and Limitation
 ---

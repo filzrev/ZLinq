@@ -40,6 +40,9 @@ internal static class Throws
     [DoesNotReturn]
     public static void VectorSmallOverlap<T>() where T : struct => throw new ArgumentException($"Span length must be at least {System.Numerics.Vector<T>.Count} for OverlapOrThrow mode");
 
+    [DoesNotReturn]
+    public static void IsFromEnd(string paramName) => throw new ArgumentOutOfRangeException(paramName, "IsFromEnd is not allowed.");
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T IfNull<T>(T? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where T : class
