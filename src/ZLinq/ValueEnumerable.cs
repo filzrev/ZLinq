@@ -144,7 +144,7 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
         if (type.IsGenericType)
         {
             var parent = type.GenericTypeArguments[0];
-            if (parent.IsGenericType || (parent.Name is "FromRange" or "FromRangeDateTime" or "FromRangeDateTimeTo"))
+            if (parent.IsGenericType || (parent.Name is "FromRange" or "FromRange2" or "FromRangeDateTime" or "FromRangeDateTimeTo"))
             {
                 BuildCore(sb, parent);
                 sb.Append(".");
@@ -161,7 +161,7 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
                 sb.Append(type.Name);
             }
 
-            if (!parent.IsGenericType && !(parent.Name is "FromRange" or "FromRangeDateTime" or "FromRangeDateTimeTo"))
+            if (!parent.IsGenericType && !(parent.Name is "FromRange" or "FromRange2" or "FromRangeDateTime" or "FromRangeDateTimeTo"))
             {
                 sb.Append("<");
                 sb.Append(parent.Name);
@@ -170,7 +170,7 @@ internal static class ValueEnumerableDebuggerDisplayHelper // avoid <T> for asse
             return;
         }
 
-        if (type.Name is "FromRange" or "FromRangeDateTime" or "FromRangeDateTimeTo")
+        if (type.Name is "FromRange" or "FromRange2" or "FromRangeDateTime" or "FromRangeDateTimeTo")
         {
             sb.Append(type.Name);
         }

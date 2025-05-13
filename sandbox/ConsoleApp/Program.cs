@@ -65,19 +65,21 @@ var foobar = ValueEnumerable.Range(now, now.AddDays(7.0), TimeSpan.FromDays(1), 
 
 
 
+var a = ValueEnumerable.Range(..);
+var b = ValueEnumerable.Range(9999..);
+var c = ValueEnumerable.Range(5..10); // 5, 6, 7, 8, 9
+var z = ValueEnumerable.Range(5..10, RightBound.Inclusive).Select(x => x * 100).Take(10); // 5, 6, 7, 8, 9, 10
+var d = ValueEnumerable.Range(3..3);
+
+
+var hoge = new[] { 1, 10, 100 }.Select(x => x * 99);
+
+
 var array = ValueEnumerable.Range(1, 1000).Where(x => x % 2 == 1);
 
 //((object)array).GetType();
 
 // IValueEnumerator
-
-// From
-//var foo = ValueEnumerableDebuggerDisplayHelper.BuildDisplayText(typeof(Select<Where<FromArray<int>, int>, int, string>));
-//var bar = ValueEnumerableDebuggerDisplayHelper.BuildDisplayText(typeof(Select<Where<FromRange, int>, int, string>));
-//Console.WriteLine(foo);
-//Console.WriteLine(bar);
-// System.Collections.Immutable.ImmutableArray
-
 
 
 

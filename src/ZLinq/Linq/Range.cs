@@ -23,6 +23,37 @@ namespace ZLinq
             return new(new(start, count));
         }
 
+        public static ValueEnumerable<FromRange2, int> Range(Range range, RightBound rightBound = RightBound.Exclusive)
+        {
+            if (range.Start.IsFromEnd)
+            {
+                Throws.IsFromEnd(nameof(range));
+            }
+
+            if (range.End.IsFromEnd)
+            {
+                if (range.End.Value == 0)
+                {
+                    return new(new(range.Start.Value, 0, true)); // infinite
+                }
+                Throws.IsFromEnd(nameof(range));
+            }
+
+            var start = range.Start.Value;
+            var count = range.End.Value - range.Start.Value;
+            if (rightBound == RightBound.Inclusive)
+            {
+                count++;
+            }
+
+            long max = ((long)start) + count - 1;
+            if (count < 0 || max > int.MaxValue)
+            {
+                Throws.ArgumentOutOfRange(nameof(range));
+            }
+
+            return new(new(start, count, false));
+        }
 
 #if NET8_0_OR_GREATER
 
@@ -54,15 +85,18 @@ namespace ZLinq
 
         // Currently DateTime is not implemented IAdditionalOperators<DateTime, TimeSpan, DateTime>
 
-        // TODO: DateTimeOffset
-
         public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
         public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
+
+        public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step) => new(new(start, count, step));
+        public static ValueEnumerable<FromRangeDateTimeOffsetTo, DateTimeOffset> Range(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
     }
 }
 
 namespace ZLinq.Linq
 {
+    // Standard Range implementation
+
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRange(int start, int count) : IValueEnumerator<int>
@@ -156,6 +190,70 @@ namespace ZLinq.Linq
                 current = start++; // reuse local variable
                 current = ref Unsafe.Add(ref current, 1);
             }
+        }
+    }
+
+    // for `System.Range`
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRange2(int start, int count, bool isInfinite) : IValueEnumerator<int>
+    {
+        readonly int count = count;
+        readonly int start = start;
+        readonly int to = isInfinite ? int.MaxValue - start : start + count;
+        readonly bool isInfinite = isInfinite;
+        int value = start;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            if (isInfinite)
+            {
+                count = 0;
+                return false;
+            }
+
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<int> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<int> destination, Index offset)
+        {
+            if (isInfinite) return false;
+
+            if (EnumeratorHelper.TryGetSliceRange(count, offset, destination.Length, out var fillStart, out var fillCount))
+            {
+                FromRange.FillIncremental(destination.Slice(0, fillCount), start + fillStart);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetNext(out int current)
+        {
+            if (value < to)
+            {
+                current = value;
+                checked
+                {
+                    value++;
+                }
+                return true;
+            }
+
+            current = 0;
+            return false;
+        }
+
+        public void Dispose()
+        {
         }
     }
 
@@ -427,6 +525,63 @@ namespace ZLinq.Linq
             }
 
             current = default(DateTime)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTimeOffsetTo(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound) : IValueEnumerator<DateTimeOffset>
+    {
+        readonly DateTimeOffset end = end;
+        readonly TimeSpan step = step;
+        readonly RightBound rightBound = rightBound;
+
+        DateTimeOffset value = start;
+        bool first = true;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTimeOffset> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTimeOffset> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTimeOffset current)
+        {
+            if (first)
+            {
+                current = value;
+                first = false;
+                return true;
+            }
+
+            checked
+            {
+                value += step;
+            }
+
+            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            {
+                current = value;
+                return true;
+            }
+
+            current = default(DateTimeOffset)!;
             return false;
         }
 
