@@ -83,7 +83,7 @@ namespace ZLinq
 
 #endif
 
-        // Currently DateTime is not implemented IAdditionalOperators<DateTime, TimeSpan, DateTime>
+        // Currently DateTime is not implemented IAdditionOperators<DateTime, TimeSpan, DateTime>
 
         public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
         public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));

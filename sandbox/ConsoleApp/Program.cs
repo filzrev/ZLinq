@@ -53,33 +53,59 @@ using System.Diagnostics.CodeAnalysis;
 
 var dates = ValueEnumerable.Range((ArithmeticDateTime)DateTime.Now, 7, TimeSpan.FromDays(-1)).Select(x => (DateTime)x).ToArray();
 
+
+
+
+// 95, 96, 97, 98, 99
+var range1 = ValueEnumerable.Range(95..100);
+
+// 95, 96, 97, 98, 99, 100
+var range2 = ValueEnumerable.Range(95..100, RightBound.Inclusive);
+
+// 10, 12, 14, 16, 18
+var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
+
+// 10, 9, 8, 7, 6
+var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
+
+// 0, 1,.........
+var infinite = ValueEnumerable.Range(..);
+
+// a, b, c,..., z
+var alphabets = ValueEnumerable.Range(start: 'a', end: 'z', RightBound.Inclusive);
+
+// 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
+var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1)); ;
+
+// 5/1, 5/2,...,5/31
 var now = DateTime.Now;
-var calendarOfThisMonth = ValueEnumerable.Range((ArithmeticDateTime)new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
-var calendarOfThisMonth2 = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
-
-
-var weeks = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1));
-
-
-var foobar = ValueEnumerable.Range(now, now.AddDays(7.0), TimeSpan.FromDays(1), RightBound.Inclusive).Select(x => x).Take(100);
+var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
 
 
 
-var a = ValueEnumerable.Range(..);
-var b = ValueEnumerable.Range(9999..);
-var c = ValueEnumerable.Range(5..10); // 5, 6, 7, 8, 9
-var z = ValueEnumerable.Range(5..10, RightBound.Inclusive).Select(x => x * 100).Take(10); // 5, 6, 7, 8, 9, 10
-var d = ValueEnumerable.Range(3..3);
 
 
-var hoge = new[] { 1, 10, 100 }.Select(x => x * 99);
 
-
-var array = ValueEnumerable.Range(1, 1000).Where(x => x % 2 == 1);
 
 //((object)array).GetType();
 
 // IValueEnumerator
+
+
+
+var foo = ValueEnumerable.Range(start: 10, end: 14, step: 2, RightBound.Inclusive);
+foreach (var item in foo)
+{
+    Console.WriteLine(item);
+}
+
+ValueEnumerable.Range(..); // infinite loop
+
+
+
+
+
+
 
 
 
