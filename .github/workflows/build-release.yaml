@@ -15,7 +15,7 @@ on:
 jobs:
   update-packagejson:
     permissions:
-      actions: read # for dotnet run
+      actions: read
       contents: write
     uses: Cysharp/Actions/.github/workflows/update-packagejson.yaml@main
     with:
