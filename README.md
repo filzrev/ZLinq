@@ -167,6 +167,9 @@ var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
 // 10, 9, 8, 7, 6
 var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
 
+// 10, 9, 8, 7, 6, 5
+var downTo = ValueEnumerable.Range(start: 10, end: 5, RightBound.Inclusive);
+
 // 0, 1,.........
 var infinite = ValueEnumerable.Range(..);
 

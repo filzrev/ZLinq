@@ -51,50 +51,11 @@ using System.Diagnostics.CodeAnalysis;
 
 
 
-var dates = ValueEnumerable.Range((ArithmeticDateTime)DateTime.Now, 7, TimeSpan.FromDays(-1)).Select(x => (DateTime)x).ToArray();
+
+var downTo = ValueEnumerable.Range(start: 10, end: 5, RightBound.Exclusive);
 
 
-
-
-// 95, 96, 97, 98, 99
-var range1 = ValueEnumerable.Range(95..100);
-
-// 95, 96, 97, 98, 99, 100
-var range2 = ValueEnumerable.Range(95..100, RightBound.Inclusive);
-
-// 10, 12, 14, 16, 18
-var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
-
-// 10, 9, 8, 7, 6
-var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
-
-// 0, 1,.........
-var infinite = ValueEnumerable.Range(..);
-
-// a, b, c,..., z
-var alphabets = ValueEnumerable.Range(start: 'a', end: 'z', RightBound.Inclusive);
-
-// 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
-var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1)); ;
-
-// 5/1, 5/2,...,5/31
-var now = DateTime.Now;
-var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
-
-
-
-
-
-
-
-//((object)array).GetType();
-
-// IValueEnumerator
-
-
-
-var foo = ValueEnumerable.Range(start: 10, end: 14, step: 2, RightBound.Inclusive);
-foreach (var item in foo)
+foreach (var item in downTo)
 {
     Console.WriteLine(item);
 }
@@ -108,28 +69,6 @@ ValueEnumerable.Range(..); // infinite loop
 
 
 
-
-var tako = ValueEnumerable.Range(int.MaxValue - 10, 99, (int)3);
-foreach (var item in tako)
-{
-    Console.WriteLine(item);
-}
-
-
-IReadOnlyCollection<int> xs = new[] { 1, 2, 3, 4, 5 };
-xs.Select(x => x * x);
-
-
-var mc = new MyCollection<int>();
-mc.Add(1);
-
-var foobarbaz = mc.Select(x => x);
-
-
-var list = new AddOnlyIntList2();
-list.Add(10);
-list.Add(20);
-list.Add(30);
 
 //foreach (var item in list.Select(x => x * 100))
 //{

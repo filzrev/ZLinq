@@ -72,7 +72,8 @@ namespace ZLinq
         public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
             where T : INumberBase<T>, IComparisonOperators<T, T, bool>
         {
-            return new(new(start, end, T.One, rightBound));
+            var step = start < end ? T.One : -T.One;
+            return new(new(start, end, step, rightBound));
         }
 
         public static ValueEnumerable<FromRangeTo<T, TStep>, T> Range<T, TStep>(T start, T end, TStep step, RightBound rightBound)
@@ -320,6 +321,7 @@ namespace ZLinq.Linq
         readonly T end = end;
         readonly TStep step = step;
         readonly RightBound rightBound = rightBound;
+        bool forward = start < end;
 
         T value = start;
         bool first = true;
@@ -355,10 +357,21 @@ namespace ZLinq.Linq
                 value += step;
             }
 
-            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            if (forward)
             {
-                current = value;
-                return true;
+                if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+                {
+                    current = value;
+                    return true;
+                }
+            }
+            else
+            {
+                if (value > end || (rightBound == RightBound.Inclusive && value >= end))
+                {
+                    current = value;
+                    return true;
+                }
             }
 
             current = default(T)!;
@@ -483,6 +496,7 @@ namespace ZLinq.Linq
         readonly DateTime end = end;
         readonly TimeSpan step = step;
         readonly RightBound rightBound = rightBound;
+        bool forward = start < end;
 
         DateTime value = start;
         bool first = true;
@@ -518,10 +532,21 @@ namespace ZLinq.Linq
                 value += step;
             }
 
-            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            if (forward)
             {
-                current = value;
-                return true;
+                if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+                {
+                    current = value;
+                    return true;
+                }
+            }
+            else
+            {
+                if (value > end || (rightBound == RightBound.Inclusive && value >= end))
+                {
+                    current = value;
+                    return true;
+                }
             }
 
             current = default(DateTime)!;
@@ -543,6 +568,7 @@ namespace ZLinq.Linq
 
         DateTimeOffset value = start;
         bool first = true;
+        bool forward = start < end;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
@@ -575,10 +601,21 @@ namespace ZLinq.Linq
                 value += step;
             }
 
-            if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+            if (forward)
             {
-                current = value;
-                return true;
+                if (value < end || (rightBound == RightBound.Inclusive && value <= end))
+                {
+                    current = value;
+                    return true;
+                }
+            }
+            else
+            {
+                if (value > end || (rightBound == RightBound.Inclusive && value >= end))
+                {
+                    current = value;
+                    return true;
+                }
             }
 
             current = default(DateTimeOffset)!;
