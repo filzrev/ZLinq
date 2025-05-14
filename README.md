@@ -1,7 +1,7 @@
 ZLinq
 ===
-[![CI](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yml)
-[![Benchmark](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yml)
+[![CI](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yml)
+[![Benchmark](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yml)
 [![NuGet](https://img.shields.io/nuget/v/ZLinq)](https://www.nuget.org/packages/ZLinq)
 [![DeepWiki](https://img.shields.io/badge/Chat%20with-DeepWiki%20🤖-blue)](https://deepwiki.com/Cysharp/ZLinq)
 
@@ -250,19 +250,19 @@ dotnet add package ZLinq.DropInGenerator
 
 ![](img/dropin.jpg)
 
-It works by using a Source Generator to add extension methods for each type that take priority, making `ZLinq` methods be selected instead of System.Linq when the same name and arguments are used. 
+It works by using a Source Generator to add extension methods for each type that take priority, making `ZLinq` methods be selected instead of System.Linq when the same name and arguments are used.
 After installing the package, you need to configure it with an assembly attribute.
 
 ```csharp
 [assembly: ZLinq.ZLinqDropInAttribute("ZLinq", ZLinq.DropInGenerateTypes.Array)]
 ```
 
-`generateNamespace` is the namespace for the generated code, and `DropInGenerateTypes` selects the target types. 
-`DropInGenerateTypes` allows you to choose from `Array`, `Span` (Span/ReadOnlySpan), `Memory` (Memory/ReadOnlyMemory), `List`, and `Enumerable` (IEnumerable). 
-These are Flags, so you can combine them, such as `DropInGenerateTypes.Array | DropInGenerateTypes.Span`. 
+`generateNamespace` is the namespace for the generated code, and `DropInGenerateTypes` selects the target types.
+`DropInGenerateTypes` allows you to choose from `Array`, `Span` (Span/ReadOnlySpan), `Memory` (Memory/ReadOnlyMemory), `List`, and `Enumerable` (IEnumerable).
+These are Flags, so you can combine them, such as `DropInGenerateTypes.Array | DropInGenerateTypes.Span`.
 There are also predefined combinations: `Collection = Array | Span | Memory | List` and `Everything = Array | Span | Memory | List | Enumerable`.
 
-When using `DropInGenerateTypes.Enumerable`, which generates extension methods for `IEnumerable<T>`, you need to make `generateNamespace` global as a namespace priority. 
+When using `DropInGenerateTypes.Enumerable`, which generates extension methods for `IEnumerable<T>`, you need to make `generateNamespace` global as a namespace priority.
 For example:
 
 ```csharp
@@ -726,10 +726,10 @@ Unity
 ---
 There are two installation steps required to use it in Unity.
 
-1. Install `ZLinq` from NuGet using [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)  
-Open Window from NuGet -> Manage NuGet Packages, Search "ZLinq" and Press Install. 
+1. Install `ZLinq` from NuGet using [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity)
+Open Window from NuGet -> Manage NuGet Packages, Search "ZLinq" and Press Install.
 
-2. Install the `ZLinq.Unity` package by referencing the git URL  
+2. Install the `ZLinq.Unity` package by referencing the git URL
 
 ```bash
 https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity
@@ -773,7 +773,7 @@ You can chain query(LINQ to Objects). Also, you can filter by component using th
 var foobars = root.Descendants().Where(x => x.tag == "foobar");
 
 // get FooScript under self childer objects and self
-var fooScripts = root.ChildrenAndSelf().OfComponent<FooScript>(); 
+var fooScripts = root.ChildrenAndSelf().OfComponent<FooScript>();
 ```
 
 NOTE: In Unity, since .NET Standard 2.1 is referenced, SIMD is not utilized.
@@ -830,7 +830,7 @@ void IterateNormal(IEnumerable<int> source)
     // Normally there's an allocation when getting IEnumerator<T>.
     foreach (var item in source)
     {
-        
+
     }
 }
 
@@ -840,7 +840,7 @@ void IterateZLinq(IEnumerable<int> source)
     // However, zero alloc only works when the actual implementation of IEnumerable<T> is an array [] or List<T>
     foreach (var item in source.AsValueEnumerable())
     {
-        
+
     }
 }
 ```
@@ -998,7 +998,7 @@ public static class MyExtensions
         where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
         , allows ref struct
-#endif 
+#endif
     {
         // ValueEnumerable is only a wrapper so unwrapping to enumerator immediately is ok.
         // `new(new())` is `new ValueEnumerable(new SimpleSelect())`, wrap enumerator to ValueEnumerable.
@@ -1015,7 +1015,7 @@ public struct
         where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
         , allows ref struct
-#endif 
+#endif
 {
     TEnumerator source = source; // need to store source enumerator in field explicitly (ref struct limitation)
 
