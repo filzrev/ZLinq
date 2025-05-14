@@ -10,11 +10,13 @@ on:
 
 jobs:
   build-dotnet:
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-24.04, windows-latest]
+    permissions:
+      contents: read
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     steps:
       - uses: Cysharp/Actions/.github/actions/checkout@main
       - uses: Cysharp/Actions/.github/actions/setup-dotnet@main
@@ -24,7 +26,10 @@ jobs:
       - run: dotnet test  -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx --no-build
 
   check-codecov-token:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     outputs:
       run_codecoverage: ${{ steps.check-token.outputs.token_exists }}
     steps:
@@ -45,7 +50,9 @@ jobs:
   code-coverage:
     if: ${{ needs.check-codecov-token.outputs.run_codecoverage == 'true' }} # secrets can't referenced in `if` so it needs separate job.
     needs: check-codecov-token
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: Cysharp/Actions/.github/actions/checkout@main
@@ -68,13 +75,13 @@ jobs:
           $sessionId = 'ZLinq'
 
           dotnet coverage collect --session-id $sessionId --nologo --settings codecoverage.runsettings --server-mode --background
-          try 
+          try
           {
             dotnet coverage connect $sessionId --nologo "dotnet test ../ -c Release --framework net9.0 --no-build"
-            
+
             dotnet coverage connect $sessionId --nologo "dotnet test -c Release System.Linq.Tests/System.Linq.Tests.slnx --framework net9.0 --no-build"
           }
-          finally 
+          finally
           {
             dotnet coverage shutdown $sessionId --nologo --timeout 60000
           }

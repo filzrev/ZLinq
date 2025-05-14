@@ -21,10 +21,10 @@ on:
 
 jobs:
   benchmark:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
     timeout-minutes: 360 # Default: 360 minutes
-    strategy:
-      fail-fast: true
     steps:
       - uses: Cysharp/Actions/.github/actions/checkout@main
       - uses: Cysharp/Actions/.github/actions/setup-dotnet@main
