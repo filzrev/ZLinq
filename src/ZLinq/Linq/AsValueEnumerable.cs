@@ -103,13 +103,29 @@ namespace ZLinq
 
 namespace ZLinq.Linq
 {
+    internal struct FromEnumerableContent(object source)
+    {
+        public object Source = source;
+        public int Index;
+        [MethodImpl]
+        public void ThrowIfNoEnumerable()
+        {
+            if (Index >= 0) return;
+            Throw();
+            return;
+
+            void Throw()
+            {
+                throw new InvalidOperationException("The enumerable is no longer available.");
+            }
+        }
+    }
+
     [StructLayout(LayoutKind.Auto)]
     public struct FromEnumerable<T> : IValueEnumerator<T>
     {
-        readonly IEnumerable<T> source;
         readonly CollectionIterator<T> iterator;
-        IEnumerator<T>? enumerator; // field instantiate must deferred
-        int index;
+        FromEnumerableContent content;
 
         public FromEnumerable(IEnumerable<T> source)
         {
@@ -121,11 +137,11 @@ namespace ZLinq.Linq
             {
                 this.iterator = ListIterator<T>.Instance;
             }
-            else if (source is IReadOnlyList<T> readonlyList)
+            else if (source is IReadOnlyList<T>)
             {
                 this.iterator = IReadOnlyListIterator<T>.Instance;
             }
-            else if (source is IList<T> ilist)
+            else if (source is IList<T>)
             {
                 this.iterator = IListIterator<T>.Instance;
             }
@@ -134,24 +150,40 @@ namespace ZLinq.Linq
                 this.iterator = EnumerableIterator<T>.Instance;
             }
 
-            this.source = source;
+            this.content = new(source);
         }
 
         // for Contains, need to check ICollection of IEqualityComparer due to compatibility
-        internal IEnumerable<T> GetSource() => source;
+        internal IEnumerable<T> GetSource()
+        {
+            content.ThrowIfNoEnumerable();
+            return Unsafe.As<IEnumerable<T>>(content.Source);
+        }
 
-        public bool TryGetNonEnumeratedCount(out int count) => iterator.TryGetNonEnumeratedCount(source, out count);
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            content.ThrowIfNoEnumerable();
+            return iterator.TryGetNonEnumeratedCount(Unsafe.As<IEnumerable<T>>(content.Source), out count);
+        }
 
-        public bool TryGetSpan(out ReadOnlySpan<T> span) => iterator.TryGetSpan(source, out span);
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            content.ThrowIfNoEnumerable();
+            return iterator.TryGetSpan(Unsafe.As<IEnumerable<T>>(content.Source), out span);
+        }
 
-        public bool TryCopyTo(Span<T> destination, Index offset) => iterator.TryCopyTo(source, destination, offset);
+        public bool TryCopyTo(Span<T> destination, Index offset)
+        {
+            content.ThrowIfNoEnumerable();
+            return iterator.TryCopyTo(Unsafe.As<IEnumerable<T>>(content.Source), destination, offset);
+        }
 
-        public bool TryGetNext(out T current) => iterator.TryGetNext(ref index, ref enumerator, source, out current);
+        public bool TryGetNext(out T current) => iterator.TryGetNext(ref content, out current);
 
         public void Dispose()
         {
-            enumerator?.Dispose();
-            enumerator = null;
+            if (content.Index >= 0) return;
+            Unsafe.As<IEnumerator<T>>(content.Source).Dispose();
         }
     }
 
@@ -172,7 +204,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public abstract bool TryGetNext(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current);
+        public abstract bool TryGetNext(ref FromEnumerableContent content, out T current);
     }
 
     internal sealed class ArrayIterator<T> : CollectionIterator<T>
@@ -203,13 +235,14 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public override bool TryGetNext(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            var src = Unsafe.As<IEnumerable<T>, T[]>(ref source);
-            if (index < src.Length)
+            var index =  content.Index;
+            var src = Unsafe.As<T[]>(content.Source);
+            if ((uint)index < (uint)src.Length)
             {
                 current = src[index];
-                index++;
+                content.Index = index+1;
                 return true;
             }
 
@@ -246,13 +279,14 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public override bool TryGetNext(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            var src = Unsafe.As<IEnumerable<T>, List<T>>(ref source);
+            var index = content.Index;
+            var src = Unsafe.As<List<T>>(content.Source);
             if (index < src.Count)
             {
                 current = src[index];
-                index++;
+                content.Index = index + 1;
                 return true;
             }
 
@@ -273,13 +307,14 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public override bool TryGetNext(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            var src = Unsafe.As<IEnumerable<T>, IList<T>>(ref source);
+            var index = content.Index;
+            var src = Unsafe.As<IList<T>>(content.Source);
             if (index < src.Count)
             {
                 current = src[index];
-                index++;
+                content.Index = index + 1;
                 return true;
             }
 
@@ -300,13 +335,14 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public override bool TryGetNext(ref int index, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            var src = Unsafe.As<IEnumerable<T>, IReadOnlyList<T>>(ref source);
+            var index = content.Index;
+            var src = Unsafe.As<IReadOnlyList<T>>(content.Source);
             if (index < src.Count)
             {
                 current = src[index];
-                index++;
+                content.Index = index + 1;
                 return true;
             }
 
@@ -344,11 +380,12 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public override bool TryGetNext(ref int _, ref IEnumerator<T>? enumerator, IEnumerable<T> source, out T current)
+        public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            if (enumerator == null)
+            var enumerator = Unsafe.As<IEnumerator<T>>(content.Source);
+            if (content.Index == 0)
             {
-                enumerator = source.GetEnumerator();
+                enumerator = Initialize(ref content);
             }
 
             if (enumerator.MoveNext())
@@ -359,6 +396,17 @@ namespace ZLinq.Linq
 
             Unsafe.SkipInit(out current);
             return false;
+
+            [MethodImpl(MethodImplOptions.NoInlining)]
+            static IEnumerator<T> Initialize(ref FromEnumerableContent content)
+            {
+                var enumerator = Unsafe.As<IEnumerable<T>>(content.Source).GetEnumerator();
+                content.Source = enumerator;
+                content.Index = -1;
+
+                // ReSharper disable once NotDisposedResourceIsReturned
+                return enumerator;
+            }
         }
     }
 
@@ -863,7 +911,6 @@ namespace ZLinq.Linq
     }
 
 #if NET8_0_OR_GREATER
-
     [StructLayout(LayoutKind.Auto)]
     public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>
     {
