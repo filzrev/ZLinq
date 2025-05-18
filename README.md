@@ -72,6 +72,8 @@ Operators have this method signature. C# cannot infer types from generic constra
 
 Additionally, `TryGetNonEnumeratedCount(out int count)`, `TryGetSpan(out ReadOnlySpan<T> span)`, and `TryCopyTo(Span<T> destination, Index offset)` defined in the interface itself enable flexible optimizations. To minimize assembly size, we've designed the library to achieve maximum optimization with minimal method additions. For example, `TryCopyTo` works efficiently with methods like `ToArray` when combined with `TryGetNonEnumeratedCount`. However, it also allows copying to smaller-sized destinations. By combining this with Index, we can optimize `First`, `Last`, and `ElementAt` using just `TryCopyTo` by passing a single-element Span along with an Index.
 
+If you're interested in architecture, please read my blog post [**"ZLinq", a Zero-Allocation LINQ Library for .NET**](https://neuecc.medium.com/zlinq-a-zero-allocation-linq-library-for-net-1bb0a3e5c749) where I wrote the details.
+
 Getting Started
 ---
 You can install package from [NuGet/ZLinq](https://www.nuget.org/packages/ZLinq). For Unity usage, refer to the [Unity section](#unity). For Godot usage, refer to the [Godot section](#godot).
