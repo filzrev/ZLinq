@@ -64,7 +64,16 @@ ValueEnumerable.Range(..); // infinite loop
 
 
 
+IEnumerable nonGenericCollection = default!;
+nonGenericCollection.AsValueEnumerable(); // ValueEnumerable<, object>
+nonGenericCollection.AsValueEnumerable<int>(); // ValueEnumerable<, int>
 
+
+var seq = new[] { 1, 2, 3 }.AsValueEnumerable().GroupBy(x => x);
+foreach (var item in seq)
+{
+    Console.WriteLine(item.Key + ":" + item.Count());
+}
 
 
 

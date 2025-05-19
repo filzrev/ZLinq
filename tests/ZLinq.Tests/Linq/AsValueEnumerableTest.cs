@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Shouldly;
 using Xunit;
+using System.Collections;
+
 #if NET8_0_OR_GREATER
 using System.Collections.Immutable;
 #endif
@@ -512,6 +514,28 @@ namespace ZLinq.Tests.Linq
                 .ToArray();
 
             z.Length.ShouldBe(2);
+        }
+
+        // NonGeneric
+
+        [Fact]
+        public void NonGeneric1()
+        {
+            IEnumerable source = new[] { 1, 2, 3, 4, 5 };
+            var objects = source.AsValueEnumerable().ToArray();
+            objects[0].ShouldBe(1);
+            objects[1].ShouldBe(2);
+            objects[2].ShouldBe(3);
+            objects[3].ShouldBe(4);
+            objects[4].ShouldBe(5);
+        }
+
+        [Fact]
+        public void NonGeneric2()
+        {
+            IEnumerable source = new[] { 1, 2, 3, 4, 5 };
+            var objects = source.AsValueEnumerable<int>().ToArray();
+            objects.ShouldBe([1, 2, 3, 4, 5]);
         }
 
         // Helper class for testing disposal

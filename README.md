@@ -107,6 +107,16 @@ In ZLinq, we prioritize compatibility, so we try to minimize adding custom opera
 
 Converts existing collections to a type that can be chained with ZLinq. Any `IEnumerable<T>` can be converted, but for the following types, conversion is done with zero allocation without `IEnumerable<T>.GetEnumerator()` allocation. Standard supported types are `T[]`, `List<T>`, `ArraySegment<T>`, `Memory<T>`, `ReadOnlyMemory<T>`, `ReadOnlySequence<T>`, `Dictionary<TKey, TValue>`, `Queue<T>`, `Stack<T>`, `LinkedList<T>`, `HashSet<T>`, `ImmutableArray<T>`, `Span<T>`, `ReadOnlySpan<T>`. However, conversion from `ImmutableArray<T>` requires `.NET 8` or higher, and conversion from `Span<T>`, `ReadOnlySpan<T>` requires `.NET 9` or higher.
 
+When a type is declared as `IEnumerable<T>` or `ICollection<T>` rather than concrete types like `T[]` or `List<T>`, generally additional allocations occur when using foreach. In `ZLinq`, even when these interfaces are declared, if the actual type is `T[]` or `List<T>`, processing is performed with zero allocation.
+
+Convert from `System.Collections.IEnumerable` is also supported. In that case, using `AsValueEnumerable()` without specifying a type converts to `ValueEnumerable<, object>`, but you can also cast it simultaneously by `AsValueEnumerable<T>()`.
+
+```csharp
+IEnumerable nonGenericCollection = default!;
+nonGenericCollection.AsValueEnumerable(); // ValueEnumerable<, object>
+nonGenericCollection.AsValueEnumerable<int>(); // ValueEnumerable<, int>
+```
+
 ### `ValueEnumerable.Range()`, `ValueEnumerable.Repeat()`, `ValueEnumerable.Empty()`
 
 `ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`. The Range can also handle `System.Range`, step increments, `IAdditionOperators<T>`, `DateTime`, and more. Please refer to the [Range](#range) section for details.

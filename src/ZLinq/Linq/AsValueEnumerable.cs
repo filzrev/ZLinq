@@ -12,6 +12,16 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
+        public static ValueEnumerable<FromNonGenericEnumerable<object>, object> AsValueEnumerable(this IEnumerable source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
+        public static ValueEnumerable<FromNonGenericEnumerable<T>, T> AsValueEnumerable<T>(this IEnumerable source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
         public static ValueEnumerable<FromEnumerable<T>, T> AsValueEnumerable<T>(this IEnumerable<T> source)
         {
             return new(new(Throws.IfNull(source)));
@@ -237,12 +247,12 @@ namespace ZLinq.Linq
 
         public override bool TryGetNext(ref FromEnumerableContent content, out T current)
         {
-            var index =  content.Index;
+            var index = content.Index;
             var src = Unsafe.As<T[]>(content.Source);
             if ((uint)index < (uint)src.Length)
             {
                 current = src[index];
-                content.Index = index+1;
+                content.Index = index + 1;
                 return true;
             }
 
@@ -406,6 +416,60 @@ namespace ZLinq.Linq
 
                 // ReSharper disable once NotDisposedResourceIsReturned
                 return enumerator;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromNonGenericEnumerable<T>(IEnumerable source) : IValueEnumerator<T>
+    {
+        IEnumerator? enumerator;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            if (source is ICollection c)
+            {
+                count = c.Count;
+                return true;
+            }
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            if (enumerator == null)
+            {
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                var value = enumerator.Current;
+                current = (T)value;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (enumerator is IDisposable d)
+            {
+                d.Dispose();
             }
         }
     }
