@@ -45,8 +45,11 @@ jobs:
         working-directory: sandbox/Benchmark
         shell: pwsh
         run: |
-          $items = Get-ChildItem "BenchmarkDotNet.Artifacts/results/*.md"
-          foreach($item in $items) {
-            Write-Output ('## {0}' -f $item.Name)          >> $env:GITHUB_STEP_SUMMARY
-            Write-Output (Get-Content $item.FullName -Raw) >> $env:GITHUB_STEP_SUMMARY
+          $items = Get-ChildItem "BenchmarkDotNet.Artifacts/results/*.md" | where Name -ne 'reports.md'
+          foreach($item in $items) {          
+            $title = $item.Name
+            $markdown = ($item.FullName -Raw).Replace('<', '&lt;').Replace('>', '&gt;')  # Some character needs escape when using `MarkdownExporter.Console`.
+
+            Write-Output ('## {0}' -f $title) >> $env:GITHUB_STEP_SUMMARY
+            Write-Output $markdown            >> $env:GITHUB_STEP_SUMMARY
           }
