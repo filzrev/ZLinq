@@ -24,13 +24,13 @@ It can start benchmarks with following command.
 $branchName = 'main'
 
 # Run benchmark with `Default` config
-gh workflow run benchmark.yml --repo Cysharp/ZLinq --ref $branchName
+gh workflow run benchmark.yaml --repo Cysharp/ZLinq --ref $branchName
 
 # Run benchmark with `Default` config with benchmark filter
-gh workflow run benchmark.yml --repo Cysharp/ZLinq --ref $branchName -f filter=Benchmark.ReadMeBenchmark*
+gh workflow run benchmark.yaml --repo Cysharp/ZLinq --ref $branchName -f filter=Benchmark.ReadMeBenchmark*
 
 # Run benchmark with `SystemLinq` config
-gh workflow run benchmark.yml --repo Cysharp/ZLinq --ref $branchName -f config=SystemLinq
+gh workflow run benchmark.yaml --repo Cysharp/ZLinq --ref $branchName -f config=SystemLinq
 ```
 
 Benchmark results are written to `GitHub Actions Job Summaries`.
