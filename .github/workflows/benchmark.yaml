@@ -51,6 +51,7 @@ jobs:
             $title = $title.Replace('-report-console.md', '')
             $title = $title.Replace('_Int32_' , '&lt;int&gt;')
             $title = $title.Replace('_String_', '&lt;string&gt;')
+            $title = $title.Replace('_Double_', '&lt;double&gt;')
 
             $content = Get-Content $item.FullName -Raw
             $tableContent = $content.Substring($content.IndexOf('|'))                        
