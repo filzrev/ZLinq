@@ -17,7 +17,7 @@ public static class TestDataGenerator
         return array;
     }
 
-    public static T GetValue<T>(int length)
+    public static T GetValue<T>()
         where T : notnull
     {
         return GenerateRandomValue<T>()!;
