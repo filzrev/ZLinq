@@ -141,4 +141,82 @@ public class CountTest
         Should.Throw<DivideByZeroException>(() => xs.AsValueEnumerable().Count(ExceptionPredicate));
         Should.Throw<DivideByZeroException>(() => xs.ToValueEnumerable().Count(ExceptionPredicate));
     }
+
+    [Fact]
+    public void WhereCountOptimization()
+    {
+        var xs = new int[] { 1, 2, 3, 4, 5 };
+        
+        // Counter to check if optimization is working
+        var counter = 0;
+        bool CounterPredicate(int x)
+        {
+            counter++;
+            return x > 2;
+        }
+        
+        // Test the Where().Count() optimization
+        counter = 0;
+        var result = xs.AsValueEnumerable().Where(CounterPredicate).Count();
+        result.ShouldBe(3);
+        counter.ShouldBe(5); // Should check all items exactly once
+    }
+
+    [Fact]
+    public void ListWhereCountOptimization()
+    {
+        var list = new List<int> { 1, 2, 3, 4, 5 };
+        
+        // Test the specific List optimization for Where().Count()
+        var result = list.AsValueEnumerable().Where(x => x > 3).Count();
+        result.ShouldBe(2);
+    }
+
+    [Fact]
+    public void CountWithNullPredicateThrowsException()
+    {
+        var xs = new int[] { 1, 2, 3 };
+        
+        // Should throw ArgumentNullException for null predicate
+        Should.Throw<ArgumentNullException>(() => xs.AsValueEnumerable().Count(null!));
+        Should.Throw<ArgumentNullException>(() => xs.ToValueEnumerable().Count(null!));
+    }
+
+    [Fact]
+    public void ArrayWhereCountOptimization()
+    {
+        var array = new int[] { 1, 2, 3, 4, 5 };
+        
+        // Test specific optimization for array Where().Count()
+        var counter = 0;
+        bool CountingPredicate(int x)
+        {
+            counter++;
+            return x % 2 == 0;
+        }
+        
+        counter = 0;
+        var result = array.AsValueEnumerable().Where(CountingPredicate).Count();
+        result.ShouldBe(2);
+        counter.ShouldBe(5); // Should use span-based optimization
+    }
+
+    [Fact]
+    public void SpanOptimizationTest()
+    {
+        var data = new[] { 1, 2, 3, 4, 5 };
+        
+        // Count with predicate should use span optimization when possible
+        var spanCounter = 0;
+        bool SpanPredicate(int x)
+        {
+            spanCounter++;
+            return x > 2;
+        }
+        
+        spanCounter = 0;
+        var result = data.AsValueEnumerable().Count(SpanPredicate);
+        result.ShouldBe(3);
+        spanCounter.ShouldBe(5); // All items counted once
+    }
 }

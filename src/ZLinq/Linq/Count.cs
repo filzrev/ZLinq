@@ -28,6 +28,77 @@ namespace ZLinq
             }
         }
 
+        // Where Count
+
+        public static Int32 Count<TEnumerator, TSource>(this ValueEnumerable<Where<TEnumerator, TSource>, TSource> source)
+            where TEnumerator : struct, IValueEnumerator<TSource>
+#if NET9_0_OR_GREATER
+            , allows ref struct
+#endif
+        {
+            using var enumeratorSource = source.Enumerator.GetSource();
+            var predicate = source.Enumerator.Predicate;
+
+            var count = 0;
+            if (enumeratorSource.TryGetSpan(out var span))
+            {
+                for (int i = 0; i < span.Length; i++)
+                {
+                    if (predicate(span[i]))
+                    {
+                        count++; // no need to use checked
+                    }
+                }
+            }
+            else
+            {
+                while (enumeratorSource.TryGetNext(out var current))
+                {
+                    if (predicate(current))
+                    {
+                        checked { count++; }
+                    }
+                }
+            }
+
+            return count;
+        }
+
+        public static Int32 Count<TSource>(this ValueEnumerable<ArrayWhere<TSource>, TSource> source)
+        {
+            var array = source.Enumerator.GetSource();
+            var predicate = source.Enumerator.Predicate;
+            var span = (ReadOnlySpan<TSource>)array;
+
+            var count = 0;
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        public static Int32 Count<TSource>(this ValueEnumerable<ListWhere<TSource>, TSource> source)
+        {
+            var list = source.Enumerator.GetSource();
+            var predicate = source.Enumerator.Predicate;
+
+            var span = CollectionsMarshal.AsSpan(list);
+            var count = 0;
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         public static Int32 Count<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, Func<TSource, Boolean> predicate)
             where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER
@@ -41,14 +112,13 @@ namespace ZLinq
             var count = 0;
             if (enumerator.TryGetSpan(out var span))
             {
-                foreach (var current in span)
+                for (int i = 0; i < span.Length; i++)
                 {
-                    if (predicate(current))
+                    if (predicate(span[i]))
                     {
                         count++; // no need to use checked
                     }
                 }
-
             }
             else
             {
@@ -103,6 +173,26 @@ namespace ZLinq
                 }
                 return count;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Int32 Count<TSource>(this ValueEnumerable<FromList<TSource>, TSource> source, Func<TSource, Boolean> predicate)
+        {
+            ArgumentNullException.ThrowIfNull(predicate);
+
+            var list = source.Enumerator.GetSource();
+            var count = 0;
+
+            var span = CollectionsMarshal.AsSpan(list);
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (predicate(span[i]))
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
     }
 }
