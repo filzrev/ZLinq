@@ -45,8 +45,18 @@ jobs:
         working-directory: sandbox/Benchmark
         shell: pwsh
         run: |
-          $items = Get-ChildItem "BenchmarkDotNet.Artifacts/results/*.md"
+          $items = Get-ChildItem "BenchmarkDotNet.Artifacts/results/*.md" | where Name -ne 'reports.md'
           foreach($item in $items) {
-            Write-Output ('## {0}' -f $item.Name)          >> $env:GITHUB_STEP_SUMMARY
-            Write-Output (Get-Content $item.FullName -Raw) >> $env:GITHUB_STEP_SUMMARY
+            $title = $item.Name
+            $title = $title.Replace('-report-console.md', '')
+            $title = $title.Replace('_Int32_' , '&lt;int&gt;')
+            $title = $title.Replace('_String_', '&lt;string&gt;')
+            $title = $title.Replace('_Double_', '&lt;double&gt;')
+
+            $content = Get-Content $item.FullName -Raw
+            $tableContent = $content.Substring($content.IndexOf('|'))                        
+            $tableContent.Replace('<', '&lt;').Replace('>', '&gt;')
+
+            Write-Output ('## {0}' -f $title)  >> $env:GITHUB_STEP_SUMMARY
+            Write-Output $tableContent         >> $env:GITHUB_STEP_SUMMARY
           }

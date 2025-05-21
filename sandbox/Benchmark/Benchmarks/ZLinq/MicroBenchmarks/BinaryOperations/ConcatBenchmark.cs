@@ -14,14 +14,4 @@ public partial class ConcatBenchmark<T> : EnumerableBenchmarkBase_WithBasicTypes
               .Concat(source.ArrayData)
               .Consume(consumer);
     }
-
-    [Benchmark]
-    [BenchmarkCategory(Categories.From.Default)]
-    public void Concat_Enumerable()
-    {
-        source.Default
-              .AsValueEnumerable()
-              .Concat(source.EnumerableData)
-              .Consume(consumer);
-    }
 }
