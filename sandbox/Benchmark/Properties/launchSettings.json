@@ -1,8 +1,8 @@
-﻿{
+{
   "profiles": {
     "Default": {
       "commandName": "Project",
-      "commandLineArgs": "--filter Benchmark.CountPredicateWithCapturedLambda* -- Default",
+      "commandLineArgs": "--filter Benchmark.StringJoinStringBenchmark* -- Default",
 
       // Available config
       // 1. Default

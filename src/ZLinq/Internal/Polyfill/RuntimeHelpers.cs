@@ -15,8 +15,11 @@ namespace System.Runtime.CompilerServices
             {
                 return false;
             }
+
             return true;
         }
+
+        public static int OffsetToStringData => (IntPtr.Size == 8) ? 12 : 8;
     }
 }
 

@@ -51,38 +51,17 @@ using System.Diagnostics.CodeAnalysis;
 
 
 
+var sb = new ZLinq.Internal.ValueStringBuilder(stackalloc char[12]);
 
-var downTo = ValueEnumerable.Range(start: 10, end: 5, RightBound.Exclusive);
+sb.Append("abcdef");
 
+sb.Append(int.MinValue);
+sb.Append(int.MaxValue);
 
-foreach (var item in downTo)
-{
-    Console.WriteLine(item);
-}
-
-ValueEnumerable.Range(..); // infinite loop
-
+var sss = sb.ToStringAndClear();
+Console.WriteLine(sss);
 
 
-IEnumerable nonGenericCollection = default!;
-nonGenericCollection.AsValueEnumerable(); // ValueEnumerable<, object>
-nonGenericCollection.AsValueEnumerable<int>(); // ValueEnumerable<, int>
-
-
-var seq = new[] { 1, 2, 3 }.AsValueEnumerable().GroupBy(x => x);
-foreach (var item in seq)
-{
-    Console.WriteLine(item.Key + ":" + item.Count());
-}
-
-
-
-
-
-//foreach (var item in list.Select(x => x * 100))
-//{
-//    Console.WriteLine(item);
-//}
 return;
 
 
