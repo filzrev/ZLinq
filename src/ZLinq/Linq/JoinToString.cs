@@ -159,7 +159,7 @@ partial class ValueEnumerableExtensions
 
         unsafe
         {
-            fixed (char* destPointer = str)
+            fixed (char* destPointer = str.AsSpan())
             {
                 Span<char> dest = new Span<char>(destPointer, finalLength);
                 source[0]?.CopyTo(dest);
