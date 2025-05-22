@@ -1,33 +1,28 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using Benchmark.ZLinq;
+using BenchmarkDotNet.Attributes;
 using ZLinq;
 using ZLinq.Internal;
 
 namespace Benchmark;
 
-public class StringJoinBenchmark
+[GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
+[GenericTypeArguments(typeof(int))]    // ValueType
+[GenericTypeArguments(typeof(string))] // ReferenceType
+public class StringJoinBenchmark<T> : EnumerableBenchmarkBase<T>
 {
-    int[] source = default!;
-
-    [GlobalSetup]
-    public void Setup()
-    {
-        source = Enumerable.Range(1, 1000)
-                           .Select(_ => Random.Shared.Next())
-                           .ToArray();
-    }
-
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     [BenchmarkCategory(Categories.LINQ)]
     public void SystemLinq()
     {
-        _ = string.Join(',', source);
+        _ = string.Join(',', source.ArrayData);
     }
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
     public void ZLinq()
     {
-        _ = source.AsValueEnumerable()
+        _ = source.ArrayData
+                  .AsValueEnumerable()
                   .JoinToString(',');
     }
 }

@@ -88,7 +88,7 @@ internal static partial class ConsumerExtensions
     #region Select
 
 #if !USE_ZLINQ_NUGET_PACKAGE || ZLINQ_1_3_1_OR_GREATER
-    // Select FromArray(Optimized)
+    // Select FromArray
     public static void Consume<T>(this ValueEnumerable<ArraySelect<T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
@@ -96,7 +96,7 @@ internal static partial class ConsumerExtensions
             consumer.Consume(in item);
     }
 
-    // Select FromArray(Optimized)
+    // Select FromList
     public static void Consume<T>(this ValueEnumerable<ListSelect<T, T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
@@ -281,16 +281,50 @@ internal static partial class ConsumerExtensions
             consumer.Consume(in item);
     }
 
+    #region where
+
 #if !USE_ZLINQ_NUGET_PACKAGE || ZLINQ_1_3_1_OR_GREATER
-    // Where FromArray (Optimized)
+    // Where FromArray
     public static void Consume<T>(this ValueEnumerable<ArrayWhere<T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
         while (e.TryGetNext(out var item))
             consumer.Consume(in item);
     }
+
+    // Where FromList
+    public static void Consume<T>(this ValueEnumerable<ListWhere<T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    // WhereSelect FromArray
+    public static void Consume<TSource, T>(this ValueEnumerable<ArrayWhereSelect<TSource, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    // WhereSelect FromList
+    public static void Consume<TSource, T>(this ValueEnumerable<ListWhereSelect<TSource, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    // WhereSelect FromEnumerable
+    public static void Consume<T>(this ValueEnumerable<WhereSelect<FromEnumerable<T>, T, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
 #else
-    // Where FromArray (Optimized)
+    // Where FromArray
     public static void Consume<T>(this ValueEnumerable<WhereArray<T>, T> source, Consumer consumer)
     {
         using var e = source.Enumerator;
@@ -298,4 +332,14 @@ internal static partial class ConsumerExtensions
             consumer.Consume(in item);
     }
 #endif
+
+    // Where FromEnumerable
+    public static void Consume<T>(this ValueEnumerable<Where<FromEnumerable<T>, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
+    #endregion
 }
