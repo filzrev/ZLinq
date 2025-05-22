@@ -1,4 +1,6 @@
-﻿#if false
+﻿#if ZLINQ_UNITY_UIELEMENTS_SUPPORT
+
+#nullable enable
 
 using System.Runtime.InteropServices;
 using UnityEngine.UIElements;

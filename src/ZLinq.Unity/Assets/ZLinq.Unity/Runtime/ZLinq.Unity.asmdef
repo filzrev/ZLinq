@@ -13,6 +13,11 @@
     "defineConstraints": [],
     "versionDefines": [
         {
+            "name": "com.unity.modules.uielements",
+            "expression": "",
+            "define": "ZLINQ_UNITY_UIELEMENTS_SUPPORT"
+        },
+        {
             "name": "com.unity.collections",
             "expression": "",
             "define": "ZLINQ_UNITY_COLLECTIONS_SUPPORT"

@@ -248,6 +248,8 @@ Since `ValueEnumerable<T>` is not an `IEnumerable<T>`, it cannot be passed to me
 
 `ValueEnumerable<T>` is a struct, and its size increases slightly with each method chain. With many chained methods, copy costs can become significant. When iterating over small collections, these copy costs can outweigh the benefits, causing performance to be worse than standard LINQ. However, this is only an issue with extremely long method chains and small iteration counts, so it's rarely a practical concern.
 
+`ValueEnumerable<T>` is `ref strcut` in .NET 9 or above, this means that it cannot span across yield or await. Using yield or await inside foreach also fails and shows compilation errors. If enumeration is needed, please materialize the data using methods like [ToArrayPool](#pooledarraytsource-toarraypool).
+
 Each chain operation returns a different type, so you cannot reassign to the same variable. For example, code that continuously reassigns `Concat` in a for loop cannot be implemented.
 
 In .NET 8 and above, the `Sum` and `Average` methods for `double` use SIMD processing, which performs parallel processing based on SIMD width. This results in calculation errors that differ from normal ones due to the different order of addition.
@@ -778,6 +780,16 @@ public class SampleScript : MonoBehaviour
 }
 ```
 
+You can chain query(LINQ to Objects). Also, you can filter by component using the `OfComponent<T>` helper.
+
+```csharp
+// all filtered(tag == "foobar") objects
+var foobars = root.Descendants().Where(x => x.tag == "foobar");
+
+// get FooScript under self childer objects and self
+var fooScripts = root.ChildrenAndSelf().OfComponent<FooScript>();
+```
+
 UI Toolkit VisualElements are also supported allowing more advanced queries
 
 ```csharp
@@ -796,16 +808,6 @@ public class SampleScript : MonoBehaviour
         foreach (var btn in noTextButtons) Debug.Log(btn.name);
     }
 }
-```
-
-You can chain query(LINQ to Objects). Also, you can filter by component using the `OfComponent<T>` helper.
-
-```csharp
-// all filtered(tag == "foobar") objects
-var foobars = root.Descendants().Where(x => x.tag == "foobar");
-
-// get FooScript under self childer objects and self
-var fooScripts = root.ChildrenAndSelf().OfComponent<FooScript>();
 ```
 
 NOTE: In Unity, since .NET Standard 2.1 is referenced, SIMD is not utilized.
