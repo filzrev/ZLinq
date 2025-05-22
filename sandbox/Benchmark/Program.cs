@@ -23,11 +23,7 @@ internal static class Program
     {
 #if DEBUG
 
-        var bench = new Benchmark.StringJoinStringBenchmark();
-        bench.N = 5;
-        bench.Setup();
-        bench.SystemLinq();
-        bench.ZLinqImprovement();
+        
 
         return 0;
 #endif

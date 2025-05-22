@@ -36,7 +36,13 @@ public class WhereSelectStringJoin
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
-    public string ZLinqWhereSelectStringJoin() => _users.AsValueEnumerable().Where(x => x.IsActive).Select(x => x.Name).JoinToString(",");
+    public string ZLinqWhereSelectStringJoin()
+    {
+        var query = _users.AsValueEnumerable().Where(x => x.IsActive).Select(x => x.Name);
+        // query.JoinToString
+        var a = query.JoinToString(",");
+        return a;
+    }
 
     //[Benchmark]
     //[BenchmarkCategory(Categories.LINQ)]
