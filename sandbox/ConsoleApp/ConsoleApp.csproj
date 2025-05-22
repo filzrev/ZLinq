@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.UserMarks" Version="17.13.35606.1" />
+    <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.UserMarks" Version="17.14.36021.1" />
   </ItemGroup>
 
   <ItemGroup>
