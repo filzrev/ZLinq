@@ -778,6 +778,26 @@ public class SampleScript : MonoBehaviour
 }
 ```
 
+UI Toolkit VisualElements are also supported allowing more advanced queries
+
+```csharp
+public class SampleScript : MonoBehaviour
+{
+    private UIDocument Document;
+
+    private void Start()
+    {
+        var noTextButtons = Document
+            .rootVisualElement
+            .Descendants()
+            .OfType<Button>()
+            .Where(btn => string.IsNullOrEmpty(btn.text));
+
+        foreach (var btn in noTextButtons) Debug.Log(btn.name);
+    }
+}
+```
+
 You can chain query(LINQ to Objects). Also, you can filter by component using the `OfComponent<T>` helper.
 
 ```csharp
