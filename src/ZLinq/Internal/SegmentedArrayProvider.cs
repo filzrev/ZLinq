@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace ZLinq.Internal;
 
 // similar as IBufferWriter style to avoid Add frequently.
-public ref struct SegmentedArrayProvider<T>
+internal ref struct SegmentedArrayProvider<T>
 {
     const int ArrayMaxLength = 0X7FFFFFC7;
 
