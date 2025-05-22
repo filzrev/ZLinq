@@ -1,3 +1,5 @@
+﻿#if false
+
 using System.Runtime.InteropServices;
 using UnityEngine.UIElements;
 using ZLinq.Traversables;
@@ -173,3 +175,5 @@ namespace ZLinq
         }
     }
 }
+
+#endif
