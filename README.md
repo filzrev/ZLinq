@@ -1,7 +1,7 @@
 ZLinq
 ===
-[![CI](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yml)
-[![Benchmark](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yml)
+[![CI](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/build-debug.yaml)
+[![Benchmark](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yaml/badge.svg)](https://github.com/Cysharp/ZLinq/actions/workflows/benchmark.yaml)
 [![NuGet](https://img.shields.io/nuget/v/ZLinq)](https://www.nuget.org/packages/ZLinq)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Cysharp/ZLinq)
 
