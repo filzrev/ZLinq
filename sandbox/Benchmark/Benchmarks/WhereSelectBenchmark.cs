@@ -30,6 +30,8 @@ public class WhereSelectBenchmark<T> : EnumerableBenchmarkBase<T>
               .Consume(consumer);
     }
 
+#if !USE_SYSTEM_LINQ
+
     [Benchmark]
     [BenchmarkCategory(Categories.LINQ)]
     [BenchmarkCategory(Categories.From.EnumerableArray)]
@@ -40,6 +42,8 @@ public class WhereSelectBenchmark<T> : EnumerableBenchmarkBase<T>
               .Select(x => x)
               .Consume(consumer);
     }
+
+#endif
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
@@ -65,6 +69,8 @@ public class WhereSelectBenchmark<T> : EnumerableBenchmarkBase<T>
               .Consume(consumer);
     }
 
+#if !USE_SYSTEM_LINQ
+
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
     [BenchmarkCategory(Categories.From.EnumerableArray)]
@@ -76,4 +82,6 @@ public class WhereSelectBenchmark<T> : EnumerableBenchmarkBase<T>
               .Select(x => x)
               .Consume(consumer);
     }
+
+#endif
 }
