@@ -132,9 +132,23 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
-        if (methodInfo.Name is "Contains" && !methodInfo.GetGenericArguments().Any(x => x.Name == "TEnumerator"))
+        if (methodInfo.Name is "Contains" or "All" or "Any" or "LongCount" or "JoinToString" && !methodInfo.GetGenericArguments().Any(x => x.Name == "TEnumerator"))
         {
             return null;
+        }
+
+        if (methodInfo.Name is "Count")
+        {
+            if (!methodInfo.GetGenericArguments().Any(x => x.Name == "TEnumerator"))
+            {
+                return null;
+            }
+
+            var firstParameter = methodInfo.GetParameters()[0].ParameterType.ToString();
+            if (firstParameter.Contains("Where"))
+            {
+                return null;
+            }
         }
 
         if (methodInfo.Name is "ToArray")
