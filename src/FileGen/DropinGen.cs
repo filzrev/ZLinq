@@ -100,9 +100,20 @@ internal static partial class ZLinqDropInExtensions
             return null;
         }
 
-        if (methodInfo.Name is "CopyTo")
+        // avoid generate runtime methods due to conflict naming
+        if (dropInType.Name is "Span" or "ReadOnlySpan")
         {
-            return null; // CopyTo is exists in MemoryExtensions.CopyTo(this T[]) so avoid conflicts
+            // Span.CopyTo
+            // MemoryExtensions.Contains, Reverse, SequenceEqual
+            if (methodInfo.Name is "CopyTo" or "Contains" or "Reverse" or "SequenceEqual")
+            {
+                return null;
+            }
+        }
+
+        if (methodInfo.Name is "CopyTo" && dropInType.Name is "Array" or "List")
+        {
+            return null; // CopyTo is exists in MemoryExtensions.CopyTo(this T[]) and list's instance method.
         }
 
         // ignore some optimize chain
