@@ -22,35 +22,23 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: ZLinqDropIn("ZLinq", DropInGenerateTypes.Everything)]
+// [assembly: ZLinqDropIn("ZLinq", DropInGenerateTypes.Everything)]
 
 
-Span<int> span = stackalloc int[10];
-var list = new List<int>();
-var array = new[] { 1, 2, 3, 4, 5 };
-IEnumerable<int> ie = array;
-// var foo = span.Contains(3);
+var xs = Enumerable.Range(1, 100).ToArray();
+var a = xs.AsValueEnumerable().ToImmutableArray();
 
-// span.CopyTo
+var ys = ValueEnumerable.Range(1, 100);
+var b = ys.ToImmutableArray();
 
-//list.CopyTo(
+// RangeIterator: IList<int>, IReadOnlyList<int>
+var zs = Enumerable.Range(1, 100).AsValueEnumerable();
+var c = zs.ToImmutableArray();
 
-// list.Contains(10);
+var zzs = Enumerable.Range(1, 100).Where(_ => true).AsValueEnumerable();
+var d = zzs.ToImmutableArray();
 
-// MemoryExtensions.Contains, CopyTo, Reverse, SequenceEqual
-// MemoryExtensions.
+Console.WriteLine(a.SequenceEqual(b));
+Console.WriteLine(a.SequenceEqual(c));
+Console.WriteLine(a.SequenceEqual(d));
 
-// MemoryExtensions.
-// span.CopyTo
-
-var xs = new[] { 1, 2, 3 };
-
-xs.Contains(10);
-
-
-list.CopyTo(span);
-
-
-// ie.CopyTo
-
-//Console.WriteLine(foo);

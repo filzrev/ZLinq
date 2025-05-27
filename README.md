@@ -1003,17 +1003,34 @@ public static class MyExtensions
         }
         else
         {
-            // set capacity if can
-            var builder = e.TryGetNonEnumeratedCount(out var count)
-                ? ImmutableArray.CreateBuilder<T>(count)
-                : ImmutableArray.CreateBuilder<T>();
-
-            while (e.TryGetNext(out var current))
+            if (e.TryGetNonEnumeratedCount(out var count))
             {
-                builder.Add(current);
-            }
+                var array = GC.AllocateUninitializedArray<TSource>(count);
 
-            return builder.ToImmutable();
+                if (e.TryCopyTo(array, offset: 0))
+                {
+                    return ImmutableCollectionsMarshal.AsImmutableArray(array);
+                }
+                else
+                {
+                    var i = 0;
+                    while (e.TryGetNext(out var current))
+                    {
+                        array[i] = current;
+                        i++;
+                    }
+                    return ImmutableCollectionsMarshal.AsImmutableArray(array);
+                }
+            }
+            else
+            {
+                var builder = ImmutableArray.CreateBuilder<TSource>();
+                while (e.TryGetNext(out var current))
+                {
+                    builder.Add(current);
+                }
+                return builder.ToImmutable();
+            }
         }
     }
 }
@@ -1052,6 +1069,9 @@ public struct
 #endif
 {
     TEnumerator source = source; // need to store source enumerator in field explicitly (ref struct limitation)
+
+    // Having fields is allowed, but reference types must be null during initialization.
+    // For example, if you hold a reference type in the constructor, it will be shared with other Enumerators and will not work correctly.
 
     public bool TryGetNonEnumeratedCount(out int count)
     {

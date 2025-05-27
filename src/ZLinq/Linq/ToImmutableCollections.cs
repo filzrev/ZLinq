@@ -29,16 +29,34 @@ partial class ValueEnumerableExtensions
         }
         else
         {
-            var builder = e.TryGetNonEnumeratedCount(out var count)
-                ? ImmutableArray.CreateBuilder<TSource>(count)
-                : ImmutableArray.CreateBuilder<TSource>();
-
-            while (e.TryGetNext(out var current))
+            if (e.TryGetNonEnumeratedCount(out var count))
             {
-                builder.Add(current);
-            }
+                var array = GC.AllocateUninitializedArray<TSource>(count);
 
-            return builder.ToImmutable();
+                if (e.TryCopyTo(array, offset: 0))
+                {
+                    return ImmutableCollectionsMarshal.AsImmutableArray(array);
+                }
+                else
+                {
+                    var i = 0;
+                    while (e.TryGetNext(out var current))
+                    {
+                        array[i] = current;
+                        i++;
+                    }
+                    return ImmutableCollectionsMarshal.AsImmutableArray(array);
+                }
+            }
+            else
+            {
+                var builder = ImmutableArray.CreateBuilder<TSource>();
+                while (e.TryGetNext(out var current))
+                {
+                    builder.Add(current);
+                }
+                return builder.ToImmutable();
+            }
         }
     }
 
