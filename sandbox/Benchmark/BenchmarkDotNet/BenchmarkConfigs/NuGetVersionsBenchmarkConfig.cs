@@ -1,6 +1,5 @@
 ﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Jobs;
-using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 
@@ -102,61 +101,22 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         return sb.ToString();
     }
 
-    private static string GetCurrentZLinqVersion()
-    {
-        DirectoryInfo? dirInfo = new DirectoryInfo(AppContext.BaseDirectory);
-        while (true)
-        {
-            if (dirInfo.GetFiles().Any(x => x.Name == "ZLinq.slnx"))
-                break;
-
-            dirInfo = dirInfo.Parent;
-            if (dirInfo == null)
-                throw new FileNotFoundException("ZLinq.slnx is not found.");
-        }
-
-        var solutionDir = dirInfo.FullName;
-        var resolvedPath = Path.Combine(solutionDir, "src/ZLinq.Unity/Assets/ZLinq.Unity/package.json");
-        if (!File.Exists(resolvedPath) && !Directory.Exists(resolvedPath))
-            throw new FileNotFoundException($"File is not found. path: {resolvedPath}");
-
-        var json = File.ReadAllText(resolvedPath);
-        var latestVersion = JsonNode.Parse(json)!["version"]!.GetValue<string>();
-        return latestVersion;
-    }
-
     private static IEnumerable<string> GetTargetZlinqVersions()
     {
-        var json = DownloadVersionsJson();
-
-        var node = JsonNode.Parse(json)!;
-        var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
+        // Download availabe ZLinq package versions.
+        const string url = "https://api.nuget.org/v3-flatcontainer/zlinq/index.json"; // Must be lower-case.
+        var json = new HttpClient().GetStringAsync(url).GetAwaiter().GetResult();
 
         // Note: Uncomment following line when comparing all NuGet package versions performance.
         // return versions;
+
+        var node = JsonNode.Parse(json)!;
+        var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
 
         bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
         return isRunningOnGitHubActions
             ? versions.TakeLast(2)  // Compare performance between latest 2 versions.
             : versions.TakeLast(1); // Compare performance between latest/LocalBuild versions.
-
-        // Helper method to download ZLinq package versions.
-        static string DownloadVersionsJson()
-        {
-            // TODO: Replace method to use HttpClient.
-            // On some environment .NET based download (.NET/PowerShell) takes about 45 seconds on first access. And currently it can't determine root cause of problems.
-            const string url = "https://api.nuget.org/v3-flatcontainer/ZLinq/index.json";
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "curl",
-                Arguments = $"--silent {url}",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            using var process = Process.Start(startInfo)!;
-            return process.StandardOutput.ReadToEnd();
-        }
     }
 
     private static string GetCustomBuildConfigurationName(string targetVersion)
