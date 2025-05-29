@@ -10,6 +10,7 @@ public static class Constants
     public static class DefineConstants
     {
         public const string USE_SYSTEM_LINQ = "USE_SYSTEM_LINQ";
+        public const string USE_ZLINQ_NUGET_PACKAGE = "USE_ZLINQ_NUGET_PACKAGE";
 
         public const string ZLINQ_1_2_0_OR_GREATER = "ZLINQ_1_2_0_OR_GREATER";
         public const string ZLINQ_1_3_1_OR_GREATER = "ZLINQ_1_3_1_OR_GREATER";

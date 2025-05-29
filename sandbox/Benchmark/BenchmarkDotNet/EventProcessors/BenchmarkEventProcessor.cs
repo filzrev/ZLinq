@@ -68,7 +68,7 @@ public class BenchmarkEventProcessor : EventProcessor
 
             if (buildResult.GenerateException != null)
                 Logger.WriteLineError($"{buildResult.GenerateException.ToString()}");
-            
+
             return;
         }
 

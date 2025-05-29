@@ -333,6 +333,14 @@ internal static partial class ConsumerExtensions
     }
 #endif
 
+    // Where FromList
+    public static void Consume<T>(this ValueEnumerable<Where<FromList<T>, T>, T> source, Consumer consumer)
+    {
+        using var e = source.Enumerator;
+        while (e.TryGetNext(out var item))
+            consumer.Consume(in item);
+    }
+
     // Where FromEnumerable
     public static void Consume<T>(this ValueEnumerable<Where<FromEnumerable<T>, T>, T> source, Consumer consumer)
     {

@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Jobs;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 
@@ -16,10 +17,8 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                                 .WithToolchain(Constants.DefaultToolchain)
                                 .Freeze();
 
-        string[] targetNuGetVersions = [GetCurrentZLinqVersion()];
-
-        // Note: Enable following code when comparing multiple ZLinq versions.
-        // targetNuGetVersions = GetTargetZlinqVersions();
+        // Compare LocalBuild version with latest NuGet package version.
+        var targetNuGetVersions = GetTargetZlinqVersions();
 
         // 1. Add jobs that use ZLinq NuGet package with specified versions
         foreach (var targetVersion in targetNuGetVersions)
@@ -29,9 +28,7 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                .WithArguments(
                 [
                    new MsBuildArgument($"/p:{Constants.MSBuildProperties.TargetZLinqVersion}={targetVersion}"),
-                   new MsBuildArgument($"/p:{Constants.MSBuildProperties.ZLinqDefineConstants}={GetDefineConstantsValue(targetVersion)}"),
-                   // TODO: Enable following code and remove settings from csproj after .NET SDK issue is resolved. See:https://github.com/dotnet/sdk/issues/45638
-                   // new MsBuildArgument($"/p:DefineConstants={GetDefineConstantsValue(targetVersion)}"),
+                   new MsBuildArgument($"/p:{Constants.MSBuildProperties.ZLinqDefineConstants}=\\\"{GetZLinqDefineConstants(targetVersion)}\\\""), // Surround value with `\"` to use list separator char without escaping.
                 ])
                .WithId($"v{targetVersion}");
 
@@ -42,8 +39,8 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                 AddJob(job);
         }
 
-        // 2. Add LocalBuild job.
-        if (targetNuGetVersions.Length == 1)
+        // 2. Add LocalBuild job
+        if (targetNuGetVersions.Count() == 1)
             AddJob(baseJobConfig.WithId("vLocalBuild")); // Add `v` prefix to change display order.
 
         // Configure additional settings
@@ -57,17 +54,32 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         HideColumns(Column.BuildConfiguration);
     }
 
+    protected override void AddFilters()
+    {
+        base.AddFilters();
+        AddFilter(ZLinqNuGetVersionFilter.Instance);
+    }
+
+    protected override void AddLogicalGroupRules()
+    {
+        AddLogicalGroupRules(
+        [
+            BenchmarkLogicalGroupRule.ByCategory,
+            BenchmarkLogicalGroupRule.ByMethod,
+        ]);
+    }
+
     /// <summary>
     /// Gets DefineConstants settings for using target ZLinq version.
     /// </summary>
-    private static string GetDefineConstantsValue(string versionText)
+    private static string GetZLinqDefineConstants(string versionText)
     {
-        // Currently it need to escape MSBuild special characters (https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-special-characters)
-        // Because MSBuildArgument is passed as commandline parameter.
-        // See: https://github.com/dotnet/BenchmarkDotNet/issues/2719
-        const string ListSeparator = "%3B"; // Escapec semicolon char.
+        const string ListSeparator = ";";
 
         StringBuilder sb = new();
+
+        // Add custom symbol to distinguish NuGet package build.
+        sb.Append(Constants.DefineConstants.USE_ZLINQ_NUGET_PACKAGE);
 
         // Add target package version symbol
         sb.Append($"{ListSeparator}ZLINQ_{versionText.Replace('.', '_')}");
@@ -113,25 +125,38 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         return latestVersion;
     }
 
-    private static string[] GetTargetZlinqVersions()
+    private static IEnumerable<string> GetTargetZlinqVersions()
     {
-        // Currently multi NuGet versions benchmark is not supported.
-        // It require following BenchmarkDotNet feature.
-        // https://github.com/dotnet/BenchmarkDotNet/pull/2676
-        throw new NotSupportedException("Currently multi NuGet versions benchmark is not supported.");
+        var json = DownloadVersionsJson();
 
-        // Available package versions: https://api.nuget.org/v3-flatcontainer/ZLinq/index.json
-        ////return
-        ////[
-        ////    "1.0.0",
-        ////    "1.1.0",
-        ////    "1.2.0",
-        ////    "1.3.0",
-        ////    "1.3.1",
-        ////    "1.4.0",
-        ////    "1.4.1",
-        ////    "1.4.2",
-        ////];
+        var node = JsonNode.Parse(json)!;
+        var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
+
+        // Note: Uncomment following line when comparing all NuGet package versions performance.
+        // return versions;
+
+        bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
+        return isRunningOnGitHubActions
+            ? versions.TakeLast(2)  // Compare performance between latest 2 versions.
+            : versions.TakeLast(1); // Compare performance between latest/LocalBuild versions.
+
+        // Helper method to download ZLinq package versions.
+        static string DownloadVersionsJson()
+        {
+            // TODO: Replace method to use HttpClient.
+            // On some environment .NET based download (.NET/PowerShell) takes about 45 seconds on first access. And currently it can't determine root cause of problems.
+            const string url = "https://api.nuget.org/v3-flatcontainer/ZLinq/index.json";
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = "curl",
+                Arguments = $"--silent {url}",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = Process.Start(startInfo)!;
+            return process.StandardOutput.ReadToEnd();
+        }
     }
 
     private static string GetCustomBuildConfigurationName(string targetVersion)
