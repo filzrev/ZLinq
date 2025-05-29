@@ -129,6 +129,8 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
     {
         var json = DownloadVersionsJson();
 
+        Console.WriteLine(json);
+
         var node = JsonNode.Parse(json)!;
         var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
 
