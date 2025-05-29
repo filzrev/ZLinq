@@ -85,10 +85,8 @@ public abstract class BaseBenchmarkConfig : ManualConfig
     protected virtual void AddDiagnosers()
     {
         AddDiagnoser(MemoryDiagnoser.Default);
-
-        // TODO: Enable following diagnoser (Temporary disabled because extra columns are shown it has no data)
-        //AddDiagnoser(ExceptionDiagnoser.Default);
-        //AddDiagnoser(ThreadingDiagnoser.Default);
+        AddDiagnoser(ExceptionDiagnoser.Default);
+        AddDiagnoser(ThreadingDiagnoser.Default);
     }
 
     protected virtual void AddValidators()

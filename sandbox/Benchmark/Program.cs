@@ -22,10 +22,9 @@ internal static class Program
     public static int Main(string[] args)
     {
 #if DEBUG
-
-        
-
-        return 0;
+        Console.WriteLine(Chalk.Yellow["Benchmark is executed with DEBUG configuration. "]);
+        Console.WriteLine();
+        return 1; // Comment out this line to run benchmark with Debug configuration.
 #endif
 
         if (args.Length != 0)
