@@ -20,11 +20,6 @@ public class SystemLinqBenchmarkConfig : BaseBenchmarkConfig
         // Add job for System.Linq benchmarks.
         AddJob(baseJobConfig.WithToolchain(Constants.DefaultToolchain)
                             .WithCustomBuildConfiguration(Constants.CustomBuildConfigurations.SystemLinq)
-                            // TODO: Enable following code and remove settings from csproj after .NET SDK issue is resolved. See:https://github.com/dotnet/sdk/issues/45638
-                            //.WithArguments(
-                            //[
-                            //    new MsBuildArgument("/p:DefineConstants=USE_SYSTEM_LINQ")
-                            //])
                             .WithId(SystemLinqJobId)
                             .AsBaseline());
 

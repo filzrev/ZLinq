@@ -16,10 +16,8 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                                 .WithToolchain(Constants.DefaultToolchain)
                                 .Freeze();
 
-        string[] targetNuGetVersions = [GetCurrentZLinqVersion()];
-
-        // Note: Enable following code when comparing multiple ZLinq versions.
-        // targetNuGetVersions = GetTargetZlinqVersions();
+        // Compare LocalBuild version with latest NuGet package version.
+        var targetNuGetVersions = GetTargetZlinqVersions();
 
         // 1. Add jobs that use ZLinq NuGet package with specified versions
         foreach (var targetVersion in targetNuGetVersions)
@@ -29,9 +27,7 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                .WithArguments(
                 [
                    new MsBuildArgument($"/p:{Constants.MSBuildProperties.TargetZLinqVersion}={targetVersion}"),
-                   new MsBuildArgument($"/p:{Constants.MSBuildProperties.ZLinqDefineConstants}={GetDefineConstantsValue(targetVersion)}"),
-                   // TODO: Enable following code and remove settings from csproj after .NET SDK issue is resolved. See:https://github.com/dotnet/sdk/issues/45638
-                   // new MsBuildArgument($"/p:DefineConstants={GetDefineConstantsValue(targetVersion)}"),
+                   new MsBuildArgument($"/p:{Constants.MSBuildProperties.ZLinqDefineConstants}=\\\"{GetZLinqDefineConstants(targetVersion)}\\\""), // Surround value with `\"` to use list separator char without escaping.
                 ])
                .WithId($"v{targetVersion}");
 
@@ -42,8 +38,8 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
                 AddJob(job);
         }
 
-        // 2. Add LocalBuild job.
-        if (targetNuGetVersions.Length == 1)
+        // 2. Add LocalBuild job
+        if (targetNuGetVersions.Count() == 1)
             AddJob(baseJobConfig.WithId("vLocalBuild")); // Add `v` prefix to change display order.
 
         // Configure additional settings
@@ -57,17 +53,32 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         HideColumns(Column.BuildConfiguration);
     }
 
+    protected override void AddFilters()
+    {
+        base.AddFilters();
+        AddFilter(ZLinqNuGetVersionFilter.Instance);
+    }
+
+    protected override void AddLogicalGroupRules()
+    {
+        AddLogicalGroupRules(
+        [
+            BenchmarkLogicalGroupRule.ByCategory,
+            BenchmarkLogicalGroupRule.ByMethod,
+        ]);
+    }
+
     /// <summary>
     /// Gets DefineConstants settings for using target ZLinq version.
     /// </summary>
-    private static string GetDefineConstantsValue(string versionText)
+    private static string GetZLinqDefineConstants(string versionText)
     {
-        // Currently it need to escape MSBuild special characters (https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-special-characters)
-        // Because MSBuildArgument is passed as commandline parameter.
-        // See: https://github.com/dotnet/BenchmarkDotNet/issues/2719
-        const string ListSeparator = "%3B"; // Escapec semicolon char.
+        const string ListSeparator = ";";
 
         StringBuilder sb = new();
+
+        // Add custom symbol to distinguish NuGet package build.
+        sb.Append(Constants.DefineConstants.USE_ZLINQ_NUGET_PACKAGE);
 
         // Add target package version symbol
         sb.Append($"{ListSeparator}ZLINQ_{versionText.Replace('.', '_')}");
@@ -90,48 +101,22 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         return sb.ToString();
     }
 
-    private static string GetCurrentZLinqVersion()
+    private static IEnumerable<string> GetTargetZlinqVersions()
     {
-        DirectoryInfo? dirInfo = new DirectoryInfo(AppContext.BaseDirectory);
-        while (true)
-        {
-            if (dirInfo.GetFiles().Any(x => x.Name == "ZLinq.slnx"))
-                break;
+        // Download availabe ZLinq package versions.
+        const string url = "https://api.nuget.org/v3-flatcontainer/zlinq/index.json"; // Must be lower-case.
+        var json = new HttpClient().GetStringAsync(url).GetAwaiter().GetResult();
 
-            dirInfo = dirInfo.Parent;
-            if (dirInfo == null)
-                throw new FileNotFoundException("ZLinq.slnx is not found.");
-        }
+        // Note: Uncomment following line when comparing all NuGet package versions performance.
+        // return versions;
 
-        var solutionDir = dirInfo.FullName;
-        var resolvedPath = Path.Combine(solutionDir, "src/ZLinq.Unity/Assets/ZLinq.Unity/package.json");
-        if (!File.Exists(resolvedPath) && !Directory.Exists(resolvedPath))
-            throw new FileNotFoundException($"File is not found. path: {resolvedPath}");
+        var node = JsonNode.Parse(json)!;
+        var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
 
-        var json = File.ReadAllText(resolvedPath);
-        var latestVersion = JsonNode.Parse(json)!["version"]!.GetValue<string>();
-        return latestVersion;
-    }
-
-    private static string[] GetTargetZlinqVersions()
-    {
-        // Currently multi NuGet versions benchmark is not supported.
-        // It require following BenchmarkDotNet feature.
-        // https://github.com/dotnet/BenchmarkDotNet/pull/2676
-        throw new NotSupportedException("Currently multi NuGet versions benchmark is not supported.");
-
-        // Available package versions: https://api.nuget.org/v3-flatcontainer/ZLinq/index.json
-        ////return
-        ////[
-        ////    "1.0.0",
-        ////    "1.1.0",
-        ////    "1.2.0",
-        ////    "1.3.0",
-        ////    "1.3.1",
-        ////    "1.4.0",
-        ////    "1.4.1",
-        ////    "1.4.2",
-        ////];
+        bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
+        return isRunningOnGitHubActions
+            ? versions.TakeLast(2)  // Compare performance between latest 2 versions.
+            : versions.TakeLast(1); // Compare performance between latest/LocalBuild versions.
     }
 
     private static string GetCustomBuildConfigurationName(string targetVersion)
