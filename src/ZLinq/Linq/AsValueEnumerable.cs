@@ -85,6 +85,11 @@ namespace ZLinq
             return new(new(Throws.IfNull(source)));
         }
 
+        public static ValueEnumerable<FromSortedSet<T>, T> AsValueEnumerable<T>(this SortedSet<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
 #if NET8_0_OR_GREATER
 
         public static ValueEnumerable<FromImmutableArray<T>, T> AsValueEnumerable<T>(this ImmutableArray<T> source)
@@ -932,6 +937,56 @@ namespace ZLinq.Linq
 
         // for Contains, need to check ICollection of IEqualityComparer due to compatibility
         internal HashSet<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset) => false;
+
+        public bool TryGetNext(out T current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromSortedSet<T>(SortedSet<T> source) : IValueEnumerator<T>
+    {
+        bool isInit;
+        SortedSet<T>.Enumerator enumerator;
+
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
+        internal SortedSet<T> GetSource() => source;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {

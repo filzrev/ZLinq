@@ -29,6 +29,12 @@ namespace ZLinq
             return innerCollection.Contains(value);
         }
 
+        public static Boolean Contains<TSource>(this ValueEnumerable<FromSortedSet<TSource>, TSource> source, TSource value)
+        {
+            var innerCollection = source.Enumerator.GetSource();
+            return innerCollection.Contains(value);
+        }
+
         public static Boolean Contains<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, TSource value)
     where TEnumerator : struct, IValueEnumerator<TSource>
 #if NET9_0_OR_GREATER

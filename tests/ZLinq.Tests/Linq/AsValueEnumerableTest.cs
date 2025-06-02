@@ -330,6 +330,37 @@ namespace ZLinq.Tests.Linq
             resultArray.ShouldBe(source.ToArray(), ignoreOrder: true);
         }
 
+        [Fact]
+        public void FromSortedSet_BasicFunctionality()
+        {
+            // Arrange
+            var source = new SortedSet<int>(new[] { 5, 2, 1, 4, 3 });
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(new[] { 1, 2, 3, 4, 5 }); // SortedSet should be ordered
+        }
+
+        [Fact]
+        public void FromSortedSet_ContainsOptimization()
+        {
+            // Arrange
+            var source = new SortedSet<int>(new[] { 1, 2, 3, 4, 5 });
+            var result = source.AsValueEnumerable();
+
+            // Act & Assert
+            result.Contains(3).ShouldBeTrue();
+            result.Contains(6).ShouldBeFalse();
+        }
+
 #if NET8_0_OR_GREATER
         [Fact]
         public void FromImmutableArray_BasicFunctionality()
