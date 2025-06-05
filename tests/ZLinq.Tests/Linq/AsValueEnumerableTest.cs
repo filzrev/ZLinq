@@ -381,6 +381,38 @@ namespace ZLinq.Tests.Linq
             var resultArray = result.ToArray();
             resultArray.ShouldBe(source.ToArray());
         }
+
+        [Fact]
+        public void FromImmutableHashSet_BasicFunctionality()
+        {
+            // Arrange
+            var source = ImmutableHashSet.Create(5, 2, 1, 4, 3);
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(new[] { 1, 2, 3, 4, 5 }); // SortedSet should be ordered
+        }
+
+        [Fact]
+        public void FromImmutableHashSet_ContainsOptimization()
+        {
+            // Arrange
+            var source = ImmutableHashSet.Create(5, 2, 1, 4, 3);
+            var result = source.AsValueEnumerable();
+
+            // Act & Assert
+            result.Contains(3).ShouldBeTrue();
+            result.Contains(6).ShouldBeFalse();
+        }
+
 #endif
 
 #if NET9_0_OR_GREATER
