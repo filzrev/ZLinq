@@ -97,6 +97,11 @@ namespace ZLinq
             return new(new(source));
         }
 
+        public static ValueEnumerable<FromImmutableHashSet<T>, T> AsValueEnumerable<T>(this ImmutableHashSet<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
 #endif
 
 #if NET9_0_OR_GREATER
@@ -1075,7 +1080,57 @@ namespace ZLinq.Linq
         }
     }
 
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromImmutableHashSet<T>(ImmutableHashSet<T> source) : IValueEnumerator<T>
+    {
+        bool isInit;
+        ImmutableHashSet<T>.Enumerator enumerator;
+
+        internal ImmutableHashSet<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset) => false;
+
+        public bool TryGetNext(out T current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
 #endif
+
 
 #if NET9_0_OR_GREATER
 
