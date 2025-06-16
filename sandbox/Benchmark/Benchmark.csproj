@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.15.0" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.2" />
     <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.BenchmarkDotNetDiagnosers" Version="18.0.36127.1" />
     <PackageReference Include="Microsoft.VisualStudio.DiagnosticsHub.UserMarks" Version="18.0.36127.1" />
     <PackageReference Include="Kokuban" Version="0.2.0" />

@@ -107,11 +107,11 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         const string url = "https://api.nuget.org/v3-flatcontainer/zlinq/index.json"; // Must be lower-case.
         var json = new HttpClient().GetStringAsync(url).GetAwaiter().GetResult();
 
-        // Note: Uncomment following line when comparing all NuGet package versions performance.
-        // return versions;
-
         var node = JsonNode.Parse(json)!;
         var versions = node["versions"]!.AsArray().GetValues<string>().ToArray();
+
+        // Note: Uncomment following line when comparing all NuGet package versions performance.
+        // return versions.Where(x => Version.Parse(x).Major >= 1);
 
         bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
         return isRunningOnGitHubActions
