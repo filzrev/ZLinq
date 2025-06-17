@@ -113,10 +113,26 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
         // Note: Uncomment following line when comparing all NuGet package versions performance.
         // return versions.Where(x => Version.Parse(x).Major >= 1);
 
+        var latestVersion = versions.Last();
+
+        // Returns 2 versions if it's running on GitHub Actions and specific tag version is selected.
         bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
-        return isRunningOnGitHubActions
-            ? versions.TakeLast(2)  // Compare performance between latest 2 versions.
-            : versions.TakeLast(1); // Compare performance between latest/LocalBuild versions.
+        if (isRunningOnGitHubActions)
+        {
+            var refType = Environment.GetEnvironmentVariable("GITHUB_REF_TYPE"); // branch or tag
+            var refName = Environment.GetEnvironmentVariable("GITHUB_REF_NAME")!;
+            if (refType == "tag" && latestVersion != refName && versions.Contains(refName))
+            {
+                return
+                [
+                    refName,
+                    latestVersion,
+                ];
+            }
+        }
+
+        // Otherwise, return latest version only. (Compare performance to LocalBuild version)
+        return [latestVersion];
     }
 
     private static string GetCustomBuildConfigurationName(string targetVersion)
