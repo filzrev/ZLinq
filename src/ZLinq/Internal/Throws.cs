@@ -43,6 +43,9 @@ internal static class Throws
     [DoesNotReturn]
     public static void IsFromEnd(string paramName) => throw new ArgumentOutOfRangeException(paramName, "IsFromEnd is not allowed.");
 
+    [DoesNotReturn]
+    public static void Null(string paramName) => throw new System.ArgumentNullException(paramName);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T IfNull<T>(T? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         where T : class
