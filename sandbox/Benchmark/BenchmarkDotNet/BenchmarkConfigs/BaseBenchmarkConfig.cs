@@ -5,6 +5,7 @@ using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Reports;
+using Perfolizer.Horology;
 
 namespace Benchmark;
 
@@ -35,12 +36,17 @@ public abstract class BaseBenchmarkConfig : ManualConfig
         // WithOptions(ConfigOptions.GenerateMSBuildBinLog);
     }
 
-    // Use Job.ShortRun based settings (LaunchCount=1  TargetCount=3 WarmupCount = 3)
+    /// <summary>
+    /// Use recommended jobsettings of dotnet/performance repository.
+    /// https://github.com/dotnet/performance/blob/0396fc87beea5ab8c04a22c1946b3e8901544b22/src/harness/BenchmarkDotNet.Extensions/RecommendedConfig.cs#L35-L40
+    /// </summary>
     protected virtual Job GetBaseJobConfig() =>
         Job.Default
            .WithLaunchCount(1)
-           .WithWarmupCount(3)
-           .WithIterationCount(3) // This setting might be adjusted when benchmark iteration time is smaller than min IterationTime settings (Default: 500ms)
+           .WithWarmupCount(1)
+           .WithIterationTime(TimeInterval.FromMilliseconds(250)) // Default: 500ms
+           .WithMinIterationCount(15) // Default: 15
+           .WithMaxIterationCount(20) // Default: 100
            .WithStrategy(RunStrategy.Throughput) // Explicitly specify RunStrategy (it show `Default` when it's not explicitly specified)
            .DontEnforcePowerPlan();
 
