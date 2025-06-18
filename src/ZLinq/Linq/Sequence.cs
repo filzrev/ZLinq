@@ -13,10 +13,23 @@ namespace ZLinq
             where T : INumber<T>
         {
             if (start is null) Throws.Null(nameof(start));
+            if (T.IsNaN(start)) Throws.ArgumentOutOfRange(nameof(start));
             if (endInclusive is null) Throws.Null(nameof(endInclusive));
+            if (T.IsNaN(endInclusive)) Throws.ArgumentOutOfRange(nameof(endInclusive));
             if (step is null) Throws.Null(nameof(step));
+            if (T.IsNaN(step)) Throws.ArgumentOutOfRange(nameof(step));
 
-            if (step > T.Zero)
+            if (T.IsZero(step))
+            {
+                if (start != endInclusive)
+                {
+                    Throws.ArgumentOutOfRange(nameof(step));
+                }
+
+                // repeat one
+                return new(new(start, endInclusive, step, isIncrement: true));
+            }
+            else if (T.IsPositive(step))
             {
                 // Enumerable.Sequence has known primitive + 1 step has use Range(FillIncremental) optimization but currently we don't do it.
                 // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Linq/src/System/Linq/Sequence.cs
@@ -26,11 +39,10 @@ namespace ZLinq
                     Throws.ArgumentOutOfRange(nameof(endInclusive));
                 }
 
-
                 // increment pattern
                 return new(new(start, endInclusive, step, isIncrement: true));
             }
-            else if (step < T.Zero)
+            else
             {
                 if (endInclusive > start)
                 {
@@ -40,18 +52,6 @@ namespace ZLinq
                 // decrement pattern
                 return new(new(start, endInclusive, step, isIncrement: false));
             }
-            else
-            {
-                // step == 0
-
-                if (start != endInclusive)
-                {
-                    Throws.ArgumentOutOfRange(nameof(step));
-                }
-
-                // repeat one?
-                return new(new(start, endInclusive, step, isIncrement: true));
-            }
         }
     }
 }
@@ -60,7 +60,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromSequence<T>(T start, T endInclusive, T step, bool isIncrement) : IValueEnumerator<T>
+    public struct FromSequence<T>(T currentValue, T endInclusive, T step, bool isIncrement) : IValueEnumerator<T>
         where T : INumber<T>
     {
         bool calledGetNext;
@@ -87,19 +87,19 @@ namespace ZLinq.Linq
             if (!calledGetNext)
             {
                 calledGetNext = true;
-                current = start;
+                current = currentValue;
                 return true;
             }
 
             if (isIncrement)
             {
-                var next = start + step;
+                var next = currentValue + step;
 
-                if (next >= endInclusive || next <= start)
+                if (next >= endInclusive || next <= currentValue)
                 {
-                    if (next == endInclusive && start != next)
+                    if (next == endInclusive && currentValue != next)
                     {
-                        current = start = next;
+                        current = currentValue = next;
                         return true;
                     }
 
@@ -107,18 +107,18 @@ namespace ZLinq.Linq
                     return false;
                 }
 
-                current = start = next;
+                current = currentValue = next;
                 return true;
             }
             else
             {
-                var next = start + step;
+                var next = currentValue + step;
 
-                if (next <= endInclusive || next >= start)
+                if (next <= endInclusive || next >= currentValue)
                 {
-                    if (next == endInclusive && start != next)
+                    if (next == endInclusive && currentValue != next)
                     {
-                        current = start = next;
+                        current = currentValue = next;
                         return true;
                     }
 
@@ -126,7 +126,7 @@ namespace ZLinq.Linq
                     return false;
                 }
 
-                current = start = next;
+                current = currentValue = next;
                 return true;
             }
         }

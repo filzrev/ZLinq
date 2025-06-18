@@ -14,11 +14,15 @@ namespace ZLinq.Tests.Linq;
 public class SequenceTests
 {
     [Fact]
-    public void NullArguments_Throws()
+    public void InvalidArguments_Throws()
     {
         Assert.Throws<ArgumentNullException>("start", () => ValueEnumerable.Sequence((ReferenceAddable)null!, new(1), new(2)));
         Assert.Throws<ArgumentNullException>("endInclusive", () => ValueEnumerable.Sequence(new(1), (ReferenceAddable)null!, new(2)));
         Assert.Throws<ArgumentNullException>("step", () => ValueEnumerable.Sequence(new(1), new(2), (ReferenceAddable)null!));
+
+        Assert.Throws<ArgumentOutOfRangeException>("start", () => ValueEnumerable.Sequence(float.NaN, 1.0f, 1.0f));
+        Assert.Throws<ArgumentOutOfRangeException>("endInclusive", () => ValueEnumerable.Sequence(1.0f, float.NaN, 1.0f));
+        Assert.Throws<ArgumentOutOfRangeException>("step", () => ValueEnumerable.Sequence(1.0f, 1.0f, float.NaN));
     }
 
     [Fact]
@@ -242,16 +246,16 @@ public class SequenceTests
         public static bool IsImaginaryNumber(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsInfinity(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsInteger(ReferenceAddable value) => throw new NotImplementedException();
-        public static bool IsNaN(ReferenceAddable value) => throw new NotImplementedException();
-        public static bool IsNegative(ReferenceAddable value) => throw new NotImplementedException();
+        public static bool IsNaN(ReferenceAddable value) => false;
+        public static bool IsNegative(ReferenceAddable value) => false;
         public static bool IsNegativeInfinity(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsNormal(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsOddInteger(ReferenceAddable value) => throw new NotImplementedException();
-        public static bool IsPositive(ReferenceAddable value) => throw new NotImplementedException();
+        public static bool IsPositive(ReferenceAddable value) => false;
         public static bool IsPositiveInfinity(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsRealNumber(ReferenceAddable value) => throw new NotImplementedException();
         public static bool IsSubnormal(ReferenceAddable value) => throw new NotImplementedException();
-        public static bool IsZero(ReferenceAddable value) => throw new NotImplementedException();
+        public static bool IsZero(ReferenceAddable value) => false;
         public static ReferenceAddable MaxMagnitude(ReferenceAddable x, ReferenceAddable y) => throw new NotImplementedException();
         public static ReferenceAddable MaxMagnitudeNumber(ReferenceAddable x, ReferenceAddable y) => throw new NotImplementedException();
         public static ReferenceAddable MinMagnitude(ReferenceAddable x, ReferenceAddable y) => throw new NotImplementedException();
