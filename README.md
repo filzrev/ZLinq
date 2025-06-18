@@ -28,7 +28,7 @@ var seq = source
 foreach (var item in seq) { }
 ```
 
-* **99% compatibility** with .NET 10's LINQ (including new `Shuffle`, `RightJoin`, `LeftJoin` operators)
+* **99% compatibility** with .NET 10's LINQ (including new `Shuffle`, `RightJoin`, `LeftJoin`, `Sequence`, `InfiniteSequence` operators)
 * **Zero allocation** for method chains through struct-based Enumerable via `ValueEnumerable`
 * **LINQ to Span** to full support LINQ operations on `Span<T>` using .NET 9/C# 13's `allows ref struct`
 * **LINQ to Tree** to extend tree-structured objects (built-in support for FileSystem, JSON, GameObject)
@@ -164,7 +164,9 @@ Since `ZLinq` is not `IEnumerable<T>`, it cannot be passed to `String.Join`. `Jo
 
 Range
 ---
-`Range` is not only compatible with System.Linq's `Range(int start, int count)` but also has many additional overloads such as `System.Range` and `DateTime`.
+In .NET 10, `Enumerable.Sequence` and `Enumerable.InfiniteSequence` have been added, improving the expressiveness of Range operations. ZLinq also implements these, so they can be used. However, since they require `INumber<T>` and `IAdditionalOperator<T>`, they are limited to .NET 8 and above.
+
+ZLinq extends more overloads of `ValueEnumerable.Range` than standard LINQ does. This Range extension can be used on all platforms (including .NET Standard 2.0).
 
 ```csharp
 // 95, 96, 97, 98, 99

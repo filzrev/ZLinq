@@ -9,11 +9,13 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
-        // TODO: impl
         public static ValueEnumerable<FromInfiniteSequence<T>, T> InfiniteSequence<T>(T start, T step)
             where T : IAdditionOperators<T, T, T>
         {
-            throw new NotImplementedException();
+            if (start is null) Throws.Null(nameof(start));
+            if (step is null) Throws.Null(nameof(step));
+
+            return new(new(start, step));
         }
     }
 }
@@ -23,11 +25,14 @@ namespace ZLinq.Linq
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromInfiniteSequence<T>(T start, T step) : IValueEnumerator<T>
+        where T : IAdditionOperators<T, T, T>
     {
+        bool calledGetNext;
+
         public bool TryGetNonEnumeratedCount(out int count)
         {
-            // TODO:
-            throw new NotImplementedException();
+            count = 0;
+            return false;
         }
 
         public bool TryGetSpan(out ReadOnlySpan<T> span)
@@ -38,13 +43,20 @@ namespace ZLinq.Linq
 
         public bool TryCopyTo(scoped Span<T> destination, Index offset)
         {
-            // TODO: we can use fill-incremental?
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool TryGetNext(out T current)
         {
-            throw new NotImplementedException();
+            if (!calledGetNext)
+            {
+                calledGetNext = true;
+                current = start;
+                return true;
+            }
+
+            current = start += step;
+            return true;
         }
 
         public void Dispose()

@@ -25,20 +25,9 @@ using System.Diagnostics.CodeAnalysis;
 // [assembly: ZLinqDropIn("ZLinq", DropInGenerateTypes.Everything)]
 
 
-var xs = Enumerable.Range(1, 100).ToArray();
-var a = xs.AsValueEnumerable().ToImmutableArray();
+var huga = ValueEnumerable.Sequence(100, 100, 0).ToArray();
 
-var ys = ValueEnumerable.Range(1, 100);
-var b = ys.ToImmutableArray();
-
-// RangeIterator: IList<int>, IReadOnlyList<int>
-var zs = Enumerable.Range(1, 100).AsValueEnumerable();
-var c = zs.ToImmutableArray();
-
-var zzs = Enumerable.Range(1, 100).Where(_ => true).AsValueEnumerable();
-var d = zzs.ToImmutableArray();
-
-Console.WriteLine(a.SequenceEqual(b));
-Console.WriteLine(a.SequenceEqual(c));
-Console.WriteLine(a.SequenceEqual(d));
-
+foreach (var item in huga)
+{
+    Console.WriteLine(item);
+}
