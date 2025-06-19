@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Security.Cryptography;
 
 namespace ZLinq.Internal;
@@ -40,7 +39,7 @@ internal static class RandomShared
                 _s3 = span[3];
             } while (_s0 == 0 && _s1 == 0 && _s2 == 0 && _s3 == 0);
 #else
-            var array = ArrayPool<byte>.Shared.Rent(32);
+            var array = new byte[32];
             using var rng = RandomNumberGenerator.Create();
             do
             {
@@ -101,13 +100,19 @@ internal static class RandomShared
             uint blo = (uint)b;
             uint bhi = (uint)(b >> 32);
 
-            ulong mulo = (ulong)alo * blo;
-            ulong mid1 = (ulong)ahi * blo;
-            ulong mid2 = (ulong)alo * bhi;
-            ulong muhi = (ulong)ahi * bhi;
+            ulong lolo = (ulong)alo * blo;
+            ulong lohi = (ulong)alo * bhi;
+            ulong hilo = (ulong)ahi * blo;
+            ulong hihi = (ulong)ahi * bhi;
 
-            lo = mulo + (mid1 << 32) + (mid2 >> 32);
-            return muhi + (mid1 >> 32) + (mid2 >> 32) + (((mid1 & ~0u) + (mid2 & ~0u) + (mulo >> 32)) >> 32);
+            ulong middle = lohi + hilo;
+            ulong carry = ((middle < lohi) ? 1ul : 0ul) << 32;
+
+            lo = lolo + (middle << 32);
+            carry += (lo < lolo) ? 1ul : 0ul;
+
+            ulong hi = hihi + (middle >> 32) + carry;
+            return hi;
 #endif
         }
 
@@ -132,6 +137,8 @@ internal static class RandomShared
         // for details on the algorithm, see https://github.com/dotnet/runtime/pull/111015
         public void Shuffle<T>(Span<T> values)
         {
+            // The upper limit of the first random number generated.
+            // 2432902008176640000 == 20! (Largest factorial smaller than 2^64)
             ulong bound = 2432902008176640000;
 
             int nextIndex = Math.Min(20, values.Length);
@@ -139,21 +146,44 @@ internal static class RandomShared
             for (int i = 1; i < values.Length;)
             {
                 ulong r = NextUInt64();
+
+                // Correct r to be unbiased.
+                // Ensure that the result of `BigMul(r, bound, out _)` is
+                // uniformly distributed between 0 <= result < bound without bias.
                 ulong rbound = r * bound;
+
+                // Look at the lower 64 bits of r * bound,
+                // and if there is a carryover possibility...
+                // (The maximum value added in subsequent processing is bound - 1,
+                //  so if rbound <= (2^64) - bound, no carryover occurs.)
                 if (rbound > 0 - bound)
                 {
                     ulong sum, carry;
                     do
                     {
+                        // Generate an additional random number t and check if it carries over
+                        //   [rhi] . [rlo]        -> r * bound; upper rhi, lower rlo
+                        // +     0 . [thi] [tlo]  -> t * bound; upper thi, lower tlo
+                        // ---------------------
+                        //   [carry.  sum] [tlo]  -> rhi + carry is the result
                         ulong t = NextUInt64();
                         ulong thi = BigMul(t, bound, out ulong tlo);
                         sum = rbound + thi;
                         carry = sum < rbound ? 1ul : 0ul;
                         rbound = tlo;
+
+                        // If sum == 0xff...ff, there is a possibility of a carry
+                        // in the future, so calculate it again.
+                        // If not, there will be no more carry,
+                        // so add the carry and finish.
                     } while (sum == ~0ul);
                     r += carry;
                 }
 
+                // Do the Fisher-Yates shuffle based on r.
+                // For example, the result of `BigMul(r, 20!, out _)` is expressed as
+                //    (0..2) * 20!/2! + (0..3) * 20!/3! + ... + (0..20) * 20!/20!
+                // Imagine extracting the numbers inside the parentheses.
                 for (int m = i; m < nextIndex; m++)
                 {
                     int index = (int)BigMul(r, (ulong)(m + 1), out r);
@@ -165,6 +195,8 @@ internal static class RandomShared
 
                 i = nextIndex;
 
+                // Calculates next bound.
+                // bound is (i + 1) * (i + 2) * ... * (nextIndex) < 2^64
                 bound = (ulong)(i + 1);
                 for (nextIndex = i + 1; nextIndex < values.Length; nextIndex++)
                 {
@@ -186,6 +218,9 @@ internal static class RandomShared
 
             for (int i = 0; i < count;)
             {
+                // Calculates the bound first because, unlike Shuffle(),
+                // it calculates it in the smaller direction: 
+                // (Length * (Length - 1) * (Length - 2) * ...).
                 ulong bound = (ulong)(values.Length - i);
                 int nextIndex;
                 if (bound <= 20)
@@ -208,6 +243,7 @@ internal static class RandomShared
                     }
                 }
 
+                // Correct r to be unbiased.
                 ulong r = NextUInt64();
                 ulong rbound = r * bound;
                 if (rbound > 0 - bound)
@@ -224,6 +260,7 @@ internal static class RandomShared
                     r += carry;
                 }
 
+                // Do the Fisher-Yates shuffle based on r.
                 for (int m = i; m < nextIndex; m++)
                 {
                     int index = m + (int)BigMul(r, (ulong)(values.Length - m), out r);
