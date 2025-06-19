@@ -1,0 +1,66 @@
+name: Benchmark on release
+run-name: Start benchmarks on release ${{ github.event.release.tag_name }}
+on:
+  workflow_dispatch:
+  release:
+    types: [released]
+
+jobs:
+  benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - name: Invoke benchmark workflows
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        script: |
+          try {
+            let baseTitle = 'Benchmark'
+            if(context.eventName == 'workflow_dispatch'){
+              baseTitle = 'Benchmark v${{ github.event.release.tag_name }}'
+            }
+
+            // Properties that shared between createWorkflowDispatch
+            const baseOptions = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'benchmark.yaml',
+              ref: '${{ github.ref_name }}',
+            }
+
+            // Start `NuGetVersions` benchmark when released new version (To compare latest 2 versions)
+            if(context.eventName != 'workflow_dispatch') {
+              await github.rest.actions.createWorkflowDispatch({
+                ...baseOptions,
+                inputs: {
+                  //title: `${baseTitle} (NuGetVersions)`,
+                  config: 'NuGetVersions',
+                  framework: 'net10.0',
+                }
+              })
+            }
+
+            // Start `SystemLinq` benchmarks
+            await github.rest.actions.createWorkflowDispatch({
+              ...baseOptions,
+              inputs: {
+                //title: `${baseTitle} (SystemLinq)`,
+                config: 'SystemLinq',
+                framework: 'net10.0',
+              }
+            })
+
+            // Start `TargetFrameworks` benchmarks
+            await github.rest.actions.createWorkflowDispatch({
+              ...baseOptions,
+              inputs: {
+                //title: `${baseTitle} (TargetFrameworks)`,
+                config: 'TargetFrameworks',
+                framework: 'net10.0',
+              }
+            })
+          }
+          catch(error) {
+            console.error(error)
+            core.setFailed(error)
+          }

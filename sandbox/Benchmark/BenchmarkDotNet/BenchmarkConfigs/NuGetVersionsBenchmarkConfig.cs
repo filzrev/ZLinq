@@ -115,20 +115,20 @@ public class NuGetVersionsBenchmarkConfig : BaseBenchmarkConfig
 
         var latestVersion = versions.Last();
 
-        // Returns 2 versions if it's running on GitHub Actions and specific tag version is selected.
+        // Check it's running on GitHub Actions
         bool isRunningOnGitHubActions = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true";
         if (isRunningOnGitHubActions)
         {
             var refType = Environment.GetEnvironmentVariable("GITHUB_REF_TYPE"); // branch or tag
             var refName = Environment.GetEnvironmentVariable("GITHUB_REF_NAME")!;
-            if (refType == "tag" && latestVersion != refName && versions.Contains(refName))
-            {
-                return
-                [
-                    refName,
-                    latestVersion,
-                ];
-            }
+
+            // Returns latest 2 versions if tag name matched to latest version. (It's used for `Run benchmarks on release` workflow)
+            if (refType == "tag" && latestVersion == refName)
+                return versions.TakeLast(2).ToArray(); // Return latest 2 versions.
+
+            // Returns latest version and specified tag version 
+            if (refType == "tag" && versions.Contains(refName))
+                return [latestVersion, refName];
         }
 
         // Otherwise, return latest version only. (Compare performance to LocalBuild version)
