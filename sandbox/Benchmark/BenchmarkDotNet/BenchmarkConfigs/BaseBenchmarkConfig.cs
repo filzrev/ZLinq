@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Diagnosers;
+using BenchmarkDotNet.EventProcessors;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
@@ -69,8 +70,11 @@ public abstract class BaseBenchmarkConfig : ManualConfig
 
     protected virtual void AddLoggers()
     {
-        // Set NullLogger to suppress verbose benchmark progress logs. Benchmark progress is reported by custom EventProcessor instead.
-        AddLogger(NullLogger.Instance);
+        var logger = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != null
+            ? ConsoleLogger.Default
+            : QuietLogger.Instance; // Set custom QuietLogger to suppress verbose benchmark progress logs. (Logs are outputted by BenchmarkEventProcessor instead)
+
+        AddLogger(logger);
     }
 
     protected virtual void AddAnalyzers()
@@ -102,8 +106,11 @@ public abstract class BaseBenchmarkConfig : ManualConfig
 
     protected virtual void AddEventProcessors()
     {
-        // Use custom event processor to report benchmark progress.
-        AddEventProcessor(BenchmarkEventProcessor.Instance);
+        var eventProcessor = Environment.GetEnvironmentVariable("GITHUB_ACTIONS") != null
+            ? LogGroupingEventProcessor.Instance
+            : BenchmarkEventProcessor.Instance;
+
+        AddEventProcessor(eventProcessor);
     }
 
     protected virtual void AddHardwareCounters()

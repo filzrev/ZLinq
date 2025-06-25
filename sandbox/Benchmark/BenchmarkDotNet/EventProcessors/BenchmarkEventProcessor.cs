@@ -27,7 +27,7 @@ public class BenchmarkEventProcessor : EventProcessor
     private int maxBenchmarkParameterInfoLength = 0;
     private bool containsMultipleJobIds = false;
 
-    public static readonly BenchmarkEventProcessor Instance = new();
+    public static readonly EventProcessor Instance = new BenchmarkEventProcessor();
 
     private BenchmarkEventProcessor() { }
 
