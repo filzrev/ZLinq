@@ -31,6 +31,11 @@ public class BenchmarkEventProcessor : EventProcessor
 
     private BenchmarkEventProcessor() { }
 
+    public override void OnStartValidationStage()
+    {
+        QuietLogger.Instance.IsQuietMode = true;
+    }
+
     public override void OnValidationError(ValidationError validationError)
     {
         var benchmarkCase = validationError.BenchmarkCase;

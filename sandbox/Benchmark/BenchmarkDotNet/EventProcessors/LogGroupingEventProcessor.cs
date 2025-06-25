@@ -6,6 +6,7 @@ using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains;
 using BenchmarkDotNet.Toolchains.Results;
 using BenchmarkDotNet.Validators;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Text;
 
@@ -28,7 +29,7 @@ public class LogGroupingEventProcessor : EventProcessor
 
     public override void OnStartValidationStage()
     {
-        QuietLogger.Instance.IsQuietMode = true;
+        Logger.WriteLine($"[error]test error");
     }
 
     public override void OnStartBuildStage(IReadOnlyList<BuildPartition> partitions)
