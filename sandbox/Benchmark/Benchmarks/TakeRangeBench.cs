@@ -25,7 +25,7 @@ public class TakeRangeBench : EnumerableBenchmarkBase<int>
     [Benchmark]
     [BenchmarkCategory(Categories.LINQ)]
     [BenchmarkCategory(Categories.From.Enumerable)]
-    public void FromEnumerable_Take_Linq()
+    public void FromEnumerable_WithTake_Linq()
     {
         foreach (var _ in source.EnumerableData.Take(range: 100..^100).Take(1000)) ;
     }
@@ -33,7 +33,7 @@ public class TakeRangeBench : EnumerableBenchmarkBase<int>
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
     [BenchmarkCategory(Categories.From.Enumerable)]
-    public void FromEnumerable_Take__ZLinq()
+    public void FromEnumerable_WithTake_ZLinq()
     {
         foreach (var _ in source.EnumerableData.AsValueEnumerable().Take(range: 100..^100).Take(1000)) ;
     }
