@@ -216,7 +216,7 @@ namespace ZLinq.Linq
                 : Range.Start.Value;
             var end = Range.End.IsFromEnd
                 ? Math.Max(0, totalCount - Range.End.Value)
-                : totalCount;
+                : Range.End.Value;
 
             Remains = Math.Max(0, end - start);
 
