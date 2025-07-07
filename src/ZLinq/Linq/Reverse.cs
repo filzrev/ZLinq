@@ -87,6 +87,13 @@ namespace ZLinq.Linq
         public void Dispose()
         {
             buffer?.Dispose();
+
+            if (buffer != null)
+            {
+                // source already disposed by enumeration in InitBuffer()
+                return;
+            }
+
             source.Dispose();
         }
 
