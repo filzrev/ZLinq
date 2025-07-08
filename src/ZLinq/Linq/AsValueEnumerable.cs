@@ -65,6 +65,12 @@ namespace ZLinq
             return new(new(Throws.IfNull(source)));
         }
 
+        public static ValueEnumerable<FromSortedDictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> AsValueEnumerable<TKey, TValue>(this SortedDictionary<TKey, TValue> source)
+            where TKey : notnull
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
         public static ValueEnumerable<FromQueue<T>, T> AsValueEnumerable<T>(this Queue<T> source)
         {
             return new(new(Throws.IfNull(source)));
@@ -662,6 +668,54 @@ namespace ZLinq.Linq
     {
         bool isInit = false;
         Dictionary<TKey, TValue>.Enumerator enumerator;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<KeyValuePair<TKey, TValue>> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<KeyValuePair<TKey, TValue>> destination, Index offset) => false;
+
+        public bool TryGetNext(out KeyValuePair<TKey, TValue> current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromSortedDictionary<TKey, TValue>(SortedDictionary<TKey, TValue> source) : IValueEnumerator<KeyValuePair<TKey, TValue>>
+        where TKey : notnull
+    {
+        bool isInit = false;
+        SortedDictionary<TKey, TValue>.Enumerator enumerator;
 
         public bool TryGetNonEnumeratedCount(out int count)
         {
