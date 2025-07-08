@@ -3,9 +3,18 @@ using System.Text.Json.Nodes;
 using ZLinq;
 
 
-var a = ValueEnumerable.Sequence(1, -10, -3);
+var seq = ValueEnumerable.Sequence(16, 100, 1);
 
-foreach (var item in a)
+var foo = seq.ToArray();
+
+foreach (var item in foo)
+{
+    Console.WriteLine(item);
+}
+
+Console.WriteLine("---");
+
+foreach (var item in seq)
 {
     Console.WriteLine(item);
 }
