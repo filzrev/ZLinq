@@ -7,7 +7,7 @@ namespace ZLinq;
 
 public static class JsonNodeExtensions
 {
-    public static JsonNodeTraverser AsTraverser(this JsonNode origin) => new(new JsonNodeProperty(origin.Parent != null ? origin.GetPropertyName() : "", origin));
+    public static JsonNodeTraverser AsTraverser(this JsonNode origin, bool expandArray = false) => new(new JsonNodeProperty(origin.Parent != null ? origin.GetPropertyName() : "", origin), expandArray);
 
     // type inference helper
 
@@ -24,16 +24,16 @@ public static class JsonNodeExtensions
 
     // direct shortcut
 
-    public static ValueEnumerable<Children<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Children(this JsonNode origin) => origin.AsTraverser().Children();
-    public static ValueEnumerable<Children<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> ChildrenAndSelf(this JsonNode origin) => origin.AsTraverser().ChildrenAndSelf();
-    public static ValueEnumerable<Descendants<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Descendants(this JsonNode origin) => origin.AsTraverser().Descendants();
-    public static ValueEnumerable<Descendants<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> DescendantsAndSelf(this JsonNode origin) => origin.AsTraverser().DescendantsAndSelf();
-    public static ValueEnumerable<Ancestors<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Ancestors(this JsonNode origin) => origin.AsTraverser().Ancestors();
-    public static ValueEnumerable<Ancestors<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AncestorsAndSelf(this JsonNode origin) => origin.AsTraverser().AncestorsAndSelf();
-    public static ValueEnumerable<BeforeSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> BeforeSelf(this JsonNode origin) => origin.AsTraverser().BeforeSelf();
-    public static ValueEnumerable<BeforeSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> BeforeSelfAndSelf(this JsonNode origin) => origin.AsTraverser().BeforeSelfAndSelf();
-    public static ValueEnumerable<AfterSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AfterSelf(this JsonNode origin) => origin.AsTraverser().AfterSelf();
-    public static ValueEnumerable<AfterSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AfterSelfAndSelf(this JsonNode origin) => origin.AsTraverser().AfterSelfAndSelf();
+    public static ValueEnumerable<Children<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Children(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).Children();
+    public static ValueEnumerable<Children<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> ChildrenAndSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).ChildrenAndSelf();
+    public static ValueEnumerable<Descendants<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Descendants(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).Descendants();
+    public static ValueEnumerable<Descendants<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> DescendantsAndSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).DescendantsAndSelf();
+    public static ValueEnumerable<Ancestors<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> Ancestors(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).Ancestors();
+    public static ValueEnumerable<Ancestors<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AncestorsAndSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).AncestorsAndSelf();
+    public static ValueEnumerable<BeforeSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> BeforeSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).BeforeSelf();
+    public static ValueEnumerable<BeforeSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> BeforeSelfAndSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).BeforeSelfAndSelf();
+    public static ValueEnumerable<AfterSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AfterSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).AfterSelf();
+    public static ValueEnumerable<AfterSelf<JsonNodeTraverser, JsonNodeProperty>, JsonNodeProperty> AfterSelfAndSelf(this JsonNode origin, bool expandArray = false) => origin.AsTraverser(expandArray).AfterSelfAndSelf();
 }
 
 // Can't use ITraversable<JsonNode> because JsonNull is not exists and we must represents null on iterate.
@@ -42,13 +42,14 @@ public static class JsonNodeExtensions
 public record struct JsonNodeProperty(string Name, JsonNode? Node);
 
 [StructLayout(LayoutKind.Auto)]
-public struct JsonNodeTraverser(JsonNodeProperty origin) : ITraverser<JsonNodeTraverser, JsonNodeProperty>
+public struct JsonNodeTraverser(JsonNodeProperty origin, bool expandArray = false) : ITraverser<JsonNodeTraverser, JsonNodeProperty>
 {
     IEnumerator<KeyValuePair<string, JsonNode?>>? jsonObjectEnumerator; // state for TryGet...
+    int jsonArrayIndex; // state for TryGet...
 
     public JsonNodeProperty Origin => origin;
 
-    public JsonNodeTraverser ConvertToTraverser(JsonNodeProperty next) => new(next);
+    public JsonNodeTraverser ConvertToTraverser(JsonNodeProperty next) => new(next, expandArray);
 
     public bool TryGetChildCount(out int count)
     {
@@ -57,6 +58,13 @@ public struct JsonNodeTraverser(JsonNodeProperty origin) : ITraverser<JsonNodeTr
             count = obj.Count;
             return true;
         }
+
+        if (expandArray && origin.Node is JsonArray array)
+        {
+            count = array.Count;
+            return true;
+        }
+
         count = 0;
         return false;
     }
@@ -68,6 +76,13 @@ public struct JsonNodeTraverser(JsonNodeProperty origin) : ITraverser<JsonNodeTr
             hasChild = obj.Count != 0;
             return true;
         }
+
+        if (expandArray && origin.Node is JsonArray array)
+        {
+            hasChild = array.Count != 0;
+            return true;
+        }
+
         hasChild = false;
         return false;
     }
@@ -87,6 +102,21 @@ public struct JsonNodeTraverser(JsonNodeProperty origin) : ITraverser<JsonNodeTr
 
     public bool TryGetNextChild(out JsonNodeProperty child)
     {
+        // array
+        if (expandArray && origin.Node is JsonArray array)
+        {
+            if (jsonArrayIndex < array.Count)
+            {
+                child = new("", array[jsonArrayIndex]);
+                jsonArrayIndex++;
+                return true;
+            }
+
+            child = default!;
+            return false;
+        }
+
+        // object
         if (origin.Node is not JsonObject obj)
         {
             child = default!;
