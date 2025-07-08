@@ -4,6 +4,7 @@ using System.Numerics;
 
 namespace ZLinq
 {
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     public enum RightBound
     {
         Inclusive,
@@ -23,6 +24,7 @@ namespace ZLinq
             return new(new(start, count));
         }
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRange2, int> Range(Range range, RightBound rightBound = RightBound.Exclusive)
         {
             if (range.Start.IsFromEnd)
@@ -57,18 +59,21 @@ namespace ZLinq
 
 #if NET8_0_OR_GREATER
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
             where T : INumberBase<T>
         {
             return new(new(start, count, T.One));
         }
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
             where T : IAdditionOperators<T, TStep, T>
         {
             return new(new(start, count, step));
         }
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
             where T : INumberBase<T>, IComparisonOperators<T, T, bool>
         {
@@ -76,6 +81,7 @@ namespace ZLinq
             return new(new(start, end, step, rightBound));
         }
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeTo<T, TStep>, T> Range<T, TStep>(T start, T end, TStep step, RightBound rightBound)
             where T : IAdditionOperators<T, TStep, T>, IComparisonOperators<T, T, bool>
         {
@@ -86,10 +92,14 @@ namespace ZLinq
 
         // Currently DateTime is not implemented IAdditionOperators<DateTime, TimeSpan, DateTime>
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
 
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step) => new(new(start, count, step));
+        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTimeOffsetTo, DateTimeOffset> Range(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
     }
 }
@@ -196,6 +206,7 @@ namespace ZLinq.Linq
 
     // for `System.Range`
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRange2(int start, int count, bool isInfinite) : IValueEnumerator<int>
@@ -260,6 +271,7 @@ namespace ZLinq.Linq
 
 #if NET8_0_OR_GREATER
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRange<T, TStep>(T start, int count, TStep step) : IValueEnumerator<T>
@@ -313,6 +325,7 @@ namespace ZLinq.Linq
         }
     }
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRangeTo<T, TStep>(T start, T end, TStep step, RightBound rightBound) : IValueEnumerator<T>
@@ -385,6 +398,7 @@ namespace ZLinq.Linq
 
 #endif
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRangeDateTime(DateTime start, int count, TimeSpan step) : IValueEnumerator<DateTime>
@@ -437,6 +451,7 @@ namespace ZLinq.Linq
         }
     }
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRangeDateTimeOffset(DateTimeOffset start, int count, TimeSpan step) : IValueEnumerator<DateTimeOffset>
@@ -489,6 +504,7 @@ namespace ZLinq.Linq
         }
     }
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRangeDateTimeTo(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) : IValueEnumerator<DateTime>
@@ -558,6 +574,7 @@ namespace ZLinq.Linq
         }
     }
 
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public struct FromRangeDateTimeOffsetTo(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound) : IValueEnumerator<DateTimeOffset>
