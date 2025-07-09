@@ -255,6 +255,32 @@ namespace ZLinq.Tests.Linq
         }
 
         [Fact]
+        public void FromSortedDictionary_BasicFunctionality()
+        {
+            // Arrange
+            var source = new SortedDictionary<string, int>
+            {
+                ["one"] = 1,
+                ["two"] = 2,
+                ["three"] = 3
+            };
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.Length.ShouldBe(source.Count);
+            resultArray.Select(kv => kv.Key).ShouldBe(source.Keys, ignoreOrder: true);
+            resultArray.Select(kv => kv.Value).ShouldBe(source.Values, ignoreOrder: true);
+        }
+
+        [Fact]
         public void FromQueue_BasicFunctionality()
         {
             // Arrange

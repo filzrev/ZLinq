@@ -1,6 +1,4 @@
-﻿#if NET8_0_OR_GREATER
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -9,12 +7,13 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
-        public static ValueEnumerable<FromInfiniteSequence<T>, T> InfiniteSequence<T>(T start, T step)
-            where T : IAdditionOperators<T, T, T>
+        public static ValueEnumerable<FromInfiniteSequenceDateTime, DateTime> InfiniteSequence(DateTime start, TimeSpan step)
         {
-            if (start is null) Throws.Null(nameof(start));
-            if (step is null) Throws.Null(nameof(step));
+            return new(new(start, step));
+        }
 
+        public static ValueEnumerable<FromInfiniteSequenceDateTimeOffset, DateTimeOffset> InfiniteSequence(DateTimeOffset start, TimeSpan step)
+        {
             return new(new(start, step));
         }
     }
@@ -24,7 +23,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromInt32InfiniteSequence2<T>(int start, int step) : IValueEnumerator<int>
+    public struct FromInfiniteSequenceDateTime(DateTime start, TimeSpan step) : IValueEnumerator<DateTime>
     {
         bool calledGetNext;
 
@@ -34,18 +33,18 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryGetSpan(out ReadOnlySpan<int> span)
+        public bool TryGetSpan(out ReadOnlySpan<DateTime> span)
         {
             span = default;
             return false;
         }
 
-        public bool TryCopyTo(scoped Span<int> destination, Index offset)
+        public bool TryCopyTo(scoped Span<DateTime> destination, Index offset)
         {
             return false;
         }
 
-        public bool TryGetNext(out int current)
+        public bool TryGetNext(out DateTime current)
         {
             if (!calledGetNext)
             {
@@ -63,11 +62,9 @@ namespace ZLinq.Linq
         }
     }
 
-
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromInfiniteSequence<T>(T start, T step) : IValueEnumerator<T>
-        where T : IAdditionOperators<T, T, T>
+    public struct FromInfiniteSequenceDateTimeOffset(DateTimeOffset start, TimeSpan step) : IValueEnumerator<DateTimeOffset>
     {
         bool calledGetNext;
 
@@ -77,18 +74,18 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        public bool TryGetSpan(out ReadOnlySpan<DateTimeOffset> span)
         {
             span = default;
             return false;
         }
 
-        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        public bool TryCopyTo(scoped Span<DateTimeOffset> destination, Index offset)
         {
             return false;
         }
 
-        public bool TryGetNext(out T current)
+        public bool TryGetNext(out DateTimeOffset current)
         {
             if (!calledGetNext)
             {
@@ -106,5 +103,3 @@ namespace ZLinq.Linq
         }
     }
 }
-
-#endif
