@@ -1,4 +1,7 @@
-﻿using System;
+﻿// This code is based for Sequence.Primitives.cs and Sequence.DateTime.cs.
+// So if you change this code, need to check theres.
+
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -31,9 +34,6 @@ namespace ZLinq
             }
             else if (T.IsPositive(step))
             {
-                // Enumerable.Sequence has known primitive + 1 step has use Range(FillIncremental) optimization but currently we don't do it.
-                // https://github.com/dotnet/runtime/blob/main/src/libraries/System.Linq/src/System/Linq/Sequence.cs
-
                 if (endInclusive < start)
                 {
                     Throws.ArgumentOutOfRange(nameof(endInclusive));

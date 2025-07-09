@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZLinq;
 
 namespace FileGen;
 
@@ -14,8 +15,8 @@ public partial class Commands
     readonly static string[] PrimitiveNumbersWithoutFloat = ["byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "double", "decimal", "nint", "nuint"];
     readonly static string[] PrimitivesForMinMax = ["byte", "sbyte", "short", "ushort", "int", "uint", "long", "ulong", "nint", "nuint", "Int128", "UInt128"];
 
-    readonly static string[] PrimitivesForSeqeunceOptimizable = ["Byte", "SByte", "UInt16", "Int16", "UInt32", "Int32", "UInt64", "Int64", "Char", "UIntPtr", "IntPtr"];
-    readonly static string[] PrimitivesForSeqeunceOthers = ["Single", "Double", "Decimal", "DateTime", "DateTimeOffset"];
+    readonly static string[] PrimitivesForSeqeunceOptimizable = ["Byte", "SByte", "UInt16", "Int16", "UInt32", "Int32", "UInt64", "Int64", "Char"]; // , "UIntPtr", "IntPtr"];
+    readonly static string[] PrimitivesForSeqeunceOthers = ["Single", "Double", "Decimal"]; //, "DateTime", "DateTimeOffset"];
 
     public void TypeOfContains()
     {
@@ -188,8 +189,32 @@ public partial class Commands
     public void Sequence()
     {
         var sb = new StringBuilder();
-        foreach (var type in PrimitivesForSeqeunceOptimizable)
+        sb.AppendLine("""
+// This file is generated from FileGen.Command.cs
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
+
+// support for all platforms
+// byte/sbyte/ushort/char/short/uint/int/ulong/long (+SIMD optimize)
+// float/double/decimal/DateTime/DateTimeOffset
+
+""");
+
+        foreach (var type in PrimitivesForSeqeunceOptimizable.Concat(PrimitivesForSeqeunceOthers))
         {
+            var nanValidation = "";
+            if (type is "Single" or "Double")
+            {
+                nanValidation = $$"""
+            if ({{type}}.IsNaN(start)) Throws.ArgumentOutOfRange(nameof(start));
+            if ({{type}}.IsNaN(endInclusive)) Throws.ArgumentOutOfRange(nameof(endInclusive));
+            if ({{type}}.IsNaN(step)) Throws.ArgumentOutOfRange(nameof(step));
+""";
+            }
+
+
             var code = $$"""
 namespace ZLinq
 {
@@ -197,6 +222,8 @@ namespace ZLinq
     {
         public static ValueEnumerable<From{{type}}Sequence, {{type}}> Sequence({{type}} start, {{type}} endInclusive, {{type}} step)
         {
+{{nanValidation}}
+
             if (step == 0) // (T.IsZero(step))
             {
                 if (start != endInclusive)
@@ -239,38 +266,6 @@ namespace ZLinq.Linq
     {
         bool calledGetNext;
 
-        public bool TryGetNonEnumeratedCount(out int count)
-        {
-            if (CanOptimize())
-            {
-                count = endInclusive - currentValue + 1; // currentValue is start if not strated yet.
-                return true;
-            }
-
-            count = 0;
-            return false;
-        }
-
-        public bool TryGetSpan(out ReadOnlySpan<{{type}}> span)
-        {
-            span = default;
-            return false;
-        }
-
-        public bool TryCopyTo(scoped Span<{{type}}> destination, Index offset)
-        {
-            if (TryGetNonEnumeratedCount(out var count))
-            {
-                if (EnumeratorHelper.TryGetSliceRange(count, offset, destination.Length, out var fillStart, out var fillCount))
-                {
-                    FillIncremental(destination.Slice(0, fillCount), currentValue + fillStart);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public bool TryGetNext(out {{type}} current)
         {
             if (!calledGetNext)
@@ -282,7 +277,7 @@ namespace ZLinq.Linq
 
             if (isIncrement)
             {
-                var next = currentValue + step;
+                var next = unchecked(({{type}})(currentValue + step));
 
                 if (next >= endInclusive || next <= currentValue)
                 {
@@ -301,7 +296,7 @@ namespace ZLinq.Linq
             }
             else
             {
-                var next = currentValue + step;
+                var next = unchecked(({{type}})(currentValue + step));
 
                 if (next <= endInclusive || next >= currentValue)
                 {
@@ -322,6 +317,40 @@ namespace ZLinq.Linq
 
         public void Dispose()
         {
+        }
+""";
+
+            var optimizedCode = $$"""
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            if (CanOptimize())
+            {
+                count = (int)(endInclusive - currentValue + 1); // currentValue is start if not strated yet.
+                return true;
+            }
+
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<{{type}}> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<{{type}}> destination, Index offset)
+        {
+            if (TryGetNonEnumeratedCount(out var count))
+            {
+                if (EnumeratorHelper.TryGetSliceRange(count, offset, destination.Length, out var fillStart, out var fillCount))
+                {
+                    FillIncremental(destination.Slice(0, fillCount), ({{type}})(currentValue + ({{type}})fillStart));
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         bool CanOptimize()
@@ -349,11 +378,11 @@ namespace ZLinq.Linq
 #if NET9_0_OR_GREATER
             var indices = Vector<{{type}}>.Indices;                   // <0, 1, 2, 3, 4, 5, 6, 7>...
 #else
-            var indices = new Vector<{{type}}>((ReadOnlySpan<{{type}}>)new {{type}}[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 });
+            var indices = new Vector<{{type}}>((ReadOnlySpan<{{type}}>)new {{type}}[] { ({{type}})0, ({{type}})1, ({{type}})2, ({{type}})3, ({{type}})4, ({{type}})5, ({{type}})6, ({{type}})7, ({{type}})8, ({{type}})9, ({{type}})10, ({{type}})11, ({{type}})12, ({{type}})13, ({{type}})14, ({{type}})15 });
 #endif
             // for example, start = 5, Vector<{{type}}>.Count = 8
             var data = indices + new Vector<{{type}}>(start);         // <5, 6, 7, 8, 9, 10, 11, 12>...
-            var increment = new Vector<{{type}}>(Vector<{{type}}>.Count);  // <8, 8, 8, 8, 8, 8, 8, 8>...
+            var increment = new Vector<{{type}}>(({{type}})Vector<{{type}}>.Count);  // <8, 8, 8, 8, 8, 8, 8, 8>...
 
             ref var to = ref Unsafe.Subtract(ref end, Vector<{{type}}>.Count);
             do
@@ -376,6 +405,120 @@ namespace ZLinq.Linq
                 current = start++; // reuse local variable
                 current = ref Unsafe.Add(ref current, 1);
             }
+        }
+""";
+            var nonOptimizedCode = $$"""
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<{{type}}> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<{{type}}> destination, Index offset)
+        {
+            return false;
+        }
+""";
+
+            var end = $$"""
+    }
+}
+""";
+
+            sb.AppendLine(code);
+            if (PrimitivesForSeqeunceOptimizable.Contains(type))
+            {
+                sb.AppendLine(optimizedCode);
+            }
+            else
+            {
+                sb.AppendLine(nonOptimizedCode);
+            }
+            sb.AppendLine(end);
+            sb.AppendLine();
+        }
+
+        Console.WriteLine(sb.ToString());
+    }
+
+
+
+    public void InfiniteSequence()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("""
+// This file is generated from FileGen.Command.cs
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Text;
+
+// support for all platforms
+// byte/sbyte/ushort/char/short/uint/int/ulong/long
+// float/double/decimal/DateTime/DateTimeOffset
+
+""");
+
+        foreach (var type in PrimitivesForSeqeunceOptimizable.Concat(PrimitivesForSeqeunceOthers))
+        {
+            var code = $$"""
+namespace ZLinq
+{
+    public static partial class ValueEnumerable
+    {
+        public static ValueEnumerable<From{{type}}InfiniteSequence, {{type}}> InfiniteSequence({{type}} start, {{type}} step)
+        {
+            return new(new(start, step));
+        }
+    }
+}
+
+namespace ZLinq.Linq
+{
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct From{{type}}InfiniteSequence({{type}} start, {{type}} step) : IValueEnumerator<{{type}}>
+    {
+        bool calledGetNext;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = 0;
+            return false;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<{{type}}> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<{{type}}> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out {{type}} current)
+        {
+            if (!calledGetNext)
+            {
+                calledGetNext = true;
+                current = start;
+                return true;
+            }
+
+            current = start += step;
+            return true;
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

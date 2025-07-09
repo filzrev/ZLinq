@@ -4,13 +4,6 @@ using System.Numerics;
 
 namespace ZLinq
 {
-    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-    public enum RightBound
-    {
-        Inclusive,
-        Exclusive
-    }
-
     public static partial class ValueEnumerable
     {
         public static ValueEnumerable<FromRange, int> Range(int start, int count)
@@ -23,6 +16,38 @@ namespace ZLinq
 
             return new(new(start, count));
         }
+
+        public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
+
+        public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step) => new(new(start, count, step));
+
+#if NET8_0_OR_GREATER
+
+        public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
+            where T : INumberBase<T>
+        {
+            if (count < 0)
+            {
+                Throws.ArgumentOutOfRange(nameof(count));
+            }
+
+            return new(new(start, count, T.One));
+        }
+
+        public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
+            where T : IAdditionOperators<T, TStep, T>
+        {
+            if (count < 0)
+            {
+                Throws.ArgumentOutOfRange(nameof(count));
+            }
+
+            return new(new(start, count, step));
+        }
+
+#endif
+
+        #region Obsolete
 
         [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRange2, int> Range(Range range, RightBound rightBound = RightBound.Exclusive)
@@ -60,20 +85,6 @@ namespace ZLinq
 #if NET8_0_OR_GREATER
 
         [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-        public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
-            where T : INumberBase<T>
-        {
-            return new(new(start, count, T.One));
-        }
-
-        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-        public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
-            where T : IAdditionOperators<T, TStep, T>
-        {
-            return new(new(start, count, step));
-        }
-
-        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
             where T : INumberBase<T>, IComparisonOperators<T, T, bool>
         {
@@ -90,17 +101,20 @@ namespace ZLinq
 
 #endif
 
-        // Currently DateTime is not implemented IAdditionOperators<DateTime, TimeSpan, DateTime>
-
-        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-        public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
         [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
 
         [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-        public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step) => new(new(start, count, step));
-        [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
         public static ValueEnumerable<FromRangeDateTimeOffsetTo, DateTimeOffset> Range(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound) => new(new(start, end, step, rightBound));
+
+        #endregion
+    }
+
+    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
+    public enum RightBound
+    {
+        Inclusive,
+        Exclusive
     }
 }
 
@@ -204,6 +218,169 @@ namespace ZLinq.Linq
         }
     }
 
+#if NET8_0_OR_GREATER
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRange<T, TStep>(T start, int count, TStep step) : IValueEnumerator<T>
+        where T : IAdditionOperators<T, TStep, T>
+    {
+        readonly int count = count;
+        readonly TStep step = step;
+
+        T value = start;
+        int index = 0;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out T current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(T)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+#endif
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTime(DateTime start, int count, TimeSpan step) : IValueEnumerator<DateTime>
+    {
+        readonly int count = count;
+        readonly TimeSpan timeSpan = step;
+
+        int index = 0;
+        DateTime value = start;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTime> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTime> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTime current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(DateTime)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public struct FromRangeDateTimeOffset(DateTimeOffset start, int count, TimeSpan step) : IValueEnumerator<DateTimeOffset>
+    {
+        readonly int count = count;
+        readonly TimeSpan timeSpan = step;
+
+        int index = 0;
+        DateTimeOffset value = start;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = this.count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<DateTimeOffset> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(scoped Span<DateTimeOffset> destination, Index offset)
+        {
+            return false;
+        }
+
+        public bool TryGetNext(out DateTimeOffset current)
+        {
+            if (index < count)
+            {
+                if (index != 0)
+                {
+                    checked
+                    {
+                        value += step;
+                    }
+                }
+                current = value;
+                index++;
+                return true;
+            }
+
+            current = default(DateTimeOffset)!;
+            return false;
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
+    #region Obsolete
+
     // for `System.Range`
 
     [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
@@ -270,60 +447,6 @@ namespace ZLinq.Linq
     }
 
 #if NET8_0_OR_GREATER
-
-    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-    [StructLayout(LayoutKind.Auto)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromRange<T, TStep>(T start, int count, TStep step) : IValueEnumerator<T>
-        where T : IAdditionOperators<T, TStep, T>
-    {
-        readonly int count = count;
-        readonly TStep step = step;
-
-        T value = start;
-        int index = 0;
-
-        public bool TryGetNonEnumeratedCount(out int count)
-        {
-            count = this.count;
-            return true;
-        }
-
-        public bool TryGetSpan(out ReadOnlySpan<T> span)
-        {
-            span = default;
-            return false;
-        }
-
-        public bool TryCopyTo(scoped Span<T> destination, Index offset)
-        {
-            return false;
-        }
-
-        public bool TryGetNext(out T current)
-        {
-            if (index < count)
-            {
-                if (index != 0)
-                {
-                    checked
-                    {
-                        value += step;
-                    }
-                }
-                current = value;
-                index++;
-                return true;
-            }
-
-            current = default(T)!;
-            return false;
-        }
-
-        public void Dispose()
-        {
-        }
-    }
 
     [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
@@ -397,112 +520,6 @@ namespace ZLinq.Linq
     }
 
 #endif
-
-    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-    [StructLayout(LayoutKind.Auto)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromRangeDateTime(DateTime start, int count, TimeSpan step) : IValueEnumerator<DateTime>
-    {
-        readonly int count = count;
-        readonly TimeSpan timeSpan = step;
-
-        int index = 0;
-        DateTime value = start;
-
-        public bool TryGetNonEnumeratedCount(out int count)
-        {
-            count = this.count;
-            return true;
-        }
-
-        public bool TryGetSpan(out ReadOnlySpan<DateTime> span)
-        {
-            span = default;
-            return false;
-        }
-
-        public bool TryCopyTo(scoped Span<DateTime> destination, Index offset)
-        {
-            return false;
-        }
-
-        public bool TryGetNext(out DateTime current)
-        {
-            if (index < count)
-            {
-                if (index != 0)
-                {
-                    checked
-                    {
-                        value += step;
-                    }
-                }
-                current = value;
-                index++;
-                return true;
-            }
-
-            current = default(DateTime)!;
-            return false;
-        }
-
-        public void Dispose()
-        {
-        }
-    }
-
-    [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
-    [StructLayout(LayoutKind.Auto)]
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromRangeDateTimeOffset(DateTimeOffset start, int count, TimeSpan step) : IValueEnumerator<DateTimeOffset>
-    {
-        readonly int count = count;
-        readonly TimeSpan timeSpan = step;
-
-        int index = 0;
-        DateTimeOffset value = start;
-
-        public bool TryGetNonEnumeratedCount(out int count)
-        {
-            count = this.count;
-            return true;
-        }
-
-        public bool TryGetSpan(out ReadOnlySpan<DateTimeOffset> span)
-        {
-            span = default;
-            return false;
-        }
-
-        public bool TryCopyTo(scoped Span<DateTimeOffset> destination, Index offset)
-        {
-            return false;
-        }
-
-        public bool TryGetNext(out DateTimeOffset current)
-        {
-            if (index < count)
-            {
-                if (index != 0)
-                {
-                    checked
-                    {
-                        value += step;
-                    }
-                }
-                current = value;
-                index++;
-                return true;
-            }
-
-            current = default(DateTimeOffset)!;
-            return false;
-        }
-
-        public void Dispose()
-        {
-        }
-    }
 
     [Obsolete("Use ValueEnumerable.Sequence instead. This will be removed in a future version.")]
     [StructLayout(LayoutKind.Auto)]
@@ -643,4 +660,6 @@ namespace ZLinq.Linq
         {
         }
     }
+
+    #endregion
 }

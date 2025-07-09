@@ -1,18 +1,16 @@
-﻿using System.Text.Json;
+﻿using System.Numerics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using ZLinq;
 
 
-var seq = ValueEnumerable.Sequence(16, 100, 1);
 
-var foo = seq.ToArray();
+// var seq1 = ValueEnumerable.Range(DateTime.Now, DateTime.Now.AddDays(7), TimeSpan.FromDays(1), RightBound.Inclusive);
 
-foreach (var item in foo)
-{
-    Console.WriteLine(item);
-}
+// var v = new Int128();
 
-Console.WriteLine("---");
+
+var seq = ValueEnumerable.Range(start: DateTime.Now, count: 7, step: TimeSpan.FromDays(1));
 
 foreach (var item in seq)
 {
