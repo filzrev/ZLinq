@@ -10,9 +10,12 @@ using ZLinq;
 // var v = new Int128();
 
 
-var seq = ValueEnumerable.Range(start: DateTime.Now, count: 7, step: TimeSpan.FromDays(1));
+// 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
+var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1));
 
-foreach (var item in seq)
-{
-    Console.WriteLine(item);
-}
+// 5/1, 5/2,...,5/31
+var now = DateTime.Now;
+var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
+
+// 5/1, 5/2,...,
+var endlessDate = ValueEnumerable.InfiniteSequence(DateTime.Now, TimeSpan.FromDays(1));

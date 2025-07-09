@@ -7,7 +7,7 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
-        public static ValueEnumerable<FromDateTimeSequence, DateTime> Sequence(DateTime start, DateTime endInclusive, TimeSpan step)
+        public static ValueEnumerable<FromSequenceDateTime, DateTime> Sequence(DateTime start, DateTime endInclusive, TimeSpan step)
         {
             if (step == TimeSpan.Zero) // (T.IsZero(step))
             {
@@ -47,7 +47,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromDateTimeSequence(DateTime currentValue, DateTime endInclusive, TimeSpan step, bool isIncrement) : IValueEnumerator<DateTime>
+    public struct FromSequenceDateTime(DateTime currentValue, DateTime endInclusive, TimeSpan step, bool isIncrement) : IValueEnumerator<DateTime>
     {
         bool calledGetNext;
 
@@ -126,7 +126,7 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
-        public static ValueEnumerable<FromDateTimeOffsetSequence, DateTimeOffset> Sequence(DateTimeOffset start, DateTimeOffset endInclusive, TimeSpan step)
+        public static ValueEnumerable<FromSequenceDateTimeOffset, DateTimeOffset> Sequence(DateTimeOffset start, DateTimeOffset endInclusive, TimeSpan step)
         {
             if (step == TimeSpan.Zero) // (T.IsZero(step))
             {
@@ -166,7 +166,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromDateTimeOffsetSequence(DateTimeOffset currentValue, DateTimeOffset endInclusive, TimeSpan step, bool isIncrement) : IValueEnumerator<DateTimeOffset>
+    public struct FromSequenceDateTimeOffset(DateTimeOffset currentValue, DateTimeOffset endInclusive, TimeSpan step, bool isIncrement) : IValueEnumerator<DateTimeOffset>
     {
         bool calledGetNext;
 

@@ -7,12 +7,12 @@ namespace ZLinq
 {
     public static partial class ValueEnumerable
     {
-        public static ValueEnumerable<FromDateTimeInfiniteSequence, DateTime> InfiniteSequence(DateTime start, TimeSpan step)
+        public static ValueEnumerable<FromInfiniteSequenceDateTime, DateTime> InfiniteSequence(DateTime start, TimeSpan step)
         {
             return new(new(start, step));
         }
 
-        public static ValueEnumerable<FromDateTimeOffsetInfiniteSequence, DateTimeOffset> InfiniteSequence(DateTimeOffset start, TimeSpan step)
+        public static ValueEnumerable<FromInfiniteSequenceDateTimeOffset, DateTimeOffset> InfiniteSequence(DateTimeOffset start, TimeSpan step)
         {
             return new(new(start, step));
         }
@@ -23,7 +23,7 @@ namespace ZLinq.Linq
 {
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromDateTimeInfiniteSequence(DateTime start, TimeSpan step) : IValueEnumerator<DateTime>
+    public struct FromInfiniteSequenceDateTime(DateTime start, TimeSpan step) : IValueEnumerator<DateTime>
     {
         bool calledGetNext;
 
@@ -64,7 +64,7 @@ namespace ZLinq.Linq
 
     [StructLayout(LayoutKind.Auto)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public struct FromDateTimeOffsetInfiniteSequence(DateTimeOffset start, TimeSpan step) : IValueEnumerator<DateTimeOffset>
+    public struct FromInfiniteSequenceDateTimeOffset(DateTimeOffset start, TimeSpan step) : IValueEnumerator<DateTimeOffset>
     {
         bool calledGetNext;
 

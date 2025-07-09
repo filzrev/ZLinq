@@ -121,7 +121,11 @@ nonGenericCollection.AsValueEnumerable<int>(); // ValueEnumerable<, int>
 
 ### `ValueEnumerable.Range()`, `ValueEnumerable.Repeat()`, `ValueEnumerable.Empty()`
 
-`ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`. The Range can also handle `System.Range`, step increments, `IAdditionOperators<T>`, `DateTime`, and more. Please refer to the [Range](#range) section for details.
+`ValueEnumerable.Range` operates more efficiently when handling with `ZLinq` than `Enumerable.Range().AsValueEnumerable()`. The same applies to `Repeat` and `Empty`. The Range can also handle step increments, `INumber<T>`, `DateTime`, and more. Please refer to the [Range and Sequence](#range-and-sequence) section for details.
+
+### `Sequence`, `InfiniteSequence` for all .NET Platforms
+
+`Sequence` and `InfiniteSequence` were added in .NET 10. They require `INumber<T>`, but `INumber<T>` was introduced in `.NET 7`. `ZLinq` implements `INumber<T>` methods the same as standard LINQ, but additionaly adds primitive type overloads(`byte/sbyte/ushort/char/short/uint/int/ulong/long/float/double/decimal`) to support all .NET Platforms(includes .NET Standard 2.0). Additionaly, as a bonus, `DateTime` and `DateTimeOffset` overload exists.
 
 ### `Average() : where INumber<T>`, `Sum() : where INumber<T>`
 
@@ -162,82 +166,43 @@ If you absolutely need the raw internal array, you can `Deconstruct` it to `(T[]
 
 Since `ZLinq` is not `IEnumerable<T>`, it cannot be passed to `String.Join`. `JoinToString` provides the same functionality as `String.Join`, returning a string joined with the separator.
 
-Range
+Range and Sequence
 ---
-In .NET 10, `Enumerable.Sequence` and `Enumerable.InfiniteSequence` have been added, improving the expressiveness of Range operations. ZLinq also implements these, so they can be used. However, since they require `INumber<T>` and `IAdditionalOperator<T>`, they are limited to .NET 8 and above.
+In .NET 10, `Enumerable.Sequence` and `Enumerable.InfiniteSequence` have been added, improving the expressiveness of Range operations. ZLinq also implements these, so they can be used. However, since they require `INumber<T>` and `IAdditionalOperator<T>`, they are limited to .NET 8 and above. ZLinq makes `Sequence` and `InfiniteSequence` available on all .NET Platforms (including .NET Standard 2.0) by adding primitive type overloads (`byte/sbyte/ushort/char/short/uint/int/ulong/long/float/double/decimal`).
 
-ZLinq extends more overloads of `ValueEnumerable.Range` than standard LINQ does. This Range extension can be used on all platforms (including .NET Standard 2.0).
+In ZLinq, for .NET 8 and above, `Range` also supports `INumber<T>`, and step overloads have been added.
 
 ```csharp
-// 95, 96, 97, 98, 99
-var range1 = ValueEnumerable.Range(95..100);
+public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
+    where T : INumberBase<T>
 
-// 95, 96, 97, 98, 99, 100
-var range2 = ValueEnumerable.Range(95..100, RightBound.Inclusive);
+public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
+    where T : IAdditionOperators<T, TStep, T>
+```
 
-// 10, 12, 14, 16, 18
-var step = ValueEnumerable.Range(start: 10, count: 5, step: 2);
+Furthermore, `Range`, `Sequence`, and `InfiniteSequence` have added overloads for `DateTime` and `DateTimeOffset`. These are available on all target platforms.
 
-// 10, 9, 8, 7, 6
-var reverse = ValueEnumerable.Range(start: 10, count: 5, step: -1);
+```csharp
+public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step) => new(new(start, count, step));
+public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step) => new(new(start, count, step));
+public static ValueEnumerable<FromSequenceDateTime, DateTime> Sequence(DateTime start, DateTime endInclusive, TimeSpan step)
+public static ValueEnumerable<FromSequenceDateTimeOffset, DateTimeOffset> Sequence(DateTimeOffset start, DateTimeOffset endInclusive, TimeSpan step)
+public static ValueEnumerable<FromInfiniteSequenceDateTime, DateTime> InfiniteSequence(DateTime start, TimeSpan step)
+public static ValueEnumerable<FromInfiniteSequenceDateTimeOffset, DateTimeOffset> InfiniteSequence(DateTimeOffset start, TimeSpan step)
+```
 
-// 10, 9, 8, 7, 6, 5
-var downTo = ValueEnumerable.Range(start: 10, end: 5, RightBound.Inclusive);
-
-// 0, 1,.........
-var infinite = ValueEnumerable.Range(..);
-
-// a, b, c,..., z
-var alphabets = ValueEnumerable.Range(start: 'a', end: 'z', RightBound.Inclusive);
+```csharp
+// DateTime/DateTimeOffset example
 
 // 5/13, 5/14, 5/15, 5/16, 5/17, 5/18, 5/19
-var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1)); ;
+var daysOfweek = ValueEnumerable.Range(DateTime.Now, 7, TimeSpan.FromDays(1));
 
 // 5/1, 5/2,...,5/31
 var now = DateTime.Now;
 var calendarOfThisMonth = ValueEnumerable.Range(new DateTime(now.Year, now.Month, 1), DateTime.DaysInMonth(now.Year, now.Month), TimeSpan.FromDays(1));
-```
 
-Passing `..` as Range creates an infinite stream. Range is Exclusive by default, but you can also run it as Inclusive by specifying `RightBound.Inclusive/Exclusive`. Also, in .NET 8 or later, it supports `IAdditionOperators<T>`, allowing you to generate not only int but also `char`, `float`, etc. In addition, it supports more generic generation with not only count but also `T end` specification and `TStep step`.
-
-It supports `DateTime`, `DateTimeOffset` + `TimeSpan` for all platforms. [Unfortunately, `DateTime` and `DateTimeOffset` do not support Generic Math](https://github.com/dotnet/runtime/issues/76225), but we have prepared our own implementation that provides functionality equivalent to `IAdditionOperators<T>` support. This makes it easy to generate date sequences.
-
-The complete list of Range APIs is as follows.
-
-```csharp
-public enum RightBound
-{
-    Inclusive,
-    Exclusive
-}
-
-public static partial class ValueEnumerable
-{
-    public static ValueEnumerable<FromRange, int> Range(int start, int count)
-
-    public static ValueEnumerable<FromRange2, int> Range(Range range, RightBound rightBound = RightBound.Exclusive)
-
-#if NET8_0_OR_GREATER
-
-    public static ValueEnumerable<FromRange<T, T>, T> Range<T>(T start, int count)
-        where T : INumberBase<T>
-
-    public static ValueEnumerable<FromRange<T, TStep>, T> Range<T, TStep>(T start, int count, TStep step)
-        where T : IAdditionOperators<T, TStep, T>
-
-    public static ValueEnumerable<FromRangeTo<T, T>, T> Range<T>(T start, T end, RightBound rightBound)
-        where T : INumberBase<T>, IComparisonOperators<T, T, bool>
-
-    public static ValueEnumerable<FromRangeTo<T, TStep>, T> Range<T, TStep>(T start, T end, TStep step, RightBound rightBound)
-        where T : IAdditionOperators<T, TStep, T>, IComparisonOperators<T, T, bool>
-
-#endif
-
-    public static ValueEnumerable<FromRangeDateTime, DateTime> Range(DateTime start, int count, TimeSpan step)
-    public static ValueEnumerable<FromRangeDateTimeTo, DateTime> Range(DateTime start, DateTime end, TimeSpan step, RightBound rightBound)
-    public static ValueEnumerable<FromRangeDateTimeOffset, DateTimeOffset> Range(DateTimeOffset start, int count, TimeSpan step)
-    public static ValueEnumerable<FromRangeDateTimeOffsetTo, DateTimeOffset> Range(DateTimeOffset start, DateTimeOffset end, TimeSpan step, RightBound rightBound)
-}
+// 5/1, 5/2,...,
+var endlessDate = ValueEnumerable.InfiniteSequence(DateTime.Now, TimeSpan.FromDays(1));
 ```
 
 Difference and Limitation
