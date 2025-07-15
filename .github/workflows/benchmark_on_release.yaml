@@ -22,8 +22,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'benchmark.yaml',
-              ref: '${{ github.ref_name }}',
-              framework: 'net10.0'
+              ref: '${{ github.ref_name }}'
             }
 
             // 1. Start `Default` benchmark
