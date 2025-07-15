@@ -566,7 +566,7 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public bool TryCopyTo(Span<T> destination, Index offset)
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
         {
 #if NET9_0_OR_GREATER
             var span = source;
@@ -794,7 +794,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<T> destination, Index offset)
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
         {
             if (source.IsSingleSegment)
             {
@@ -1206,7 +1206,7 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public bool TryCopyTo(Span<T> destination, Index offset)
+        public bool TryCopyTo(scoped Span<T> destination, Index offset)
         {
             if (EnumeratorHelper.TryGetSlice<T>(source, offset, destination.Length, out var slice))
             {

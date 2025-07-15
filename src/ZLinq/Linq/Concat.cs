@@ -69,7 +69,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             // return false because source1 succeeded but source2 failed, it is high-cost operation
             // Also, if source1 succeeds and source2 fails, there is a possibility that source1's TryCopyTo completes and TryGetNext stops working.

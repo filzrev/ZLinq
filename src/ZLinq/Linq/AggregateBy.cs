@@ -70,7 +70,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<KeyValuePair<TKey, TAccumulate>> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<KeyValuePair<TKey, TAccumulate>> destination, Index offset) => false;
 
         public bool TryGetNext(out KeyValuePair<TKey, TAccumulate> current)
         {
@@ -164,7 +164,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<KeyValuePair<TKey, TAccumulate>> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<KeyValuePair<TKey, TAccumulate>> destination, Index offset) => false;
 
         public bool TryGetNext(out KeyValuePair<TKey, TAccumulate> current)
         {

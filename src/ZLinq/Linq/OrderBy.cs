@@ -172,7 +172,7 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             // in-place sort needs full src buffer(no offset)
             if (source.TryGetNonEnumeratedCount(out var count) && offset.GetOffset(count) == 0)
@@ -283,7 +283,7 @@ namespace ZLinq.Linq
             }
         }
 
-        void Sort(Span<TSource> span)
+        void Sort(scoped Span<TSource> span)
         {
             if (IsAllowDirectSort())
             {
@@ -392,7 +392,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             InitBuffer();
             if (indexMap != null)

@@ -66,7 +66,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             // Iterate inlining
             if (source.TryGetSpan(out var span))
@@ -163,7 +163,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset) => false;
 
         public bool TryGetNext(out TResult current)
         {
@@ -213,7 +213,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             if (EnumeratorHelper.TryGetSliceRange(count, offset, destination.Length, out var fillStart, out var fillCount))
             {
@@ -275,7 +275,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset) => false;
 
         public bool TryGetNext(out TResult current)
         {
@@ -324,7 +324,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             // AsSpan is failed by array variance
             if (!typeof(TSource).IsValueType && source.GetType() != typeof(TSource[]))
@@ -392,7 +392,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             return false;
         }
@@ -442,7 +442,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             if (EnumeratorHelper.TryGetSlice<TSource>(CollectionsMarshal.AsSpan(source), offset, destination.Length, out var slice))
             {
@@ -504,7 +504,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset)
         {
             return false;
         }
