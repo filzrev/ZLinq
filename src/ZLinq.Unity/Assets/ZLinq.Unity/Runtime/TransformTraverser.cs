@@ -126,15 +126,28 @@ namespace ZLinq
                 var tp = transform.parent;
                 if (tp == null)
                 {
-                    initializedState = ParentNotFound;
-                    next = default!;
-                    return false;
+                    var scene = transform.gameObject.scene;
+                    // check is scene root object
+                    if (scene.IsValid())
+                    {
+                        initializedState = scene;
+                        childCount = scene.rootCount;
+                        index = transform.GetSiblingIndex() + 1;
+                    }
+                    else
+                    {
+                        initializedState = ParentNotFound;
+                        next = default!;
+                        return false;
+                    }
                 }
-
-                // cache parent and childCount
-                initializedState = tp;
-                childCount = tp.childCount; // parent's childCount
-                index = transform.GetSiblingIndex() + 1;
+                else
+                {
+                    // cache parent and childCount
+                    initializedState = tp;
+                    childCount = tp.childCount; // parent's childCount
+                    index = transform.GetSiblingIndex() + 1;
+                }
             }
             else if (initializedState == ParentNotFound)
             {
@@ -142,11 +155,24 @@ namespace ZLinq
                 return false;
             }
 
-            var parent = (Transform)initializedState;
-            if (index < childCount)
+            if (initializedState is Transform parent)
             {
-                next = parent.GetChild(index++);
-                return true;
+                if (index < childCount)
+                {
+                    next = parent.GetChild(index++);
+                    return true;
+                }
+            }
+            else if (initializedState is UnityEngine.SceneManagement.Scene scene)
+            {
+                if (index < childCount)
+                {
+                    var list = UnityEngine.Pool.ListPool<GameObject>.Get();
+                    scene.GetRootGameObjects(list);
+                    next = list[index++].transform;
+                    UnityEngine.Pool.ListPool<GameObject>.Release(list);
+                    return true;
+                }
             }
 
             next = default!;
@@ -160,14 +186,28 @@ namespace ZLinq
                 var tp = transform.parent;
                 if (tp == null)
                 {
-                    initializedState = ParentNotFound;
-                    previous = default!;
-                    return false;
+                    var scene = transform.gameObject.scene;
+                    // check is scene root object
+                    if (scene.IsValid())
+                    {
+                        initializedState = scene;
+                        childCount = transform.GetSiblingIndex();
+                        index = 0;
+                    }
+                    else
+                    {
+                        initializedState = ParentNotFound;
+                        previous = default!;
+                        return false;
+                    }
+                }
+                else
+                {
+                    initializedState = tp;
+                    childCount = transform.GetSiblingIndex(); // not childCount but means `to`
+                    index = 0; // 0 to siblingIndex
                 }
 
-                initializedState = tp;
-                childCount = transform.GetSiblingIndex(); // not childCount but means `to`
-                index = 0; // 0 to siblingIndex
             }
             else if (initializedState == ParentNotFound)
             {
@@ -175,11 +215,24 @@ namespace ZLinq
                 return false;
             }
 
-            var parent = (Transform)initializedState;
-            if (index < childCount)
+            if (initializedState is Transform parent)
             {
-                previous = parent.GetChild(index++);
-                return true;
+                if (index < childCount)
+                {
+                    previous = parent.GetChild(index++);
+                    return true;
+                }
+            }
+            else if (initializedState is UnityEngine.SceneManagement.Scene scene)
+            {
+                if (index < childCount)
+                {
+                    var list = UnityEngine.Pool.ListPool<GameObject>.Get();
+                    scene.GetRootGameObjects(list);
+                    previous = list[index++].transform;
+                    UnityEngine.Pool.ListPool<GameObject>.Release(list);
+                    return true;
+                }
             }
 
             previous = default!;
