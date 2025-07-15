@@ -162,7 +162,7 @@ For performance reasons to reduce allocations, `PooledArray<TSource>` is a `stru
 
 If you absolutely need the raw internal array, you can `Deconstruct` it to `(T[] Array, int Size)`. After deconstructing, ownership is considered transferred, and all methods of `PooledArray<TSource>` become unavailable.
 
-### `JoinToString(char|string seperator)`
+### `JoinToString(char|string separator)`
 
 Since `ZLinq` is not `IEnumerable<T>`, it cannot be passed to `String.Join`. `JoinToString` provides the same functionality as `String.Join`, returning a string joined with the separator.
 
@@ -924,7 +924,7 @@ public static class MyExtensions
 }
 ```
 
-Instead of `GetEnumerator()`, use `Enumerator`, and instead of `MoveNext + Current`, use `TryGetNext(out)` to consume the iterator. The Enumerator must be used with `using`.
+Instead of `GetEnumerator()`, use `Enumerator`, and instead of `MoveNext + Current`, use `TryGetNext(out)` to consume the iterator. The Enumerator must be used with a `using` statement.
 
 Consumers can call the Enumerator's optimization methods: `TryGetNonEnumeratedCount`, `TryGetSpan`, and `TryCopyTo`. For example, getting a Span like this is faster than normal iteration with TryGetNext:
 
