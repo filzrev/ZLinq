@@ -65,6 +65,12 @@ namespace ZLinq
             return new(new(Throws.IfNull(source)));
         }
 
+        public static ValueEnumerable<FromSortedDictionary<TKey, TValue>, KeyValuePair<TKey, TValue>> AsValueEnumerable<TKey, TValue>(this SortedDictionary<TKey, TValue> source)
+            where TKey : notnull
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
         public static ValueEnumerable<FromQueue<T>, T> AsValueEnumerable<T>(this Queue<T> source)
         {
             return new(new(Throws.IfNull(source)));
@@ -85,11 +91,21 @@ namespace ZLinq
             return new(new(Throws.IfNull(source)));
         }
 
+        public static ValueEnumerable<FromSortedSet<T>, T> AsValueEnumerable<T>(this SortedSet<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
+        }
+
 #if NET8_0_OR_GREATER
 
         public static ValueEnumerable<FromImmutableArray<T>, T> AsValueEnumerable<T>(this ImmutableArray<T> source)
         {
             return new(new(source));
+        }
+
+        public static ValueEnumerable<FromImmutableHashSet<T>, T> AsValueEnumerable<T>(this ImmutableHashSet<T> source)
+        {
+            return new(new(Throws.IfNull(source)));
         }
 
 #endif
@@ -695,6 +711,54 @@ namespace ZLinq.Linq
     }
 
     [StructLayout(LayoutKind.Auto)]
+    public struct FromSortedDictionary<TKey, TValue>(SortedDictionary<TKey, TValue> source) : IValueEnumerator<KeyValuePair<TKey, TValue>>
+        where TKey : notnull
+    {
+        bool isInit = false;
+        SortedDictionary<TKey, TValue>.Enumerator enumerator;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<KeyValuePair<TKey, TValue>> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<KeyValuePair<TKey, TValue>> destination, Index offset) => false;
+
+        public bool TryGetNext(out KeyValuePair<TKey, TValue> current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Auto)]
 #if NET9_0_OR_GREATER
     public ref
 #else
@@ -974,6 +1038,56 @@ namespace ZLinq.Linq
         }
     }
 
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromSortedSet<T>(SortedSet<T> source) : IValueEnumerator<T>
+    {
+        bool isInit;
+        SortedSet<T>.Enumerator enumerator;
+
+        // for Contains, need to check ICollection of IEqualityComparer due to compatibility
+        internal SortedSet<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset) => false;
+
+        public bool TryGetNext(out T current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
 #if NET8_0_OR_GREATER
     [StructLayout(LayoutKind.Auto)]
     public struct FromImmutableArray<T>(ImmutableArray<T> source) : IValueEnumerator<T>
@@ -1020,7 +1134,57 @@ namespace ZLinq.Linq
         }
     }
 
+    [StructLayout(LayoutKind.Auto)]
+    public struct FromImmutableHashSet<T>(ImmutableHashSet<T> source) : IValueEnumerator<T>
+    {
+        bool isInit;
+        ImmutableHashSet<T>.Enumerator enumerator;
+
+        internal ImmutableHashSet<T> GetSource() => source;
+
+        public bool TryGetNonEnumeratedCount(out int count)
+        {
+            count = source.Count;
+            return true;
+        }
+
+        public bool TryGetSpan(out ReadOnlySpan<T> span)
+        {
+            span = default;
+            return false;
+        }
+
+        public bool TryCopyTo(Span<T> destination, Index offset) => false;
+
+        public bool TryGetNext(out T current)
+        {
+            if (!isInit)
+            {
+                isInit = true;
+                enumerator = source.GetEnumerator();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                current = enumerator.Current;
+                return true;
+            }
+
+            Unsafe.SkipInit(out current);
+            return false;
+        }
+
+        public void Dispose()
+        {
+            if (isInit)
+            {
+                enumerator.Dispose();
+            }
+        }
+    }
+
 #endif
+
 
 #if NET9_0_OR_GREATER
 

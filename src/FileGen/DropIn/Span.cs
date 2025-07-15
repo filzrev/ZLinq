@@ -63,8 +63,6 @@ internal static partial class ZLinqDropInExtensions
 #endif
  => source.AsValueEnumerable().Concat(second);
     public static ValueEnumerable<Concat<FromSpan<TSource>, FromEnumerable<TSource>, TSource>, TSource> Concat<TSource>(this Span<TSource> source, IEnumerable<TSource> second) => source.AsValueEnumerable().Concat(second);
-    public static Boolean Contains<TSource>(this Span<TSource> source, TSource value) => source.AsValueEnumerable().Contains(value);
-    public static Boolean Contains<TSource>(this Span<TSource> source, TSource value, IEqualityComparer<TSource>? comparer) => source.AsValueEnumerable().Contains(value, comparer);
     public static Int32 Count<TSource>(this Span<TSource> source) => source.AsValueEnumerable().Count();
     public static Int32 Count<TSource>(this Span<TSource> source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().Count(predicate);
     public static ValueEnumerable<CountBy<FromSpan<TSource>, TSource, TKey>, KeyValuePair<TKey, Int32>> CountBy<TSource, TKey>(this Span<TSource> source, Func<TSource, TKey> keySelector) => source.AsValueEnumerable().CountBy(keySelector);
@@ -222,7 +220,6 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<OrderBy<FromSpan<TSource>, TSource, TKey>, TSource> OrderByDescending<TSource, TKey>(this Span<TSource> source, Func<TSource, TKey> keySelector) => source.AsValueEnumerable().OrderByDescending(keySelector);
     public static ValueEnumerable<OrderBy<FromSpan<TSource>, TSource, TKey>, TSource> OrderByDescending<TSource, TKey>(this Span<TSource> source, Func<TSource, TKey> keySelector, IComparer<TKey>? comparer) => source.AsValueEnumerable().OrderByDescending(keySelector, comparer);
     public static ValueEnumerable<Prepend<FromSpan<TSource>, TSource>, TSource> Prepend<TSource>(this Span<TSource> source, TSource element) => source.AsValueEnumerable().Prepend(element);
-    public static ValueEnumerable<Reverse<FromSpan<TSource>, TSource>, TSource> Reverse<TSource>(this Span<TSource> source) => source.AsValueEnumerable().Reverse();
     public static ValueEnumerable<RightJoin<FromSpan<TOuter>, TEnumerator2, TOuter, TInner, TKey, TResult>, TResult> RightJoin<TEnumerator2, TOuter, TInner, TKey, TResult>(this Span<TOuter> source, ValueEnumerable<TEnumerator2, TInner> inner, Func<TOuter, TKey> outerKeySelector, Func<TInner, TKey> innerKeySelector, Func<TOuter?, TInner, TResult> resultSelector)
         where TEnumerator2 : struct, IValueEnumerator<TInner>
 #if NET9_0_OR_GREATER
@@ -267,20 +264,6 @@ internal static partial class ZLinqDropInExtensions
     public static ValueEnumerable<SelectMany2<FromSpan<TSource>, TSource, TResult>, TResult> SelectMany<TSource, TResult>(this Span<TSource> source, Func<TSource, Int32, IEnumerable<TResult>> selector) => source.AsValueEnumerable().SelectMany(selector);
     public static ValueEnumerable<SelectMany3<FromSpan<TSource>, TSource, TCollection, TResult>, TResult> SelectMany<TSource, TCollection, TResult>(this Span<TSource> source, Func<TSource, IEnumerable<TCollection>> collectionSelector, Func<TSource, TCollection, TResult> resultSelector) => source.AsValueEnumerable().SelectMany(collectionSelector, resultSelector);
     public static ValueEnumerable<SelectMany4<FromSpan<TSource>, TSource, TCollection, TResult>, TResult> SelectMany<TSource, TCollection, TResult>(this Span<TSource> source, Func<TSource, Int32, IEnumerable<TCollection>> collectionSelector, Func<TSource, TCollection, TResult> resultSelector) => source.AsValueEnumerable().SelectMany(collectionSelector, resultSelector);
-    public static Boolean SequenceEqual<TSource>(this Span<TSource> source, IEnumerable<TSource> second) => source.AsValueEnumerable().SequenceEqual(second);
-    public static Boolean SequenceEqual<TSource>(this Span<TSource> source, IEnumerable<TSource> second, IEqualityComparer<TSource>? comparer) => source.AsValueEnumerable().SequenceEqual(second, comparer);
-    public static Boolean SequenceEqual<TEnumerator2, TSource>(this Span<TSource> source, ValueEnumerable<TEnumerator2, TSource> second)
-        where TEnumerator2 : struct, IValueEnumerator<TSource>
-#if NET9_0_OR_GREATER
-        , allows ref struct
-#endif
- => source.AsValueEnumerable().SequenceEqual(second);
-    public static Boolean SequenceEqual<TEnumerator2, TSource>(this Span<TSource> source, ValueEnumerable<TEnumerator2, TSource> second, IEqualityComparer<TSource>? comparer)
-        where TEnumerator2 : struct, IValueEnumerator<TSource>
-#if NET9_0_OR_GREATER
-        , allows ref struct
-#endif
- => source.AsValueEnumerable().SequenceEqual(second, comparer);
     public static ValueEnumerable<Shuffle<FromSpan<TSource>, TSource>, TSource> Shuffle<TSource>(this Span<TSource> source) => source.AsValueEnumerable().Shuffle();
     public static TSource Single<TSource>(this Span<TSource> source) => source.AsValueEnumerable().Single();
     public static TSource Single<TSource>(this Span<TSource> source, Func<TSource, Boolean> predicate) => source.AsValueEnumerable().Single(predicate);

@@ -7,12 +7,6 @@ public struct Ancestors<TTraverser, T>(TTraverser traverser, bool withSelf)
 {
     public bool TryGetNonEnumeratedCount(out int count)
     {
-        if (traverser.TryGetChildCount(out var childCount))
-        {
-            count = childCount + (withSelf ? 1 : 0);
-            return true;
-        }
-
         count = 0;
         return false;
     }
@@ -37,9 +31,9 @@ public struct Ancestors<TTraverser, T>(TTraverser traverser, bool withSelf)
         if (traverser.TryGetParent(out var parent))
         {
             current = parent;
-            var nexTTraverser = traverser.ConvertToTraverser(parent);
+            var nextTraverser = traverser.ConvertToTraverser(parent);
             traverser.Dispose();
-            traverser = nexTTraverser;
+            traverser = nextTraverser;
             return true;
         }
 

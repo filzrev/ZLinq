@@ -21,9 +21,9 @@
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
   </PropertyGroup>
 
-  <!-- Add .NET 10 support when running build inside Visual Studio Preview-->
-  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' != '' AND $(VisualStudioDir.Contains('Preview'))">
-    <TargetFrameworks>$(TargetFrameworks);net10.0</TargetFrameworks>
+  <!-- Add .NET 10 support if .NET 10 or later version of MSBuild is used. -->
+  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(NETCoreAppMaximumVersion)','10.0'))">
+    <TargetFrameworks>net10.0;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="2.0.1" />
+    <PackageReference Include="xunit.v3" Version="2.0.3" />
     <PackageReference Include="Shouldly" Version="4.3.0" />
   </ItemGroup>
 

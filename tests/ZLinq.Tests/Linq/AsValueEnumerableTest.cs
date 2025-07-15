@@ -255,6 +255,32 @@ namespace ZLinq.Tests.Linq
         }
 
         [Fact]
+        public void FromSortedDictionary_BasicFunctionality()
+        {
+            // Arrange
+            var source = new SortedDictionary<string, int>
+            {
+                ["one"] = 1,
+                ["two"] = 2,
+                ["three"] = 3
+            };
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.Length.ShouldBe(source.Count);
+            resultArray.Select(kv => kv.Key).ShouldBe(source.Keys, ignoreOrder: true);
+            resultArray.Select(kv => kv.Value).ShouldBe(source.Values, ignoreOrder: true);
+        }
+
+        [Fact]
         public void FromQueue_BasicFunctionality()
         {
             // Arrange
@@ -330,6 +356,37 @@ namespace ZLinq.Tests.Linq
             resultArray.ShouldBe(source.ToArray(), ignoreOrder: true);
         }
 
+        [Fact]
+        public void FromSortedSet_BasicFunctionality()
+        {
+            // Arrange
+            var source = new SortedSet<int>(new[] { 5, 2, 1, 4, 3 });
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(new[] { 1, 2, 3, 4, 5 }); // SortedSet should be ordered
+        }
+
+        [Fact]
+        public void FromSortedSet_ContainsOptimization()
+        {
+            // Arrange
+            var source = new SortedSet<int>(new[] { 1, 2, 3, 4, 5 });
+            var result = source.AsValueEnumerable();
+
+            // Act & Assert
+            result.Contains(3).ShouldBeTrue();
+            result.Contains(6).ShouldBeFalse();
+        }
+
 #if NET8_0_OR_GREATER
         [Fact]
         public void FromImmutableArray_BasicFunctionality()
@@ -350,6 +407,38 @@ namespace ZLinq.Tests.Linq
             var resultArray = result.ToArray();
             resultArray.ShouldBe(source.ToArray());
         }
+
+        [Fact]
+        public void FromImmutableHashSet_BasicFunctionality()
+        {
+            // Arrange
+            var source = ImmutableHashSet.Create(5, 2, 1, 4, 3);
+
+            // Act
+            var result = source.AsValueEnumerable();
+
+            // Assert
+            result.TryGetNonEnumeratedCount(out var count).ShouldBeTrue();
+            count.ShouldBe(source.Count);
+
+            result.TryGetSpan(out var span).ShouldBeFalse();
+
+            var resultArray = result.ToArray();
+            resultArray.ShouldBe(new[] { 1, 2, 3, 4, 5 }); // SortedSet should be ordered
+        }
+
+        [Fact]
+        public void FromImmutableHashSet_ContainsOptimization()
+        {
+            // Arrange
+            var source = ImmutableHashSet.Create(5, 2, 1, 4, 3);
+            var result = source.AsValueEnumerable();
+
+            // Act & Assert
+            result.Contains(3).ShouldBeTrue();
+            result.Contains(6).ShouldBeFalse();
+        }
+
 #endif
 
 #if NET9_0_OR_GREATER

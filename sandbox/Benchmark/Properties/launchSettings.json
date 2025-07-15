@@ -9,7 +9,7 @@
       // 2. InProcess
       // 3. Test (or InProcessMonitoring)
       // 4. ColdStart
-      // 5. TargeFrameworks
+      // 5. TargetFrameworks
       // 6. NuGetVersions
       // 7. SystemLinq
       //

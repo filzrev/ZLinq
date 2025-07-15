@@ -20,22 +20,15 @@ public class SystemLinqBenchmarkConfig : BaseBenchmarkConfig
         // Add job for System.Linq benchmarks.
         AddJob(baseJobConfig.WithToolchain(Constants.DefaultToolchain)
                             .WithCustomBuildConfiguration(Constants.CustomBuildConfigurations.SystemLinq)
-                            // TODO: Enable following code and remove settings from csproj after .NET SDK issue is resolved. See:https://github.com/dotnet/sdk/issues/45638
-                            //.WithArguments(
-                            //[
-                            //    new MsBuildArgument("/p:DefineConstants=USE_SYSTEM_LINQ")
-                            //])
                             .WithId(SystemLinqJobId)
                             .AsBaseline());
 
         // Add job for ZLinq benchmarks.
         AddJob(baseJobConfig.WithToolchain(Constants.DefaultToolchain)
-                            .WithId(Options.HasFlag(ConfigOptions.KeepBenchmarkFiles)
-                                      ? $"{ZLinqJobId}_" // Needs extra suffix to avoid conflict assembly name. // TODO: It can be removed after BenchmarkDotNet v1.40.1 is release.
-                                      : ZLinqJobId));
+                            .WithId(ZLinqJobId));
 
         // Show summary with declared order (Default: execution order)
-        WithOrderer(new DefaultOrderer(summaryOrderPolicy: SummaryOrderPolicy.Declared));
+        WithOrderer(new DefaultOrderer(summaryOrderPolicy: SummaryOrderPolicy.Declared, jobOrderPolicy: JobOrderPolicy.Numeric));
 
         // Configure additional settings.
         AddConfigurations();

@@ -3,6 +3,7 @@ using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
+using BenchmarkDotNet.Order;
 using BenchmarkDotNet.Reports;
 
 namespace Benchmark;
@@ -16,6 +17,8 @@ public abstract class BaseBenchmarkConfig : ManualConfig
     {
         WithSummaryStyle(SummaryStyle.Default
                                      .WithMaxParameterColumnWidth(40)); // Default: 20 chars
+
+        WithOrderer(new DefaultOrderer(jobOrderPolicy: JobOrderPolicy.Numeric));
 
         // Set default options that based on DefaultConfig.
         WithUnionRule(DefaultConfig.Instance.UnionRule);
@@ -32,10 +35,13 @@ public abstract class BaseBenchmarkConfig : ManualConfig
         // WithOptions(ConfigOptions.GenerateMSBuildBinLog);
     }
 
-    // Use ShortRun as base Job.(LaunchCount=1  TargetCount=3 WarmupCount = 3)
+    // Use Job.ShortRun based settings (LaunchCount=1 IterationCount=3 WarmupCount = 3)
     protected virtual Job GetBaseJobConfig() =>
-        Job.ShortRun
-           .WithStrategy(RunStrategy.Throughput) // Use default RunStrategy
+        Job.Default
+           .WithLaunchCount(1)
+           .WithWarmupCount(3)
+           .WithIterationCount(3) // This setting might be adjusted when benchmark iteration time is smaller than min IterationTime settings (Default: 500ms)
+           .WithStrategy(RunStrategy.Throughput) // Explicitly specify RunStrategy (it show `Default` when it's not explicitly specified)
            .DontEnforcePowerPlan();
 
     /// <summary>
@@ -85,10 +91,8 @@ public abstract class BaseBenchmarkConfig : ManualConfig
     protected virtual void AddDiagnosers()
     {
         AddDiagnoser(MemoryDiagnoser.Default);
-
-        // TODO: Enable following diagnoser (Temporary disabled because extra columns are shown it has no data)
-        //AddDiagnoser(ExceptionDiagnoser.Default);
-        //AddDiagnoser(ThreadingDiagnoser.Default);
+        AddDiagnoser(new ExceptionDiagnoser(new ExceptionDiagnoserConfig(displayExceptionsIfZeroValue: false)));
+        AddDiagnoser(new ThreadingDiagnoser(new ThreadingDiagnoserConfig(displayCompletedWorkItemCountWhenZero: false, displayLockContentionWhenZero: false)));
     }
 
     protected virtual void AddValidators()

@@ -1,8 +1,13 @@
-﻿{
+{
   "profiles": {
     "Default": {
       "commandName": "Project",
       "commandLineArgs": "dropin",
+      "workingDirectory": "."
+    },
+    "Sequence": {
+      "commandName": "Project",
+      "commandLineArgs": "sequence",
       "workingDirectory": "."
     },
     "AppendFormatted": {

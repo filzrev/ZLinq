@@ -154,7 +154,6 @@ public static partial class SummariesExtensions
         {
             logger.WriteLine(Chalk.Red[$"Error: {benchmarksWithTroubles.Length} benchmarks faled to run."]);
             logger.WriteLine();
-
             // Print clickable log file link.
             logger.WriteLine(Chalk.Red[$"For detailed error messages. Confirm the output log file."]);
             logger.Write(Chalk.Red["  " + ToClickableLink(logFilePath)]);
@@ -169,7 +168,7 @@ public static partial class SummariesExtensions
 
         return config.GetExporters()
                      .OfType<ExporterBase>()
-                     .Select(x => GetArtifactFullName(x, summary))
+                     .Select(x => x.GetArtifactFullName(summary))
                      .ToArray();
     }
 
@@ -185,9 +184,4 @@ public static partial class SummariesExtensions
         caption ??= url;
         return $"{ESC}]8;;{url}{ESC}\\{caption}{ESC}]8;;{ESC}\\";
     }
-
-    // Currently this API is not publicky exposed.
-    // See: https://github.com/dotnet/BenchmarkDotNet/issues/2619
-    [UnsafeAccessor(UnsafeAccessorKind.Method, Name = nameof(GetArtifactFullName))]
-    private static extern string GetArtifactFullName(ExporterBase target, Summary summary);
 }
