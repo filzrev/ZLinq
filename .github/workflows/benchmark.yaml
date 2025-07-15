@@ -75,7 +75,7 @@ jobs:
           }
 
       - name: Update README.md benchmark report link
-        if: ${{ github.context.repo.owner == 'Cysharp' && github.ref_name == 'main' && inputs.config == 'Default' && inputs.filter == '*' }}
+        if: ${{ github.repository_owner == 'Cysharp' && github.ref_name == 'main' && inputs.config == 'Default' && inputs.filter == '*' }}
         shell: pwsh
         run: |
           $PSNativeCommandUseErrorActionPreference = $true
