@@ -5,8 +5,6 @@ using ZLinq;
 
 namespace Benchmark;
 
-#if NET10_0_OR_GREATER
-
 [GroupBenchmarksBy(BenchmarkLogicalGroupRule.ByCategory)]
 public class ShuffleBench
 {
@@ -24,8 +22,10 @@ public class ShuffleBench
         array = Enumerable.Range(0, N).ToArray();
     }
 
+#if NET10_0_OR_GREATER
     [Benchmark]
     [BenchmarkCategory(Categories.LINQ)]
+    [BenchmarkCategory(Categories.Filters.NET10_0_OR_GREATER)]
     public int ShuffleTakeLinq()
     {
         var src = array.Shuffle().Take(M);
@@ -38,6 +38,7 @@ public class ShuffleBench
         }
         return i;
     }
+#endif
 
     [Benchmark]
     [BenchmarkCategory(Categories.ZLinq)]
@@ -54,5 +55,3 @@ public class ShuffleBench
     }
 
 }
-
-#endif
