@@ -42,7 +42,7 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             // in-place shuffle needs full src buffer(no offset)
             if (source.TryGetNonEnumeratedCount(out var count) && offset.GetOffset(count) == 0)

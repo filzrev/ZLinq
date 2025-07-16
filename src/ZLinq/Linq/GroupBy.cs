@@ -94,7 +94,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<IGrouping<TKey, TSource>> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<IGrouping<TKey, TSource>> destination, Index offset) => false;
 
         public bool TryGetNext(out IGrouping<TKey, TSource> current)
         {
@@ -186,7 +186,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<IGrouping<TKey, TElement>> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<IGrouping<TKey, TElement>> destination, Index offset) => false;
 
         public bool TryGetNext(out IGrouping<TKey, TElement> current)
         {
@@ -278,7 +278,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset) => false;
 
         public bool TryGetNext(out TResult current)
         {
@@ -370,7 +370,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TResult> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<TResult> destination, Index offset) => false;
 
         public bool TryGetNext(out TResult current)
         {

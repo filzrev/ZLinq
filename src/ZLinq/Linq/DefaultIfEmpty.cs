@@ -66,7 +66,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             if (destination.Length == 0) return true;
 

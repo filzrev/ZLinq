@@ -89,7 +89,7 @@ namespace ZLinq.Linq
             return true;
         }
 
-        public bool TryCopyTo(Span<TSource> destination, Index offset)
+        public bool TryCopyTo(scoped Span<TSource> destination, Index offset)
         {
             InitBuffer();
 

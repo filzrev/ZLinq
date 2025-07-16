@@ -57,7 +57,7 @@ namespace ZLinq.Linq
         }
 
 
-        public bool TryCopyTo(Span<KeyValuePair<TKey, int>> destination, Index offset) => false;
+        public bool TryCopyTo(scoped Span<KeyValuePair<TKey, int>> destination, Index offset) => false;
 
         public bool TryGetNext(out KeyValuePair<TKey, int> current)
         {

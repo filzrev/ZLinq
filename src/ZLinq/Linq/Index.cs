@@ -42,7 +42,7 @@ namespace ZLinq.Linq
             return false;
         }
 
-        public bool TryCopyTo(Span<(int Index, TSource Item)> destination, Index offset)
+        public bool TryCopyTo(scoped Span<(int Index, TSource Item)> destination, Index offset)
         {
             // Iterate inlining
             if (source.TryGetSpan(out var span))
