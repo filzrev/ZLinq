@@ -10,19 +10,11 @@ namespace Benchmark;
 /// </summary>
 public partial class ZLinqBenchmarkFilter : IFilter
 {
-    [GeneratedRegex(@"Benchmark.ZLinq.*", RegexOptions.CultureInvariant)]
-    public static partial Regex ZLinqNamespaceRegex();
-
     public virtual bool Predicate(BenchmarkCase benchmarkCase)
     {
         // Filter by namespace
-        var fullBenchmarkName = FullNameProvider.GetBenchmarkName(benchmarkCase);
-        var nameWithoutArgs = benchmarkCase.Descriptor.GetFilterName();
-
-        bool isMatched = ZLinqNamespaceRegex().IsMatch(fullBenchmarkName)
-                      || ZLinqNamespaceRegex().IsMatch(nameWithoutArgs);
-
-        if (!isMatched)
+        var ns = benchmarkCase.Descriptor.Type.Namespace!;
+        if (!ns.StartsWith("Benchmark.ZLinq"))
             return false;
 
         switch (benchmarkCase.Job.Id)
