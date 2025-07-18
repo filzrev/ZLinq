@@ -49,7 +49,13 @@ internal class RentedRingBuffer<T>(int capacity) : IDisposable
             var newBuffer = ArrayPool<T>.Shared.Rent(Capacity);
             if (Buffer != null)
             {
-                Array.Copy(Buffer, 0, newBuffer, 0, Count);
+                var prevSpan = new Span<T>(Buffer, 0, Count);
+                prevSpan.CopyTo(newBuffer);
+                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                {
+                    prevSpan.Clear();
+                }
+
                 ArrayPool<T>.Shared.Return(Buffer);
             }
 
@@ -65,7 +71,7 @@ internal class RentedRingBuffer<T>(int capacity) : IDisposable
             // Clear the buffer if T contains references
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                Buffer.AsSpan(0, Capacity).Clear();
+                Buffer.AsSpan(0, Count).Clear();
             }
 
             ArrayPool<T>.Shared.Return(Buffer);
