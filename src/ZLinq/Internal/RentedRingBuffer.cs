@@ -13,13 +13,14 @@ internal class RentedRingBuffer<T>(int capacity) : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Enqueue(T item)
     {
-        Buffer![head] = item;
-        var newHead = (head + 1);
-        if (newHead >= Buffer.Length)
+        if (head == Buffer!.Length && Count != Capacity)
         {
             Expand();
         }
 
+
+        Buffer![head] = item;
+        var newHead = (head + 1);
         head = newHead % Capacity;
         Count = Math.Min(Count + 1, Capacity);
     }
@@ -33,7 +34,7 @@ internal class RentedRingBuffer<T>(int capacity) : IDisposable
             return false;
         }
 
-        var tail = (head - Count + Capacity) % Capacity;
+        var tail = ((long)head - Count + Capacity) % Capacity;
         ref var tailRef = ref Buffer![tail];
         item = tailRef;
         tailRef = default!;
@@ -44,24 +45,16 @@ internal class RentedRingBuffer<T>(int capacity) : IDisposable
     [MethodImpl(MethodImplOptions.NoInlining)]
     void Expand()
     {
-        if (Buffer == null || Buffer.Length < Capacity)
+        var newBuffer = ArrayPool<T>.Shared.Rent(Buffer!.Length * 2);
+        var prevSpan = Buffer.AsSpan();
+        prevSpan.CopyTo(newBuffer);
+        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
         {
-            var newBuffer = ArrayPool<T>.Shared.Rent(Capacity);
-            if (Buffer != null)
-            {
-                var prevSpan = new Span<T>(Buffer, 0, Count);
-                prevSpan.CopyTo(newBuffer);
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                {
-                    prevSpan.Clear();
-                }
-
-                ArrayPool<T>.Shared.Return(Buffer);
-            }
-
-            Buffer = newBuffer;
-            head = Count; // Reset head to the end of the current items
+            prevSpan.Clear();
         }
+
+        ArrayPool<T>.Shared.Return(Buffer);
+        Buffer = newBuffer;
     }
 
     public void Dispose()
