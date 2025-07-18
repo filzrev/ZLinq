@@ -3,9 +3,9 @@
 namespace ZLinq.Internal;
 
 [StructLayout(LayoutKind.Auto)]
-internal struct ValueRingBuffer<T>(int capacity) : IDisposable
+internal class RentedRingBuffer<T>(int capacity) : IDisposable
 {
-    public T[]? Buffer = ArrayPool<T>.Shared.Rent(capacity);
+    public T[]? Buffer = ArrayPool<T>.Shared.Rent(4);
     public readonly int Capacity = capacity;
     int head = 0;
     public int Count = 0;
@@ -14,7 +14,13 @@ internal struct ValueRingBuffer<T>(int capacity) : IDisposable
     public void Enqueue(T item)
     {
         Buffer![head] = item;
-        head = (head + 1) % Capacity;
+        var newHead = (head + 1);
+        if (newHead >= Buffer.Length)
+        {
+            Expand();
+        }
+
+        head = newHead % Capacity;
         Count = Math.Min(Count + 1, Capacity);
     }
 
@@ -35,6 +41,22 @@ internal struct ValueRingBuffer<T>(int capacity) : IDisposable
         return true;
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    void Expand()
+    {
+        if (Buffer == null || Buffer.Length < Capacity)
+        {
+            var newBuffer = ArrayPool<T>.Shared.Rent(Capacity);
+            if (Buffer != null)
+            {
+                Array.Copy(Buffer, 0, newBuffer, 0, Count);
+                ArrayPool<T>.Shared.Return(Buffer);
+            }
+
+            Buffer = newBuffer;
+            head = Count; // Reset head to the end of the current items
+        }
+    }
 
     public void Dispose()
     {

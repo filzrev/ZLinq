@@ -30,7 +30,7 @@ namespace ZLinq.Linq
         TEnumerator source = source;
         readonly int takeCount = Math.Max(0, count);
         int state = 0; // 0: Initial, 1: Enumerating, 2: Dequeue, 3: Completed
-        ValueRingBuffer<TSource> ringBuffer;
+        RentedRingBuffer<TSource>? ringBuffer;
 
 
         public bool TryGetNonEnumeratedCount(out int count)
@@ -101,7 +101,7 @@ namespace ZLinq.Linq
                 case 1:
                     return source.TryGetNext(out current);
                 case 2:
-                    return ringBuffer.TryDequeue(out current);
+                    return ringBuffer!.TryDequeue(out current);
                 default:
                     Unsafe.SkipInit(out current);
                     return false;
@@ -134,8 +134,8 @@ namespace ZLinq.Linq
             }
             else
             {
-                ringBuffer = new(takeCount);
-                ref var buffer = ref ringBuffer;
+
+                var buffer =  ringBuffer = new(takeCount); // Use a reasonable default capacity;
 
                 while (source.TryGetNext(out var item))
                 {
@@ -156,7 +156,7 @@ namespace ZLinq.Linq
 
         public void Dispose()
         {
-            ringBuffer.Dispose();
+            ringBuffer?.Dispose();
             source.Dispose();
         }
     }
