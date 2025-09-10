@@ -28,7 +28,6 @@
 
   <ItemGroup>
     <None Remove="$(MSBuildThisFileName).slnx" />
-    <None Remove="../../README.md" />
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
