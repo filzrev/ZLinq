@@ -4,7 +4,10 @@ partial class ValueEnumerableExtensions
 {
     const int StackallocCharBufferSizeLimit = 256;
 
-#if NET8_0_OR_GREATER
+#if NET10_0_OR_GREATER
+    [UnsafeAccessor(UnsafeAccessorKind.StaticMethod, Name = "FastAllocateString")]
+    static extern string FastAllocateString(string _, nint length);
+#elif NET8_0_OR_GREATER
     [UnsafeAccessor(UnsafeAccessorKind.StaticMethod, Name = "FastAllocateString")]
     static extern string FastAllocateString(string _, int length);
 #else
