@@ -26,7 +26,7 @@ jobs:
       - run: dotnet test -c Release --no-build
       - run: dotnet build -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx
       - run: dotnet test  -c Release tests/System.Linq.Tests/System.Linq.Tests.slnx --no-build
-      - run: dotnet pack -c Release --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $GITHUB_WORKSPACE/artifacts
+      - run: dotnet pack -c Release --no-build -o $GITHUB_WORKSPACE/artifacts
 
   check-codecov-token:
     permissions:
