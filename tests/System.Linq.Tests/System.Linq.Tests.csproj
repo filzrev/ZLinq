@@ -7,7 +7,6 @@
     <Nullable>enable</Nullable>
     <TargetFrameworks>net9.0</TargetFrameworks>
     <LangVersion>13</LangVersion>
-    <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- Use custom root namespace -->

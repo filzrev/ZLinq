@@ -10,6 +10,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <!-- NuGet Packaging -->
+    <IsPackable>true</IsPackable>
     <PackageTags>linq</PackageTags>
     <Description>Zero allocation LINQ with LINQ to Span, LINQ to SIMD, and LINQ to Tree (FileSystem, JSON, GameObject, etc.) for all .NET platforms and Unity.</Description>
   </PropertyGroup>
@@ -27,11 +28,6 @@
   <PropertyGroup Condition="$(TargetFramework.StartsWith(`netstandard`))">
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Include="../../Icon.png" Pack="true" PackagePath="/" />
-    <EmbeddedResource Include="..\..\LICENSE" />
-  </ItemGroup>
 
   <ItemGroup Condition="$(TargetFramework) == 'netstandard2.0'">
     <PackageReference Include="PolySharp" Version="1.15.0">
