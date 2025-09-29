@@ -871,7 +871,7 @@ namespace ZLinq.Tests
         }
 
         [Fact]
-        public void Min_Bool_EmptySource_ThrowsInvalodOperationException()
+        public void Min_Bool_EmptySource_ThrowsInvalidOperationException()
         {
             Assert.Throws<InvalidOperationException>(() => Enumerable.Empty<bool>().Min());
             Assert.Throws<InvalidOperationException>(() => ForceNotCollection(Enumerable.Empty<bool>()).Min());
