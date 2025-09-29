@@ -4,14 +4,10 @@ partial class ValueEnumerableExtensions
 {
     const int StackallocCharBufferSizeLimit = 256;
 
-#if NET10_0_OR_GREATER
-    [UnsafeAccessor(UnsafeAccessorKind.StaticMethod, Name = "FastAllocateString")]
-    static extern string FastAllocateString(string _, nint length);
-#elif NET8_0_OR_GREATER
-    [UnsafeAccessor(UnsafeAccessorKind.StaticMethod, Name = "FastAllocateString")]
-    static extern string FastAllocateString(string _, int length);
+#if NET8_0_OR_GREATER
+    static string FastAllocateString(int length) => string.Create(length, (object?)null, static (_, _) => { });
 #else
-    static string FastAllocateString(string _, int length) => new string('\0', length);
+    static string FastAllocateString(int length) => new string('\0', length);
 #endif
 
     public static string JoinToString<TEnumerator, TSource>(this ValueEnumerable<TEnumerator, TSource> source, string separator)
@@ -158,7 +154,7 @@ partial class ValueEnumerableExtensions
         // add separator length
         finalLength += ((source.Length - 1) * separator.Length);
 
-        var str = FastAllocateString(null!, finalLength);
+        var str = FastAllocateString(finalLength);
 
         unsafe
         {
