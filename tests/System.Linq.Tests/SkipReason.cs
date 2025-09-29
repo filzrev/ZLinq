@@ -5,7 +5,7 @@ public static class SkipReason
     /// <summary>
     /// Generic skip message.
     /// </summary>
-    public const string NotCompatible = "There is not compatibility with ZLinq";
+    public const string NotCompatible = "There is no compatibility with ZLinq";
 
     /// <summary>
     /// Skip tests because it require too much CPU/memories.

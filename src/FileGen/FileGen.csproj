@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>$(NoWarn);CS8002</NoWarn>
-    <IsPackable>false</IsPackable>
+
+    <!-- This is not a nuget package -->
   </PropertyGroup>
 
   <ItemGroup>
