@@ -122,4 +122,37 @@ public class DefaultIfEmptyTest
 
         result.ShouldBe(xs);
     }
+
+    // https://github.com/dotnet/runtime/pull/119844/
+
+    [Fact]
+    public void ElementAtOrDefault_OutOfBounds_ReturnsTypeDefault()
+    {
+        // Regression test for https://github.com/dotnet/runtime/issues/119834
+        // ElementAtOrDefault should return default(T) for out-of-bounds indices,
+        // not the DefaultIfEmpty default value
+
+        // Test with empty source
+        int[] empty = [];
+        var defaultIfEmpty = empty.AsValueEnumerable().DefaultIfEmpty(999);
+
+        // Index 0 should return the DefaultIfEmpty value (999)
+        Assert.Equal(999, defaultIfEmpty.ElementAtOrDefault(0));
+
+        // Out-of-bounds indices should return default(int) which is 0, not 999
+        Assert.Equal(0, defaultIfEmpty.ElementAtOrDefault(1));
+        Assert.Equal(0, defaultIfEmpty.ElementAtOrDefault(2));
+        Assert.Equal(0, defaultIfEmpty.ElementAtOrDefault(-1));
+
+        // Test with different type (string)
+        string[] emptyStrings = [];
+        var defaultIfEmptyString = emptyStrings.AsValueEnumerable().DefaultIfEmpty("default");
+
+        // Index 0 should return the DefaultIfEmpty value
+        Assert.Equal("default", defaultIfEmptyString.ElementAtOrDefault(0));
+
+        // Out-of-bounds indices should return default(string) which is null
+        Assert.Null(defaultIfEmptyString.ElementAtOrDefault(1));
+        Assert.Null(defaultIfEmptyString.ElementAtOrDefault(2));
+    }
 }
