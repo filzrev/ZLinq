@@ -249,6 +249,60 @@ public class OfTypeTest
         nullableResult.ShouldBe(expectedNullableResult);
     }
 
+#pragma warning disable xUnit2017 // Do not use Contains() to check if a value exists in a collection
+
+    // check for https://github.com/dotnet/runtime/pull/119600
+
+    [Fact]
+    public void MultiDimArray_OfType_Succeeds()
+    {
+        var array = new string[3, 4];
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                array[i, j] = $"{i}{j}";
+            }
+        }
+
+        // ToArray
+        var result = array.AsValueEnumerable().OfType<string>().ToArray();
+        Assert.Equal(12, result.Length);
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                Assert.Equal($"{i}{j}", result[i * 4 + j]);
+            }
+        }
+
+        // Contains
+        foreach (string s in array)
+        {
+            Assert.True(array.AsValueEnumerable().OfType<string>().Contains(s));
+        }
+    }
+
+    [Fact]
+    public void OfType_Contains_FiltersByTypeEvenIfEqual()
+    {
+        List<MySneakyObject1> list = [new MySneakyObject1()];
+        Assert.Empty(list.AsValueEnumerable().OfType<MySneakyObject2>().ToArray());
+        Assert.False(list.AsValueEnumerable().OfType<MySneakyObject2>().Contains(new MySneakyObject2()));
+    }
+
+    private class MySneakyObject1
+    {
+        public override bool Equals(object? obj) => obj is MySneakyObject1;
+        public override int GetHashCode() => 0;
+    }
+
+    private class MySneakyObject2 : MySneakyObject1
+    {
+        public override bool Equals(object? obj) => obj is MySneakyObject2;
+        public override int GetHashCode() => 0;
+    }
+
     // Helper classes for inheritance tests
     private class Person
     {
