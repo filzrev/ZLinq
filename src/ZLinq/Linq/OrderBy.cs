@@ -255,7 +255,7 @@ namespace ZLinq.Linq
         {
             InitBuffer();
 
-            if (index < buffer.Length)
+            if ((uint)index < (uint)buffer.Length)
             {
                 current = buffer.UnsafeGetAt(index);
                 index++;
