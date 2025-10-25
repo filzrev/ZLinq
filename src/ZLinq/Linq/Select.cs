@@ -73,7 +73,7 @@ namespace ZLinq.Linq
             {
                 if (EnumeratorHelper.TryGetSlice(span, offset, destination.Length, out var slice))
                 {
-                    for (var i = 0; i < slice.Length; i++)
+                    for (var i = 0; (uint)i < (uint)slice.Length; i++)
                     {
                         destination[i] = selector(slice[i]);
                     }
@@ -334,7 +334,7 @@ namespace ZLinq.Linq
 
             if (EnumeratorHelper.TryGetSlice<TSource>(source.AsSpan(), offset, destination.Length, out var slice))
             {
-                for (var i = 0; i < slice.Length; i++)
+                for (var i = 0; (uint)i < (uint)slice.Length; i++)
                 {
                     destination[i] = selector(slice[i]);
                 }
@@ -446,7 +446,7 @@ namespace ZLinq.Linq
         {
             if (EnumeratorHelper.TryGetSlice<TSource>(CollectionsMarshal.AsSpan(source), offset, destination.Length, out var slice))
             {
-                for (var i = 0; i < slice.Length; i++)
+                for (var i = 0; (uint)i < (uint)slice.Length; i++)
                 {
                     destination[i] = selector(slice[i]);
                 }
