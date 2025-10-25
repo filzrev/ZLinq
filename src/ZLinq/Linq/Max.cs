@@ -202,7 +202,7 @@ partial class ValueEnumerableExtensions
             var index = 0;
             do
             {
-                if (!(index < span.Length))
+                if (!((uint)index < (uint)span.Length))
                 {
                     return value;
                 }

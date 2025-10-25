@@ -458,7 +458,7 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out TResult current)
         {
-            if (index < source.Count)
+            if ((uint)index < (uint)source.Count)
             {
                 current = selector(source[index++]);
                 return true;

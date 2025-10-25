@@ -309,7 +309,7 @@ namespace ZLinq.Linq
         {
             var index = content.Index;
             var src = Unsafe.As<List<T>>(content.Source);
-            if (index < src.Count)
+            if ((uint)index < (uint)src.Count)
             {
                 current = src[index];
                 content.Index = index + 1;
@@ -337,7 +337,7 @@ namespace ZLinq.Linq
         {
             var index = content.Index;
             var src = Unsafe.As<IList<T>>(content.Source);
-            if (index < src.Count)
+            if ((uint)index < (uint)src.Count)
             {
                 current = src[index];
                 content.Index = index + 1;
@@ -365,7 +365,7 @@ namespace ZLinq.Linq
         {
             var index = content.Index;
             var src = Unsafe.As<IReadOnlyList<T>>(content.Source);
-            if (index < src.Count)
+            if ((uint)index < (uint)src.Count)
             {
                 current = src[index];
                 content.Index = index + 1;
@@ -646,7 +646,7 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out T current)
         {
-            if (index < source.Count)
+            if ((uint)index < (uint)source.Count)
             {
                 current = source[index];
                 index++;
