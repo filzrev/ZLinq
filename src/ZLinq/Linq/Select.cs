@@ -399,7 +399,7 @@ namespace ZLinq.Linq
 
         public bool TryGetNext(out TResult current)
         {
-            while (index < source.Length)
+            while ((uint)index < (uint)source.Length)
             {
                 current = selector(source[index++]);
                 if (predicate(current))
@@ -512,7 +512,7 @@ namespace ZLinq.Linq
         public bool TryGetNext(out TResult current)
         {
             var span = CollectionsMarshal.AsSpan(source);
-            while (index < span.Length)
+            while ((uint)index < (uint)span.Length)
             {
                 current = selector(span[index++]);
                 if (predicate(current))
