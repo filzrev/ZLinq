@@ -20,10 +20,7 @@ public class TargetFrameworksBenchmarkConfig : BaseBenchmarkConfig
         // Note: Run benchmark with `-runtimes` parameters.
         AddJob(baseJobConfig.WithToolchain(CsProjCoreToolchain.NetCoreApp80).WithId(".NET 8").AsBaseline());
         AddJob(baseJobConfig.WithToolchain(CsProjCoreToolchain.NetCoreApp90).WithId(".NET 9"));
-
-#if NET10_0_OR_GREATER
         AddJob(baseJobConfig.WithToolchain(CsProjCoreToolchain.NetCoreApp10_0).WithId(".NET 10"));
-#endif
 
         // Configure additional settings.
         AddConfigurations();

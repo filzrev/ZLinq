@@ -10,7 +10,11 @@ public partial class ReverseBenchmark<T> : EnumerableBenchmarkBase_WithBasicType
     public void Reverse()
     {
         source.Default
+#if USE_SYSTEM_LINQ
+              .AsEnumerable()
+#else
               .AsValueEnumerable()
+#endif
               .Reverse()
               .Consume(consumer);
     }
