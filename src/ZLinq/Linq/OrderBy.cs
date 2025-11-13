@@ -485,8 +485,13 @@ namespace ZLinq.Linq
 
         internal OrderBySkipTake<TEnumerator, TSource, TKey> Take(int count)
         {
+            if (count <= 0)
+            {
+                return new OrderBySkipTake<TEnumerator, TSource, TKey>(source, comparable, 0, -1); // empty
+            }
+
             var maxIndex = minIndexInclusive + count - 1;
-            if ((uint)maxIndex >= (uint)maxIndexInclusive)
+            if (maxIndex < minIndexInclusive || maxIndex >= maxIndexInclusive)
             {
                 return this;
             }

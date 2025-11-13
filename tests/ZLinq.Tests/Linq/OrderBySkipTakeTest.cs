@@ -1,4 +1,6 @@
-﻿namespace ZLinq.Tests.Linq;
+﻿using System.Linq;
+
+namespace ZLinq.Tests.Linq;
 
 public class OrderBySkipTakeTest
 {
@@ -207,7 +209,7 @@ public class OrderBySkipTakeTest
         for (int i = 100; i < 5000; i++)
         {
             var data = new int[i];
-            rand.NextBytes(MemoryMarshal.Cast<int, byte>(data).ToArray());
+            rand.NextBytes(MemoryMarshal.AsBytes(data.AsSpan()));
 
             var skip = rand.Next(0, i);
             var take = rand.Next(0, i);
@@ -305,4 +307,31 @@ public class OrderBySkipTakeTest
         Assert.Empty(result);
         Assert.Empty(ordered.Take(20).Skip(30).IterateToArray());
     }
+
+    [Fact]
+    public void Empty()
+    {
+        var skip = 0;
+        var take = 0;
+
+        var data = new int[] { 1, 2, 3 };
+
+        var expected = data.AsEnumerable()
+                           .OrderBy(x => x)
+                           .Skip(skip)
+                           .Take(take)
+                           .ToArray();
+
+        var results = data.AsValueEnumerable()
+                          .Order()
+                          .Skip(skip)
+                          .Take(take)
+                          .ToArray();
+
+        results.Length.ShouldBe(expected.Length);
+        results.ShouldBe(expected);
+    }
+
+
+
 }
