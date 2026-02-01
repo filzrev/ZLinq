@@ -529,7 +529,7 @@ partial class ValueEnumerableExtensions
                             }
                         }
 
-                        return (double)sum / (double)count;
+                        return double.CreateChecked(sum) / (double)count;
                     }
                 }
                 return null;
