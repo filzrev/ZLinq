@@ -269,6 +269,14 @@ namespace ZLinq.Linq
         public void Dispose()
         {
             buffer?.Dispose();
+
+            if (buffer != null)
+            {
+                // source already disposed by enumeration in the InitBuffer()
+                // or the (destination.Length == 1) branch in TryCopyTo
+                return;
+            }
+
             source.Dispose();
         }
 
