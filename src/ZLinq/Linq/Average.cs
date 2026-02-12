@@ -205,6 +205,18 @@ partial class ValueEnumerableExtensions
                 }
 
                 long count = 1;
+                if (typeof(TSource) == typeof(int))
+                {
+                    long sumLong = long.CreateChecked(sum);
+                    while (enumerator.TryGetNext(out var current))
+                    {
+                        checked { sumLong += long.CreateChecked(current); }
+                        count++;
+                    }
+
+                    return double.CreateChecked(sumLong) / (double)count;
+                }
+
                 while (enumerator.TryGetNext(out var current))
                 {
                     checked { sum += TSource.CreateChecked(current); }
@@ -325,7 +337,7 @@ partial class ValueEnumerableExtensions
                     Throws.NoElements();
                 }
 
-                int sum = Unsafe.As<TSource, int>(ref current);
+                long sum = (long)Unsafe.As<TSource, int>(ref current);
                 long count = 1;
                 while (enumerator.TryGetNext(out current))
                 {
@@ -496,8 +508,33 @@ partial class ValueEnumerableExtensions
 #endif
     {
 #if NET8_0_OR_GREATER
+
         using (var enumerator = source.Enumerator)
         {
+            if (typeof(TSource) == typeof(int))
+            {
+                while (enumerator.TryGetNext(out var first))
+                {
+                    if (first.HasValue)
+                    {
+                        long sum = long.CreateChecked(first.GetValueOrDefault());
+                        long count = 1;
+
+                        while (enumerator.TryGetNext(out var current))
+                        {
+                            if (current.HasValue)
+                            {
+                                checked { sum += long.CreateChecked(current.GetValueOrDefault()); }
+                                count++;
+                            }
+                        }
+
+                        return double.CreateChecked(sum) / (double)count;
+                    }
+                }
+                return null;
+            }
+
             while (enumerator.TryGetNext(out var firstValue)) // store first value
             {
                 if (firstValue.HasValue)
@@ -672,7 +709,7 @@ partial class ValueEnumerableExtensions
                     if (first.HasValue)
                     {
                         var firstValue = first.GetValueOrDefault();
-                        var sum = Unsafe.As<TSource, int>(ref firstValue);
+                        long sum = (long)Unsafe.As<TSource, int>(ref firstValue);
                         long count = 1;
 
                         while (enumerator.TryGetNext(out var current))

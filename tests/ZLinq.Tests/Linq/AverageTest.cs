@@ -239,7 +239,18 @@ public class AverageTest
     public void OverflowProtection()
     {
         // Values that would overflow if summed directly as the same type
-        var largeValues = new[] { int.MaxValue / 2, int.MaxValue / 2 };
+        var largeValues = new[] { int.MaxValue / 2, int.MaxValue / 2, int.MaxValue / 2 };
+        var expected = largeValues.Average();
+
+        largeValues.AsValueEnumerable().Average().ShouldBe(expected);
+        largeValues.ToValueEnumerable().Average().ShouldBe(expected);
+    }
+
+    [Fact]
+    public void Nullable_OverflowProtection()
+    {
+        // Values that would overflow if summed directly as the same type
+        var largeValues = new int?[] { int.MaxValue / 2, int.MaxValue / 2, null, int.MaxValue / 2 };
         var expected = largeValues.Average();
 
         largeValues.AsValueEnumerable().Average().ShouldBe(expected);
